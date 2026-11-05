@@ -2,7 +2,10 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { TelegramService } from '../../core/services/telegram.service';
+import { environment } from '../../../environments/environment';
 import { MeetupsApiService } from './meetups-api.service';
+
+const apiBase = environment.apiUrl?.replace(/\/$/, '') ?? '';
 
 describe('MeetupsApiService', () => {
   let http: HttpTestingController;
@@ -28,7 +31,7 @@ describe('MeetupsApiService', () => {
 
   it('loads real venue plans from the same-origin API without inventing fallback venues', async () => {
     const loading = service.load('2026-11-03');
-    const request = http.expectOne((req) => req.url === '/api/meetups' && req.params.get('date') === '2026-11-03');
+    const request = http.expectOne((req) => req.url === `${apiBase}/api/meetups` && req.params.get('date') === '2026-11-03');
     expect(request.request.method).toBe('GET');
     request.flush({ date: '2026-11-03', sourceUpdatedAtUtc: '2026-11-03T00:00:00Z', dataSource: 'OpenStreetMap contributors', venues: [] });
     await loading;
@@ -45,14 +48,14 @@ describe('MeetupsApiService', () => {
       anonymous: true,
       openToMeet: false,
     });
-    const write = http.expectOne('/api/meetups/node-123/attendance');
+    const write = http.expectOne(`${apiBase}/api/meetups/node-123/attendance`);
     expect(write.request.method).toBe('PUT');
     expect(write.request.headers.get('X-Telegram-Init-Data')).toBe('verified-telegram-init-data');
     expect(write.request.body).toEqual({ date: '2026-11-03', arrivalTime: '21:15', isAnonymous: true, openToMeet: false });
     write.flush(null);
     await Promise.resolve();
 
-    const reload = http.expectOne((req) => req.url === '/api/meetups' && req.params.get('date') === '2026-11-03');
+    const reload = http.expectOne((req) => req.url === `${apiBase}/api/meetups` && req.params.get('date') === '2026-11-03');
     reload.flush({ date: '2026-11-03', sourceUpdatedAtUtc: '2026-11-03T00:00:00Z', dataSource: 'OpenStreetMap contributors', venues: [] });
     expect(await saving).toBe(true);
   });
