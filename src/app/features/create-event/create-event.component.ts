@@ -1,6 +1,6 @@
 import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, FormArray, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { DataService } from '../../core/services/data.service';
 
@@ -35,18 +35,24 @@ function contactMethodValidator(control: AbstractControl): ValidationErrors | nu
         <section class="form-section">
           <div class="section-heading"><span>01</span><div><h2>О событии</h2><p>Расскажите, что произойдет и почему стоит прийти.</p></div></div>
           <div class="field-grid">
-            <label class="wide">Название события <b>*</b><input formControlName="title" type="text" placeholder="Например, Jazz под звёздами" /></label>
+            <label class="wide">Название события <b>*</b><input formControlName="title" type="text" placeholder="Например, Jazz под звёздами" [attr.aria-invalid]="fieldErrorVisible('title')" [attr.aria-describedby]="fieldErrorVisible('title') ? 'title-error' : null" />
+              @if (fieldErrorVisible('title')) { <small id="title-error" class="field-error" role="alert">Укажите название события.</small> }
+            </label>
             <label class="wide">Описание <textarea formControlName="description" rows="4" placeholder="Коротко: программа, атмосфера, для кого событие"></textarea></label>
-            <label>Дата <b>*</b><input formControlName="date" type="date" /></label>
+            <label>Дата <b>*</b><input formControlName="date" type="date" [attr.aria-invalid]="fieldErrorVisible('date')" [attr.aria-describedby]="fieldErrorVisible('date') ? 'date-error' : null" />
+              @if (fieldErrorVisible('date')) { <small id="date-error" class="field-error" role="alert">Выберите дату события.</small> }
+            </label>
             <label>Время <input formControlName="time" type="time" /></label>
             <label>Категория <select formControlName="category"><option value="концерт">Концерт</option><option value="вечеринка">Вечеринка</option><option value="развлечения">Развлечения</option></select></label>
-            <label>Цена входа, ₸<input formControlName="price" type="number" min="0" placeholder="0 — бесплатно" /></label>
+            <label>Цена от организатора, ₸<input formControlName="price" type="number" min="0" placeholder="0 — бесплатно по данным организатора" /><small class="field-hint">TUSA не продаёт билеты и не принимает оплату за вход. Уточните у организатора, где получить билет.</small></label>
           </div>
         </section>
         <section class="form-section">
           <div class="section-heading"><span>02</span><div><h2>Место и обложка</h2><p>Помогите гостям быстро понять, куда ехать.</p></div></div>
           <div class="field-grid">
-            <label>Площадка <b>*</b><input formControlName="place" type="text" placeholder="Название клуба или площадки" /></label>
+            <label>Площадка <b>*</b><input formControlName="place" type="text" placeholder="Название клуба или площадки" [attr.aria-invalid]="fieldErrorVisible('place')" [attr.aria-describedby]="fieldErrorVisible('place') ? 'place-error' : null" />
+              @if (fieldErrorVisible('place')) { <small id="place-error" class="field-error" role="alert">Укажите площадку или место проведения.</small> }
+            </label>
             <label class="address-field">Адрес
               <input formControlName="address" type="text" autocomplete="street-address" (input)="searchAddress()" placeholder="Начните вводить адрес в Астане" />
               @if (addressLoading()) { <small class="field-hint">Ищем адрес…</small> }
@@ -61,30 +67,18 @@ function contactMethodValidator(control: AbstractControl): ValidationErrors | nu
           </div>
         </section>
         <section class="form-section">
-          <div class="section-heading"><span>03</span><div><h2>Билеты</h2><p>Добавьте тарифы, если вход платный или мест ограничено.</p></div></div>
-          <fieldset formArrayName="ticketCategories">
-            <legend>Тарифы и количество мест</legend>
-            @for (category of ticketCategories.controls; track category; let index = $index) {
-              <div class="ticket-tier" [formGroupName]="index">
-                <input formControlName="name" placeholder="Название тарифа" aria-label="Название тарифа" />
-                <input formControlName="price" type="number" min="0" placeholder="Цена, ₸" aria-label="Цена тарифа" />
-                <input formControlName="capacity" type="number" min="1" placeholder="Мест" aria-label="Лимит тарифа" />
-              </div>
-            }
-            <button type="button" class="add-tier" (click)="addTicketCategory()">+ Добавить тариф</button>
-          </fieldset>
-        </section>
-        <section class="form-section">
-          <div class="section-heading"><span>04</span><div><h2>Как с вами связаться</h2><p>Нужны только рабочие контакты для уточнения деталей.</p></div></div>
+          <div class="section-heading"><span>03</span><div><h2>Как с вами связаться</h2><p>Нужны только рабочие контакты для уточнения деталей.</p></div></div>
           <div class="field-grid">
             <label>Имя или команда <input formControlName="organizerName" type="text" placeholder="Как к вам обращаться" /></label>
-            <label>Email <input formControlName="organizerEmail" type="email" placeholder="name@example.com" /></label>
+            <label>Email <input formControlName="organizerEmail" type="email" autocomplete="email" placeholder="name@example.com" [attr.aria-invalid]="fieldErrorVisible('organizerEmail')" [attr.aria-describedby]="fieldErrorVisible('organizerEmail') ? 'email-error' : null" />
+              @if (fieldErrorVisible('organizerEmail')) { <small id="email-error" class="field-error" role="alert">Проверьте адрес email или укажите телефон.</small> }
+            </label>
             <label>Телефон <input formControlName="organizerPhone" type="tel" placeholder="+7 700 000 00 00" /></label>
           </div>
           @if (contactErrorVisible()) { <p class="field-error" role="alert">Укажите email или телефон — без этого мы не сможем ответить по заявке.</p> }
         </section>
         <div class="submit-panel">
-          <button type="submit" [disabled]="form.invalid || submitting()">{{ submitting() ? 'Отправляем заявку…' : 'Отправить заявку' }} <span aria-hidden="true">→</span></button>
+          <button type="submit" [disabled]="submitting()">{{ submitting() ? 'Отправляем заявку…' : 'Отправить заявку' }} <span aria-hidden="true">→</span></button>
           <small>Нажимая кнопку, вы отправляете заявку на модерацию TUSA.</small>
         </div>
       </form>
@@ -133,12 +127,13 @@ function contactMethodValidator(control: AbstractControl): ValidationErrors | nu
       .suggestions button:hover { background: rgba(66,108,71,.08); }
       .image-preview { display: block; width: 100%; max-height: 220px; object-fit: cover; margin-top: .5rem; border-radius: 3px; }
       .field-hint { opacity: .65; font-size: .78rem; }
-      .field-error { color: #f27b68; font-size: .78rem; }
+      .field-error { color: #9a372e; font-size: .78rem; line-height: 1.4; }
+      input[aria-invalid="true"], textarea[aria-invalid="true"], select[aria-invalid="true"] { border-color: #b3483d; }
+      input[aria-invalid="true"]:focus, textarea[aria-invalid="true"]:focus, select[aria-invalid="true"]:focus { box-shadow: 0 0 0 3px rgba(154,55,46,.14); }
+      :host-context(.dark-theme) .field-error { color: #ff9a8f; }
+      :host-context(.dark-theme) input[aria-invalid="true"], :host-context(.dark-theme) textarea[aria-invalid="true"], :host-context(.dark-theme) select[aria-invalid="true"] { border-color: #ff9a8f; }
       fieldset { border: 1px solid var(--tg-line); border-radius: 6px; padding: 1rem; }
       legend { padding: 0 .35rem; font-size: .85rem; }
-      .ticket-tier { display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: .4rem; margin-bottom: .5rem; }
-      .ticket-tier input { min-width: 0; }
-      .add-tier { width: 100%; margin-top: .35rem; padding: .65rem; background: transparent; color: var(--tg-button, #426c47); box-shadow: none; border: 1px solid rgba(66,108,71,.38); font-size: .78rem; }
       button {
         padding: 0.85rem 1rem;
         background: var(--tg-button, #426c47);
@@ -162,6 +157,23 @@ function contactMethodValidator(control: AbstractControl): ValidationErrors | nu
       .success small { color: var(--tg-muted); font-size: .7rem; }
       .success a { grid-column: 2; width: fit-content; color: var(--tg-button, #426c47); font-size: .78rem; }
       .submit-error { margin-top: 1rem; }
+      @media (max-width: 699px) {
+        .create-event { padding: .8rem .95rem 6rem; }
+        .form-hero { padding: .25rem 0 1rem; }
+        h1 { margin: .55rem 0 .7rem; font-size: clamp(2rem, 8.5vw, 2.8rem); line-height: .96; }
+        .intro { margin-bottom: .8rem; font-size: .86rem; }
+        .quick-start { gap: .35rem; margin-bottom: .8rem; }
+        .quick-start button { min-height: 40px; padding: .45rem .65rem; }
+        .offer { gap: .65rem; padding: .75rem .8rem; }
+        .offer small { font-size: .72rem; }
+        form { gap: .45rem; }
+        .form-section { padding: 1rem 0; }
+        .section-heading { margin-bottom: .8rem; }
+        .field-grid { gap: .7rem; }
+        input, textarea, select { min-height: 44px; }
+        textarea { min-height: 100px; }
+        .submit-panel button { width: 100%; min-height: 48px; }
+      }
       @media (min-width: 700px) {
         .create-event { padding: 4.5rem clamp(2rem, 5vw, 5rem); }
         .form-hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(260px, .55fr); column-gap: 4rem; align-items: end; padding-bottom: 3.5rem; }
@@ -172,7 +184,6 @@ function contactMethodValidator(control: AbstractControl): ValidationErrors | nu
         .submit-panel { grid-template-columns: 1fr auto; align-items: center; }
         .submit-panel small { grid-column: 1 / -1; }
       }
-      @media (max-width: 420px) { .ticket-tier { grid-template-columns: 1fr 1fr; } .ticket-tier input:first-child { grid-column: 1 / -1; } }
     `,
   ],
 })
@@ -207,28 +218,20 @@ export class CreateEventComponent {
       organizerName: [this.savedContact('organizerName')],
       organizerEmail: [this.savedContact('organizerEmail'), Validators.email],
       organizerPhone: [this.savedContact('organizerPhone')],
-      ticketCategories: this.fb.array([this.createTicketCategory('Стандарт', 0, 100)]),
     }, { validators: [contactMethodValidator] });
   }
 
-  get ticketCategories(): FormArray {
-    return this.form.get('ticketCategories') as FormArray;
-  }
-
-  private createTicketCategory(name = '', price = 0, capacity = 100): FormGroup {
-    return this.fb.group({
-      name: [name, [Validators.required, Validators.maxLength(80)]],
-      price: [price, [Validators.required, Validators.min(0)]],
-      capacity: [capacity, [Validators.required, Validators.min(1)]],
-    });
-  }
-
-  addTicketCategory(): void {
-    this.ticketCategories.push(this.createTicketCategory());
-  }
-
   contactErrorVisible(): boolean {
-    return this.form.hasError('contactMethodRequired') && (this.submitAttempted() || this.form.touched);
+    return this.form.hasError('contactMethodRequired') && (
+      this.submitAttempted() || !!this.form.get('organizerEmail')?.touched || !!this.form.get('organizerPhone')?.touched
+    );
+  }
+
+  fieldErrorVisible(field: 'title' | 'date' | 'place' | 'organizerEmail'): boolean {
+    const control = this.form.get(field);
+    if (!control || !(this.submitAttempted() || control.touched)) return false;
+    if (field === 'organizerEmail') return control.hasError('email') && !!control.value;
+    return control.hasError('required');
   }
 
   applyTemplate(template: 'concert' | 'party' | 'comedy'): void {
@@ -312,15 +315,6 @@ export class CreateEventComponent {
       organizerName: v.organizerName,
       organizerEmail: v.organizerEmail,
       organizerPhone: v.organizerPhone,
-      ticketCategories: v.ticketCategories.map((category: { name: string; price: number; capacity: number }) => ({
-        id: '',
-        eventId: '',
-        name: category.name,
-        price: Number(category.price),
-        capacity: Number(category.capacity),
-        sold: 0,
-        isActive: true,
-      })),
     }).subscribe((created) => {
       this.submitting.set(false);
       if (!created) { this.submitError.set(true); return; }
