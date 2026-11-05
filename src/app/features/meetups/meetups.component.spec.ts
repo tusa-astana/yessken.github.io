@@ -28,7 +28,14 @@ describe('MeetupsComponent privacy defaults', () => {
       imports: [MeetupsComponent],
       providers: [
         provideRouter([]),
-        { provide: MeetupsApiService, useValue: { plans: signal([]) } },
+        { provide: MeetupsApiService, useValue: {
+          plans: signal([]),
+          loading: signal(false),
+          loaded: signal(true),
+          error: signal(false),
+          sourceUpdatedAt: signal(null),
+          load: async () => undefined,
+        } },
         { provide: TelegramService, useValue: { isInTelegram: true } },
       ],
     }).compileComponents();
@@ -53,5 +60,15 @@ describe('MeetupsComponent privacy defaults', () => {
 
     expect(fixture.componentInstance.draftAnonymous()).toBe(false);
     expect(fixture.componentInstance.draftOpenToMeet()).toBe(true);
+  });
+
+  it('links the Together page to local Telegram communities', () => {
+    const fixture = TestBed.createComponent(MeetupsComponent);
+    fixture.detectChanges();
+
+    const link = (fixture.nativeElement as HTMLElement).querySelector<HTMLAnchorElement>('.groups-shortcut');
+    expect(link?.getAttribute('href')).toBe('/tg-groups');
+    expect(link?.textContent).toContain('Telegram-сообщества');
+    fixture.destroy();
   });
 });
