@@ -50,6 +50,7 @@ export type TranslationKey =
   | 'events.allTitle'
   | 'events.subtitle'
   | 'events.organizer'
+  | 'events.hobbies'
   | 'events.searchPlaceholder'
   | 'events.filters.all'
   | 'events.filters.free'
@@ -159,6 +160,7 @@ const translations: Record<Locale, Record<TranslationKey, string>> = {
     'events.allTitle': 'Афиша событий',
     'events.subtitle': 'События Астаны на ближайшие дни. Смотри детали, делись планом и отмечай интерес.',
     'events.organizer': 'Организаторам: разместить событие бесплатно',
+    'events.hobbies': 'Хобби и клубы',
     'events.searchPlaceholder': 'Название, место или описание',
     'events.filters.all': 'Все категории',
     'events.filters.free': 'Бесплатно',
@@ -267,6 +269,7 @@ const translations: Record<Locale, Record<TranslationKey, string>> = {
     'events.allTitle': 'Іс-шақтар афишасы',
     'events.subtitle': 'Астанадағы жақын күндердің іс-шақтары. Ақпаратты қарап, жоспармен бөлісіп, қызығушылығыңызды белгілеңіз.',
     'events.organizer': 'Ұйымдастырушылар: іс-шақты тегін орналастырыңыз',
+    'events.hobbies': 'Хобби мен клубтар',
     'events.searchPlaceholder': 'Атауы, орын немесе сипаттама',
     'events.filters.all': 'Барлық санаттар',
     'events.filters.free': 'Бесплатно',
@@ -375,6 +378,7 @@ const translations: Record<Locale, Record<TranslationKey, string>> = {
     'events.allTitle': 'Events in Astana',
     'events.subtitle': 'Astana events for the next few days. See the details, share a plan, and RSVP for free.',
     'events.organizer': 'For organizers: publish an event for free',
+    'events.hobbies': 'Hobbies & clubs',
     'events.searchPlaceholder': 'Event name, venue, or description',
     'events.filters.all': 'All categories',
     'events.filters.free': 'Free',

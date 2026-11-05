@@ -4,6 +4,15 @@ import { DataService } from '../../core/services/data.service';
 import { TelegramService } from '../../core/services/telegram.service';
 import type { TelegramGroupItem } from '../../core/types/event.model';
 
+const CURATED_GROUPS: TelegramGroupItem[] = [
+  {
+    id: 'rollmove-astana',
+    title: 'Кинь-Двинь | Клуб настольных игр (Астана)',
+    description: 'Клуб настольных игр в Астане.',
+    inviteLink: 'https://t.me/RollMove',
+  },
+];
+
 @Component({
   selector: 'app-tg-groups',
   standalone: true,
@@ -11,7 +20,7 @@ import type { TelegramGroupItem } from '../../core/types/event.model';
   template: `
     <div class="tg-groups">
       <h1>Сообщества</h1>
-      <p class="subtitle">Городские сообщества и каналы, где появляются новые события.</p>
+      <p class="subtitle">Городские сообщества и каналы, где появляются новые события. Это независимые сообщества — правила и условия уточняйте у их администраторов.</p>
       @if (loading()) {
         <p class="loading">Загрузка…</p>
       } @else if (groups().length === 0) {
@@ -22,11 +31,12 @@ import type { TelegramGroupItem } from '../../core/types/event.model';
             <li class="card">
               <div class="info">
                 <span class="title">{{ g.title }}</span>
-                <span class="count">{{ g.memberCount }} участников</span>
+                @if (g.description) { <span class="description">{{ g.description }}</span> }
+                @if (g.memberCount !== undefined && g.memberCount > 0) { <span class="count">{{ g.memberCount }} участников</span> }
               </div>
               @if (g.inviteLink) {
                 <a [href]="g.inviteLink" target="_blank" rel="noopener" class="join" (click)="openLink($event, g.inviteLink)">
-                  Вступить
+                  Открыть Telegram
                 </a>
               }
             </li>
@@ -54,6 +64,7 @@ import type { TelegramGroupItem } from '../../core/types/event.model';
       }
       .info { display: flex; flex-direction: column; gap: 0.25rem; }
       .title { font-weight: 600; color: var(--tg-text, #e4e4e7); }
+      .description { font-size: 0.85rem; line-height: 1.4; opacity: 0.85; }
       .count { font-size: 0.85rem; opacity: 0.8; }
       .join {
         flex-shrink: 0;
@@ -79,7 +90,9 @@ export class TgGroupsComponent implements OnInit {
 
   ngOnInit(): void {
     this.data.getTelegramGroups().subscribe((list) => {
-      this.groups.set(list);
+      const groupsById = new Map<string, TelegramGroupItem>();
+      for (const group of [...CURATED_GROUPS, ...list]) groupsById.set(group.id, group);
+      this.groups.set([...groupsById.values()]);
       this.loading.set(false);
     });
   }

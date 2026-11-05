@@ -20,6 +20,7 @@ import type { EventItem } from '../../core/types/event.model';
           <div class="hero-actions">
             <a routerLink="/create-event" class="organizer-link" queryParamsHandling="preserve">{{ i18n.t('events.organizer') }} <span aria-hidden="true">→</span></a>
             <a routerLink="/meetups" class="together-link" queryParamsHandling="preserve">{{ i18n.t('nav.meetups') }} <span aria-hidden="true">↗</span></a>
+            <a routerLink="/interests" [queryParams]="{ group: 'board-games' }" queryParamsHandling="merge" class="hobbies-link">{{ i18n.t('events.hobbies') }} <span aria-hidden="true">↗</span></a>
           </div>
         </div>
         <aside class="hero-note">
@@ -91,9 +92,11 @@ import type { EventItem } from '../../core/types/event.model';
       h1 { max-width: 720px; margin: 0; font-size: clamp(2.1rem, 8vw, 3.8rem); line-height: 1.03; font-weight: 760; letter-spacing: -.055em; }
       .hero-subtitle { max-width: 38rem; margin: .75rem 0 0; color: var(--tg-muted); font-size: .94rem; line-height: 1.55; }
       .hero-actions { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem; margin-top: 1rem; }
-      .organizer-link, .together-link { display: inline-flex; align-items: center; gap: .4rem; min-height: 2.35rem; padding: 0 .8rem; border: 1px solid var(--tg-line); border-radius: 999px; color: var(--tg-text); font-size: .74rem; font-weight: 700; text-decoration: none; }
+      .organizer-link, .together-link, .hobbies-link { display: inline-flex; align-items: center; gap: .4rem; min-height: 2.75rem; padding: 0 .8rem; border: 1px solid var(--tg-line); border-radius: 999px; color: var(--tg-text); font-size: .74rem; font-weight: 700; text-decoration: none; }
       .organizer-link { border-color: transparent; padding-inline: .2rem; color: var(--tg-button); }
       .together-link { color: var(--tg-button); background: var(--tg-surface); }
+      .hobbies-link { color: var(--tg-button); background: color-mix(in srgb, var(--tg-button) 7%, var(--tg-surface)); }
+      .together-link:hover, .hobbies-link:hover { border-color: var(--tg-button); }
       .hero-note { display: flex; align-items: flex-start; gap: .7rem; max-width: 26rem; padding: .8rem .9rem; border: 1px solid var(--tg-line); border-radius: 12px; background: var(--tg-surface); }
       .note-icon { display: grid; flex: 0 0 auto; width: 1.55rem; height: 1.55rem; place-items: center; border-radius: 50%; background: color-mix(in srgb, var(--tg-button) 10%, transparent); color: var(--tg-button); }
       .hero-note p { margin: 0; color: var(--tg-muted); font-size: .74rem; line-height: 1.45; }

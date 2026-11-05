@@ -64,9 +64,10 @@ export interface Ticket {
 export interface TelegramGroupItem {
   id: string;
   title: string;
+  description?: string;
   username?: string;
   inviteLink: string;
-  memberCount: number;
+  memberCount?: number;
 }
 
 export interface OrganizerOrderRow {
