@@ -16,6 +16,7 @@ export const routes: Routes = [
   { path: 'organizer/insights', loadComponent: () => import('./features/orders/orders.component').then((m) => m.OrdersComponent) },
   { path: 'orders', redirectTo: 'organizer/insights' },
   { path: 'admin', loadComponent: () => import('./features/orders/orders.component').then((m) => m.OrdersComponent) },
+  { path: 'admin/analytics', loadComponent: () => import('./features/admin-analytics/admin-analytics.component').then((m) => m.AdminAnalyticsComponent) },
   { path: 'admin/bot-messages', loadComponent: () => import('./features/admin-bot-logs/admin-bot-logs.component').then((m) => m.AdminBotLogsComponent) },
   { path: 'admin/event-review', loadComponent: () => import('./features/admin-event-review/admin-event-review.component').then((m) => m.AdminEventReviewComponent) },
   { path: 'tg-groups', loadComponent: () => import('./features/tg-groups/tg-groups.component').then((m) => m.TgGroupsComponent) },

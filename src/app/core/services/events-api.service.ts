@@ -2,7 +2,7 @@ import { Injectable, signal } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { Observable, catchError, of, timeout } from 'rxjs';
 import { TelegramService } from './telegram.service';
-import type { AdminEventReport, AdminSalesSummary, BotMessageLogRow, EventItem, OrganizerEngagementRow, OrganizerOrderRow, OrganizerSubscriptionOffer, OrganizerSubscriptionStatus, Ticket, TelegramGroupItem } from '../types/event.model';
+import type { AdminEventReport, AdminSalesSummary, BotMessageLogRow, EventItem, FunnelSummaryRow, OrganizerEngagementRow, OrganizerOrderRow, OrganizerSubscriptionOffer, OrganizerSubscriptionStatus, Ticket, TelegramGroupItem } from '../types/event.model';
 import { environment } from '../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
@@ -96,6 +96,12 @@ export class EventsApiService {
   getAdminSalesSummary(): Observable<AdminSalesSummary | null> {
     if (this.apiDisabled) return of(null);
     return this.http.get<AdminSalesSummary>(`${this.base}/api/admin/sales-summary`, { headers: this.headers() }).pipe(catchError(() => of(null)));
+  }
+
+  getAdminFunnelSummary(): Observable<FunnelSummaryRow[] | null> {
+    if (this.apiDisabled) return of(null);
+    return this.http.get<FunnelSummaryRow[]>(`${this.base}/api/analytics/summary`, { headers: this.headers() })
+      .pipe(catchError(() => of(null)));
   }
 
   getAdminBotMessages(skip = 0, take = 100): Observable<BotMessageLogRow[] | null> {

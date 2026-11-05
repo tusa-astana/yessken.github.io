@@ -1,6 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TelegramService } from '../../core/services/telegram.service';
+import { AnalyticsService } from '../../core/services/analytics.service';
 import type { TelegramGroupItem } from '../../core/types/event.model';
 
 const CURATED_GROUPS: TelegramGroupItem[] = [
@@ -32,7 +33,7 @@ const CURATED_GROUPS: TelegramGroupItem[] = [
                 @if (g.memberCount !== undefined && g.memberCount > 0) { <span class="count">{{ g.memberCount }} участников</span> }
               </div>
               @if (g.inviteLink) {
-                <a [href]="g.inviteLink" target="_blank" rel="noopener" class="join" (click)="openLink($event, g.inviteLink)">
+                <a [href]="g.inviteLink" target="_blank" rel="noopener" class="join" (click)="openLink($event, g.inviteLink, g.id)">
                   Открыть Telegram
                 </a>
               }
@@ -79,9 +80,10 @@ const CURATED_GROUPS: TelegramGroupItem[] = [
 export class TgGroupsComponent {
   readonly groups = signal<TelegramGroupItem[]>(CURATED_GROUPS);
 
-  constructor(private telegram: TelegramService) {}
+  constructor(private telegram: TelegramService, private analytics: AnalyticsService) {}
 
-  openLink(event: Event, url: string): void {
+  openLink(event: Event, url: string, groupId: string): void {
+    this.analytics.track('community_open', undefined, groupId);
     const wa = typeof window !== 'undefined' ? (window as unknown as { Telegram?: { WebApp?: { openLink?: (u: string) => void } } }).Telegram?.WebApp : undefined;
     if (wa?.openLink) {
       event.preventDefault();

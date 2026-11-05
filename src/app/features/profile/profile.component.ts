@@ -74,6 +74,7 @@ import type { OrganizerSubscriptionOffer, OrganizerSubscriptionStatus } from '..
         <section class="admin-tools" aria-labelledby="admin-tools-title">
           <div><span class="eyebrow">TUSA / ADMIN</span><h2 id="admin-tools-title">Управление</h2></div>
           <a routerLink="/admin/event-review" queryParamsHandling="preserve">Очередь модерации <span aria-hidden="true">→</span></a>
+          <a routerLink="/admin/analytics" queryParamsHandling="preserve">Аналитика пилота <span aria-hidden="true">→</span></a>
           <a routerLink="/admin/bot-messages" queryParamsHandling="preserve">Сообщения боту <span aria-hidden="true">→</span></a>
         </section>
       }

@@ -37,4 +37,13 @@ describe('EventsApiService', () => {
       { eventId: 'event-1', eventTitle: 'Pilot', eventDate: '2026-11-06', views: 7, shares: 2, rsvps: 3 },
     ]);
   });
+
+  it('loads admin funnel totals with verified initData', async () => {
+    const result = firstValueFrom(service.getAdminFunnelSummary());
+    const request = http.expectOne('/api/analytics/summary');
+    expect(request.request.method).toBe('GET');
+    expect(request.request.headers.get('X-Telegram-Init-Data')).toBe('verified-telegram-init-data');
+    request.flush([{ name: 'community_open', count: 4 }]);
+    await expect(result).resolves.toEqual([{ name: 'community_open', count: 4 }]);
+  });
 });

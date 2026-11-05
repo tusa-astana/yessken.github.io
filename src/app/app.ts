@@ -113,6 +113,8 @@ export class App implements OnInit {
       return [{ key: 'breadcrumb.orders', url: '/admin' }, { key: 'breadcrumb.review' }];
     if (segments[0] === 'admin' && segments[1] === 'bot-messages')
       return [{ key: 'breadcrumb.orders', url: '/admin' }, { key: 'breadcrumb.botMessages' }];
+    if (segments[0] === 'admin' && segments[1] === 'analytics')
+      return [{ key: 'breadcrumb.profile', url: '/profile' }, { key: 'breadcrumb.analytics' }];
     if (segments[0] === 'events' && segments.length >= 2) {
       const trail: Breadcrumb[] = [{ key: 'breadcrumb.events', url: '/events' }];
       if (segments.length === 2) trail.push({ key: 'breadcrumb.event' });

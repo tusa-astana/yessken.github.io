@@ -58,6 +58,7 @@ Goal: prove conversion.
 Track:
 - event views and detail page visits
 - shares and RSVPs (not ticket reservations)
+- outbound clicks from the curated Telegram community directory (clicks are not group joins)
 - Organizer Pro offer views and Stars invoice starts
 - successful Stars payments, activations, refunds, and renewals
 - organizer repeat behavior and paid conversion

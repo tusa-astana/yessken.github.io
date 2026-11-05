@@ -38,4 +38,15 @@ describe('AnalyticsService', () => {
     expect(request.request.body.eventId).toBe('event-123');
     request.flush(null);
   });
+
+  it('sends curated community opens as references, not event IDs', () => {
+    service.track('community_open', undefined, 'rollmove-astana');
+
+    const request = http.expectOne('/api/analytics');
+    expect(request.request.body.name).toBe('community_open');
+    expect(request.request.body.eventId).toBeUndefined();
+    expect(request.request.body.ref).toBe('rollmove-astana');
+    expect(service.getSummary().community_open).toBe(1);
+    request.flush(null);
+  });
 });

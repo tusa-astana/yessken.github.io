@@ -70,6 +70,11 @@ export interface TelegramGroupItem {
   memberCount?: number;
 }
 
+export interface FunnelSummaryRow {
+  name: string;
+  count: number;
+}
+
 export interface OrganizerOrderRow {
   ticketId: string;
   eventId: string;

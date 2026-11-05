@@ -24,6 +24,7 @@ export type TranslationKey =
   | 'breadcrumb.orders'
   | 'breadcrumb.review'
   | 'breadcrumb.botMessages'
+  | 'breadcrumb.analytics'
   | 'breadcrumb.map'
   | 'breadcrumb.tickets'
   | 'breadcrumb.groups'
@@ -134,6 +135,7 @@ const translations: Record<Locale, Record<TranslationKey, string>> = {
     'breadcrumb.orders': 'Заказы',
     'breadcrumb.review': 'Проверка заявок',
     'breadcrumb.botMessages': 'Сообщения боту',
+    'breadcrumb.analytics': 'Аналитика пилота',
     'breadcrumb.map': 'Карта города',
     'breadcrumb.tickets': 'Архив билетов',
     'breadcrumb.groups': 'Сообщества',
@@ -243,6 +245,7 @@ const translations: Record<Locale, Record<TranslationKey, string>> = {
     'breadcrumb.orders': 'Тапсырыстар',
     'breadcrumb.review': 'Өтінімдерді тексеру',
     'breadcrumb.botMessages': 'Бот хабарламалары',
+    'breadcrumb.analytics': 'Пилот аналитикасы',
     'breadcrumb.map': 'Қала картасы',
     'breadcrumb.tickets': 'Билеттер мұрағаты',
     'breadcrumb.groups': 'Қауымдастықтар',
@@ -352,6 +355,7 @@ const translations: Record<Locale, Record<TranslationKey, string>> = {
     'breadcrumb.orders': 'Orders',
     'breadcrumb.review': 'Submission review',
     'breadcrumb.botMessages': 'Bot messages',
+    'breadcrumb.analytics': 'Pilot analytics',
     'breadcrumb.map': 'City map',
     'breadcrumb.tickets': 'Ticket archive',
     'breadcrumb.groups': 'Communities',
