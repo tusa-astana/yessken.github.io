@@ -1,5 +1,5 @@
 export const environment = {
   production: true,
-  /** Временный Cloudflare Tunnel к локальному backend */
-  apiUrl: 'https://arm-shipments-mixture-geology.trycloudflare.com',
+  /** Keep API requests same-origin; do not send Telegram initData to an unverified tunnel. */
+  apiUrl: '',
 };
