@@ -39,7 +39,7 @@ export class MeetupsComponent implements OnInit, OnDestroy {
   readonly mapClusterPlans = signal<MeetupPlan[]>([]);
   readonly mapTilesUnavailable = signal(false);
   readonly draftTime = signal('20:30');
-  readonly draftAnonymous = signal(false);
+  readonly draftAnonymous = signal(true);
   readonly draftOpenToMeet = signal(false);
   readonly saving = signal(false);
   readonly actionError = signal('');
@@ -194,7 +194,7 @@ export class MeetupsComponent implements OnInit, OnDestroy {
   openJoin(plan: MeetupPlan): void {
     const selection = this.mySelection(plan);
     this.draftTime.set(selection?.time || '20:30');
-    this.draftAnonymous.set(selection?.anonymous ?? false);
+    this.draftAnonymous.set(selection?.anonymous ?? true);
     this.draftOpenToMeet.set(selection?.openToMeet ?? false);
     this.actionError.set('');
     this.joiningPlan.set(plan);
