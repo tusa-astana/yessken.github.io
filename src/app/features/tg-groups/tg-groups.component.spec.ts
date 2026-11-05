@@ -1,6 +1,4 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { of } from 'rxjs';
-import { DataService } from '../../core/services/data.service';
 import { TelegramService } from '../../core/services/telegram.service';
 import { TgGroupsComponent } from './tg-groups.component';
 
@@ -11,7 +9,6 @@ describe('TgGroupsComponent', () => {
     await TestBed.configureTestingModule({
       imports: [TgGroupsComponent],
       providers: [
-        { provide: DataService, useValue: { getTelegramGroups: () => of([]) } },
         { provide: TelegramService, useValue: {} },
       ],
     }).compileComponents();

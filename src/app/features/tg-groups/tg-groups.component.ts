@@ -1,6 +1,5 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { DataService } from '../../core/services/data.service';
 import { TelegramService } from '../../core/services/telegram.service';
 import type { TelegramGroupItem } from '../../core/types/event.model';
 
@@ -21,9 +20,7 @@ const CURATED_GROUPS: TelegramGroupItem[] = [
     <div class="tg-groups">
       <h1>Сообщества</h1>
       <p class="subtitle">Городские сообщества и каналы, где появляются новые события. Это независимые сообщества — правила и условия уточняйте у их администраторов.</p>
-      @if (loading()) {
-        <p class="loading">Загрузка…</p>
-      } @else if (groups().length === 0) {
+      @if (groups().length === 0) {
         <p class="empty">Сообщества скоро появятся. Следите за обновлениями TUSA.</p>
       } @else {
         <ul class="list">
@@ -50,7 +47,7 @@ const CURATED_GROUPS: TelegramGroupItem[] = [
       .tg-groups { padding: 1rem; padding-bottom: 80px; }
       h1 { margin: 0 0 0.25rem; font-size: 1.5rem; }
       .subtitle { margin: 0 0 1rem; font-size: 0.9rem; opacity: 0.85; }
-      .loading, .empty { padding: 1rem 0; opacity: 0.9; }
+      .empty { padding: 1rem 0; opacity: 0.9; }
       .list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.75rem; }
       .card {
         display: flex;
@@ -79,23 +76,10 @@ const CURATED_GROUPS: TelegramGroupItem[] = [
     `,
   ],
 })
-export class TgGroupsComponent implements OnInit {
-  groups = signal<TelegramGroupItem[]>([]);
-  loading = signal(true);
+export class TgGroupsComponent {
+  readonly groups = signal<TelegramGroupItem[]>(CURATED_GROUPS);
 
-  constructor(
-    private data: DataService,
-    private telegram: TelegramService
-  ) {}
-
-  ngOnInit(): void {
-    this.data.getTelegramGroups().subscribe((list) => {
-      const groupsById = new Map<string, TelegramGroupItem>();
-      for (const group of [...CURATED_GROUPS, ...list]) groupsById.set(group.id, group);
-      this.groups.set([...groupsById.values()]);
-      this.loading.set(false);
-    });
-  }
+  constructor(private telegram: TelegramService) {}
 
   openLink(event: Event, url: string): void {
     const wa = typeof window !== 'undefined' ? (window as unknown as { Telegram?: { WebApp?: { openLink?: (u: string) => void } } }).Telegram?.WebApp : undefined;
