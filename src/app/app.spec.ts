@@ -12,6 +12,8 @@ describe('App', () => {
       imports: [App],
       providers: [provideRouter([
         { path: '', component: RouteStubComponent },
+        { path: 'meetups', component: RouteStubComponent },
+        { path: 'tg-groups', component: RouteStubComponent },
         { path: 'my-tickets', component: RouteStubComponent },
         { path: 'events/:id', component: RouteStubComponent },
       ])],
@@ -62,5 +64,16 @@ describe('App', () => {
     const eventsLink = (fixture.nativeElement as HTMLElement).querySelector('.bottom-nav a[href="/events"]');
     expect(eventsLink?.classList.contains('active')).toBe(true);
     expect(eventsLink?.getAttribute('aria-current')).toBe('page');
+  });
+
+  it('keeps the Together tab active on the Telegram communities route', async () => {
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+    await TestBed.inject(Router).navigateByUrl('/tg-groups');
+    fixture.detectChanges();
+
+    const togetherLink = (fixture.nativeElement as HTMLElement).querySelector('.bottom-nav a[href="/meetups"]');
+    expect(togetherLink?.classList.contains('active')).toBe(true);
+    expect(togetherLink?.getAttribute('aria-current')).toBe('page');
   });
 });

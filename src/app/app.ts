@@ -97,8 +97,8 @@ export class App implements OnInit {
     this.breadcrumbs.set(this.createBreadcrumbs(url));
     const section = url.split('/').filter(Boolean)[0] ?? 'events';
     const activeTab = section === 'calendar' ? 'calendar'
-      : section === 'meetups' || section === 'interests' ? 'meetups'
-      : ['profile', 'my-tickets', 'organizer', 'create-event', 'admin', 'tg-groups'].includes(section) ? 'profile'
+      : section === 'meetups' || section === 'interests' || section === 'tg-groups' ? 'meetups'
+      : ['profile', 'my-tickets', 'organizer', 'create-event', 'admin'].includes(section) ? 'profile'
       : section === 'terms' ? null
       : 'events';
     this.activeTab.set(activeTab);
