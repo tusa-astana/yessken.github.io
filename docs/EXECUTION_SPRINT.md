@@ -42,7 +42,7 @@ Goal: make the app ready to validate organizer value and the digital Stars servi
 Implemented: event discovery/search, event details, organizer submissions, admin moderation queue and alerts, RSVP, a Stars subscription invoice path for Organizer Pro, and basic conversion analytics. Offline ticket sales are not part of the current product model.
 
 Release blockers (do not describe these as complete):
-1. The production API needs a stable HTTPS host; a Cloudflare Quick Tunnel is temporary and points at a developer machine.
+1. The API is deployed at `https://backend-l0ux.onrender.com` with PostgreSQL, but the current free Render services are a pilot setup: the web service can sleep after inactivity and the free database expires after 30 days. Always-on production reliability, backups, and a tested restore are not yet established.
 2. Organizer Pro needs a verified digital benefit bundle, approved Stars price, current terms, support and refund runbook, and a complete Telegram Stars test cycle.
 3. Real organizers and live events are needed to validate discovery, RSVP, and willingness to pay for Pro.
 
@@ -101,7 +101,7 @@ We continue scaling the paid product only if we have:
 
 ## Immediate next actions
 
-1. Choose and configure a stable HTTPS backend host; replace temporary tunnels in the API webhook and frontend configuration.
+1. Keep the Render free deployment for testing; before relying on it for real users, choose an always-on API plan, durable database plan, backups, and a tested restore process.
 2. Contact the first 10 organizers and secure one real pilot event with permission to publish.
 3. Run the event through submission, moderation, publication, sharing, and free RSVP; do not sell admission in TUSA.
 4. Define the actual Organizer Pro digital benefits and Stars price.

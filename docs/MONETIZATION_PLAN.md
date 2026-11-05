@@ -44,6 +44,6 @@ Do not count event page views, RSVPs, outbound traffic, or organizer-reported ti
 - **Digital service:** specific Pro features exist and can be delivered for the paid 30-day period.
 - **Stars:** invoice uses `currency: XTR`; validate payload, payer, amount, and `successful_payment` server-side; process duplicate updates idempotently.
 - **Trust:** terms consent before invoice, clear `/paysupport`, tested refund flow, and user-facing status.
-- **Infrastructure:** stable HTTPS API, backups, monitoring, and tested restore before live subscriptions.
+- **Infrastructure:** an HTTPS API is deployed on Render, but the current free web service can sleep and the free PostgreSQL database expires after 30 days. Before live subscriptions or relying on RSVP data, use always-on compute, durable storage, backups, monitoring, and a tested restore.
 
 Until these gates pass, keep `Payments:OrganizerProEnabled=false` and `Payments:TelegramSubscriptionStars=0`. Both are required for checkout. Offline-ticket checkout is removed/hard-disabled in the backend; do not configure a physical provider token or add an alternate path to sell offline admission.
