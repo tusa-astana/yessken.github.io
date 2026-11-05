@@ -1,6 +1,7 @@
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
+import { vi } from 'vitest';
 import { TelegramService } from './telegram.service';
 import { AnalyticsService } from './analytics.service';
 
@@ -24,6 +25,7 @@ describe('AnalyticsService', () => {
 
   afterEach(() => {
     http.verify();
+    Reflect.deleteProperty(navigator, 'sendBeacon');
     window.localStorage.removeItem('tusa-funnel-events');
     TestBed.resetTestingModule();
   });
@@ -40,13 +42,27 @@ describe('AnalyticsService', () => {
   });
 
   it('sends curated community opens as references, not event IDs', () => {
-    service.track('community_open', undefined, 'rollmove-astana');
+    const sendBeacon = vi.fn().mockReturnValue(true);
+    Object.defineProperty(navigator, 'sendBeacon', { configurable: true, value: sendBeacon });
+    service.track('community_open', undefined, 'rollmove-astana', 'beacon');
+
+    expect(sendBeacon).toHaveBeenCalledOnce();
+    expect(sendBeacon.mock.calls[0][0]).toBe('/api/analytics/beacon');
+    expect(sendBeacon.mock.calls[0][1]).toBeInstanceOf(URLSearchParams);
+    expect((sendBeacon.mock.calls[0][1] as URLSearchParams).get('ref')).toBe('rollmove-astana');
+    http.expectNone('/api/analytics');
+    expect(service.getSummary().community_open).toBe(1);
+    sendBeacon.mockRestore();
+  });
+
+  it('falls back to the regular API request if the browser cannot queue a beacon', () => {
+    const sendBeacon = vi.fn().mockReturnValue(false);
+    Object.defineProperty(navigator, 'sendBeacon', { configurable: true, value: sendBeacon });
+    service.track('community_open', undefined, 'rollmove-astana', 'beacon');
 
     const request = http.expectOne('/api/analytics');
-    expect(request.request.body.name).toBe('community_open');
-    expect(request.request.body.eventId).toBeUndefined();
-    expect(request.request.body.ref).toBe('rollmove-astana');
-    expect(service.getSummary().community_open).toBe(1);
+    expect(sendBeacon).toHaveBeenCalledOnce();
+    expect(request.request.body).toEqual({ name: 'community_open', eventId: undefined, ref: 'rollmove-astana' });
     request.flush(null);
   });
 });

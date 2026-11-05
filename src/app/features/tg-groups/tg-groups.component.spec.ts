@@ -34,6 +34,6 @@ describe('TgGroupsComponent', () => {
     const link = (fixture.nativeElement as HTMLElement).querySelector<HTMLAnchorElement>('.join');
     link?.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
 
-    expect(analytics.track).toHaveBeenCalledWith('community_open', undefined, 'rollmove-astana');
+    expect(analytics.track).toHaveBeenCalledWith('community_open', undefined, 'rollmove-astana', 'beacon');
   });
 });

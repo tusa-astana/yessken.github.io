@@ -83,7 +83,7 @@ export class TgGroupsComponent {
   constructor(private telegram: TelegramService, private analytics: AnalyticsService) {}
 
   openLink(event: Event, url: string, groupId: string): void {
-    this.analytics.track('community_open', undefined, groupId);
+    this.analytics.track('community_open', undefined, groupId, 'beacon');
     const wa = typeof window !== 'undefined' ? (window as unknown as { Telegram?: { WebApp?: { openLink?: (u: string) => void } } }).Telegram?.WebApp : undefined;
     if (wa?.openLink) {
       event.preventDefault();

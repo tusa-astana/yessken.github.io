@@ -18,7 +18,7 @@ export class AnalyticsService {
 
   constructor(private http: HttpClient, private telegram: TelegramService) {}
 
-  track(name: FunnelEvent, eventId?: string, ref?: string): void {
+  track(name: FunnelEvent, eventId?: string, ref?: string, delivery: 'request' | 'beacon' = 'request'): void {
     if (typeof window === 'undefined') return;
     const events = this.read();
     const currentRef = ref ?? (typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('ref') ?? undefined : undefined);
@@ -29,6 +29,11 @@ export class AnalyticsService {
     const sameOriginApiEnabled = !environment.production || new URLSearchParams(window.location.search).get('api') === '1';
     const endpoint = apiBase ? `${apiBase}/api/analytics` : sameOriginApiEnabled ? '/api/analytics' : null;
     if (!endpoint) return;
+
+    if (delivery === 'beacon' && name === 'community_open' && currentRef && typeof navigator !== 'undefined' && typeof navigator.sendBeacon === 'function') {
+      const beaconEndpoint = endpoint.replace('/api/analytics', '/api/analytics/beacon');
+      if (navigator.sendBeacon(beaconEndpoint, new URLSearchParams({ ref: currentRef }))) return;
+    }
 
     let headers = new HttpHeaders({ 'Content-Type': 'application/json' });
     if (this.telegram.initData) headers = headers.set('X-Telegram-Init-Data', this.telegram.initData);
