@@ -15,7 +15,7 @@ export class ThemeService {
         document.documentElement.style.colorScheme = theme;
       }
       if (typeof window !== 'undefined') {
-        window.localStorage.setItem('tusa-theme', theme);
+        window.localStorage.setItem('tusa-theme-preference-v1', theme);
       }
     });
   }
@@ -26,6 +26,8 @@ export class ThemeService {
 
   private initialTheme(): AppTheme {
     if (typeof window === 'undefined') return 'light';
-    return window.localStorage.getItem('tusa-theme') === 'dark' ? 'dark' : 'light';
+    const saved = window.localStorage.getItem('tusa-theme-preference-v1');
+    if (saved === 'light' || saved === 'dark') return saved;
+    return 'light';
   }
 }

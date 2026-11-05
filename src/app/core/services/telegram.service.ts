@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 
 interface TelegramWebApp {
   initData: string;
-  initDataUnsafe: { user?: TelegramUser };
+  initDataUnsafe: { user?: TelegramUser; start_param?: string };
   themeParams: Record<string, string>;
   colorScheme: 'light' | 'dark';
   expand: () => void;
@@ -37,6 +37,8 @@ export interface TelegramMainButton {
 
 @Injectable({ providedIn: 'root' })
 export class TelegramService {
+  private readonly botUsername = 'tusa_astana_bot';
+
   /** Включить для теста в браузере: открой ?mock=1 */
   get forceApp(): boolean {
     return typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('mock') === '1';
@@ -53,6 +55,18 @@ export class TelegramService {
 
   get initData(): string {
     return this.webApp?.initData ?? '';
+  }
+
+  get startParam(): string {
+    const appParam = this.webApp?.initDataUnsafe?.start_param;
+    if (appParam) return appParam;
+    return typeof window !== 'undefined'
+      ? new URLSearchParams(window.location.search).get('tgWebAppStartParam') ?? ''
+      : '';
+  }
+
+  miniAppLink(startParam: string): string {
+    return `https://t.me/${this.botUsername}?startapp=${encodeURIComponent(startParam)}`;
   }
 
   get user(): TelegramUser | null {

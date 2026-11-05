@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
-import { Router, RouterOutlet, RouterLink, RouterLinkActive, NavigationEnd } from '@angular/router';
+import { Router, RouterOutlet, RouterLink, NavigationEnd } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { filter } from 'rxjs';
 import { I18nService } from './core/services/i18n.service';
@@ -14,7 +14,7 @@ interface Breadcrumb {
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive],
+  imports: [RouterOutlet, RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './app.html',
   styleUrl: './app.scss',
@@ -24,6 +24,7 @@ export class App implements OnInit {
   protected readonly i18n = inject(I18nService);
   protected readonly theme = inject(ThemeService);
   protected readonly breadcrumbs = signal<Breadcrumb[]>([]);
+  protected readonly activeTab = signal<'events' | 'calendar' | 'meetups' | 'profile' | null>('events');
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
   private readonly routeHistory: string[] = [];
@@ -55,6 +56,23 @@ export class App implements OnInit {
         }
         this.updateNavigationChrome(currentUrl);
       });
+
+    const startRoute = this.routeFromStartParam(this.telegram.startParam);
+    if (startRoute && this.pathOnly(this.router.url) !== startRoute) {
+      void this.router.navigateByUrl(startRoute, { replaceUrl: true });
+    }
+  }
+
+  private routeFromStartParam(startParam: string): string | null {
+    if (startParam === 'meetups') return '/meetups';
+    if (startParam === 'interests') return '/interests';
+    if (startParam.startsWith('interest_')) {
+      const interestId = startParam.slice('interest_'.length);
+      return /^[a-z\d-]{1,60}$/i.test(interestId) ? `/interests?group=${encodeURIComponent(interestId)}` : null;
+    }
+    if (!startParam.startsWith('event_')) return null;
+    const eventId = startParam.slice('event_'.length);
+    return /^[a-z\d_-]{1,100}$/i.test(eventId) ? `/events/${encodeURIComponent(eventId)}` : null;
   }
 
   private navigateBackInApp(): void {
@@ -77,11 +95,20 @@ export class App implements OnInit {
 
   private updateNavigationChrome(url: string): void {
     this.breadcrumbs.set(this.createBreadcrumbs(url));
-    this.telegram.setBackButtonVisible(url !== '/');
+    const section = url.split('/').filter(Boolean)[0] ?? 'events';
+    const activeTab = section === 'calendar' ? 'calendar'
+      : section === 'meetups' || section === 'interests' ? 'meetups'
+      : ['profile', 'my-tickets', 'organizer', 'create-event', 'admin', 'tg-groups'].includes(section) ? 'profile'
+      : section === 'terms' ? null
+      : 'events';
+    this.activeTab.set(activeTab);
+    const isPrimaryRoute = url === '/' || (['events', 'calendar', 'meetups', 'profile'].includes(section) && url.split('/').filter(Boolean).length === 1);
+    this.telegram.setBackButtonVisible(!isPrimaryRoute);
   }
 
   private createBreadcrumbs(url: string): Breadcrumb[] {
     const segments = url.split('/').filter(Boolean);
+    if (segments.length === 1 && ['events', 'meetups', 'calendar', 'profile'].includes(segments[0])) return [];
     if (segments[0] === 'admin' && segments[1] === 'event-review')
       return [{ key: 'breadcrumb.orders', url: '/admin' }, { key: 'breadcrumb.review' }];
     if (segments[0] === 'admin' && segments[1] === 'bot-messages')
@@ -98,6 +125,8 @@ export class App implements OnInit {
 
     const labels: Record<string, TranslationKey> = {
       events: 'breadcrumb.events',
+      meetups: 'breadcrumb.meetups',
+      calendar: 'breadcrumb.calendar',
       'city-map': 'breadcrumb.map',
       'my-tickets': 'breadcrumb.tickets',
       orders: 'breadcrumb.orders',
@@ -113,9 +142,10 @@ export class App implements OnInit {
 
   private parentRoute(url: string): string | null {
     const segments = url.split('/').filter(Boolean);
+    if (segments[0] === 'calendar' || segments[0] === 'city-map') return '/events';
     if (segments[0] === 'events' && segments.length >= 3 && segments[2] === 'buy') return `/events/${segments[1]}`;
     if (segments[0] === 'events' && segments.length >= 2) return '/events';
-    if (segments.length > 0 && url !== '/') return '/';
+    if (segments.length > 0 && url !== '/' && url !== '/meetups') return '/events';
     return null;
   }
 

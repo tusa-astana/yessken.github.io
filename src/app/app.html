@@ -1,11 +1,17 @@
 <div class="shell" [class.dark-theme]="theme.isDark()">
-  <header class="topbar mobile-topbar">
-    <a routerLink="/" class="brand" queryParamsHandling="preserve"><strong>TUSA</strong><span>{{ i18n.brandCity() }}</span></a>
+  <header class="topbar">
+    <a routerLink="/events" class="brand" queryParamsHandling="preserve"><strong>TUSA</strong><span>{{ i18n.brandCity() }}</span></a>
+    <nav class="desktop-nav" [attr.aria-label]="i18n.t('nav.mainAria')">
+      <a routerLink="/events" [class.active]="activeTab() === 'events'" [attr.aria-current]="activeTab() === 'events' ? 'page' : null" queryParamsHandling="preserve">{{ i18n.t('nav.events') }}</a>
+      <a routerLink="/calendar" [class.active]="activeTab() === 'calendar'" [attr.aria-current]="activeTab() === 'calendar' ? 'page' : null" queryParamsHandling="preserve">{{ i18n.t('nav.calendar') }}</a>
+      <a routerLink="/meetups" [class.active]="activeTab() === 'meetups'" [attr.aria-current]="activeTab() === 'meetups' ? 'page' : null" queryParamsHandling="preserve">{{ i18n.t('nav.meetups') }}</a>
+      <a routerLink="/profile" [class.active]="activeTab() === 'profile'" [attr.aria-current]="activeTab() === 'profile' ? 'page' : null" queryParamsHandling="preserve">{{ i18n.t('nav.profile') }}</a>
+    </nav>
     <div class="topbar-right">
-      <div class="lang-switcher" aria-label="Language switcher">
-        <button type="button" [class.active]="i18n.locale() === 'ru'" (click)="i18n.setLocale('ru')">RU</button>
-        <button type="button" [class.active]="i18n.locale() === 'kz'" (click)="i18n.setLocale('kz')">KZ</button>
-        <button type="button" [class.active]="i18n.locale() === 'en'" (click)="i18n.setLocale('en')">EN</button>
+      <div class="lang-switcher" role="group" [attr.aria-label]="i18n.locale() === 'ru' ? 'Язык интерфейса' : i18n.locale() === 'kz' ? 'Интерфейс тілі' : 'Interface language'">
+        <button type="button" [class.active]="i18n.locale() === 'ru'" [attr.aria-pressed]="i18n.locale() === 'ru'" (click)="i18n.setLocale('ru')">RU</button>
+        <button type="button" [class.active]="i18n.locale() === 'kz'" [attr.aria-pressed]="i18n.locale() === 'kz'" (click)="i18n.setLocale('kz')">KZ</button>
+        <button type="button" [class.active]="i18n.locale() === 'en'" [attr.aria-pressed]="i18n.locale() === 'en'" (click)="i18n.setLocale('en')">EN</button>
       </div>
       <button class="theme-toggle" type="button"
         [attr.aria-label]="i18n.t(theme.isDark() ? 'theme.switchToLight' : 'theme.switchToDark')"
@@ -13,23 +19,6 @@
         (click)="theme.toggle()"><span aria-hidden="true">{{ theme.isDark() ? '☼' : '☾' }}</span></button>
     </div>
   </header>
-  <aside class="sidebar">
-    <a routerLink="/" class="brand sidebar-brand" queryParamsHandling="preserve"><strong>TUSA</strong><span>{{ i18n.brandCity() }}</span></a>
-    <div class="sidebar-label">{{ i18n.t('nav.section') }}</div>
-    <nav class="side-nav" [attr.aria-label]="i18n.t('nav.mainAria')">
-      <a routerLink="/events" routerLinkActive="active" queryParamsHandling="preserve"><span>01</span>{{ i18n.t('nav.events') }}</a>
-      <a routerLink="/city-map" routerLinkActive="active" queryParamsHandling="preserve"><span>02</span>{{ i18n.t('nav.map') }}</a>
-      <a routerLink="/my-tickets" routerLinkActive="active" queryParamsHandling="preserve"><span>03</span>{{ i18n.t('nav.tickets') }}</a>
-      <a routerLink="/profile" routerLinkActive="active" queryParamsHandling="preserve"><span>04</span>{{ i18n.t('nav.profile') }}</a>
-    </nav>
-    <div class="sidebar-footer">
-      <a routerLink="/create-event" queryParamsHandling="preserve">{{ i18n.t('nav.publish') }} <span aria-hidden="true">↗</span></a>
-      <a class="legal-link" routerLink="/terms">{{ i18n.t('calendar.terms') }}</a>
-      <button class="theme-toggle sidebar-theme-toggle" type="button"
-        [attr.aria-label]="i18n.t(theme.isDark() ? 'theme.switchToLight' : 'theme.switchToDark')"
-        (click)="theme.toggle()"><span aria-hidden="true">{{ theme.isDark() ? '☼' : '☾' }}</span>{{ i18n.t(theme.isDark() ? 'theme.switchToLight' : 'theme.switchToDark') }}</button>
-    </div>
-  </aside>
   <main class="content">
     @if (breadcrumbs().length) {
       <nav class="breadcrumbs" aria-label="Навигационная цепочка">
@@ -46,10 +35,9 @@
     <router-outlet />
   </main>
   <nav class="bottom-nav" [attr.aria-label]="i18n.t('nav.mainAria')">
-    <a routerLink="/events" routerLinkActive="active" queryParamsHandling="preserve">{{ i18n.t('nav.events') }}</a>
-    <a routerLink="/city-map" routerLinkActive="active" queryParamsHandling="preserve">{{ i18n.t('nav.map') }}</a>
-    <a routerLink="/my-tickets" routerLinkActive="active" queryParamsHandling="preserve">{{ i18n.t('nav.tickets') }}</a>
-    <a routerLink="/profile" routerLinkActive="active" queryParamsHandling="preserve">{{ i18n.t('nav.profile') }}</a>
-    <a routerLink="/terms" routerLinkActive="active">{{ i18n.t('nav.terms') }}</a>
+    <a routerLink="/events" [class.active]="activeTab() === 'events'" [attr.aria-current]="activeTab() === 'events' ? 'page' : null" queryParamsHandling="preserve">{{ i18n.t('nav.events') }}</a>
+    <a routerLink="/calendar" [class.active]="activeTab() === 'calendar'" [attr.aria-current]="activeTab() === 'calendar' ? 'page' : null" queryParamsHandling="preserve">{{ i18n.t('nav.calendar') }}</a>
+    <a routerLink="/meetups" [class.active]="activeTab() === 'meetups'" [attr.aria-current]="activeTab() === 'meetups' ? 'page' : null" queryParamsHandling="preserve">{{ i18n.t('nav.meetups') }}</a>
+    <a routerLink="/profile" [class.active]="activeTab() === 'profile'" [attr.aria-current]="activeTab() === 'profile' ? 'page' : null" queryParamsHandling="preserve">{{ i18n.t('nav.profile') }}</a>
   </nav>
 </div>

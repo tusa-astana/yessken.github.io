@@ -1,0 +1,184 @@
+<div class="meetups-page">
+  <section class="meetup-hero">
+    <div class="hero-copy">
+      <p class="eyebrow"><span class="pulse-dot" aria-hidden="true"></span> TUSA SOCIAL · ASTANA</p>
+      <h1>Город ближе,<br /><em>когда вы вместе.</em></h1>
+      <p class="hero-description">Выбирай реальное место, отмечай примерное время и смотри, кто ещё собирается.</p>
+      <div class="hero-actions">
+        <button class="share-button" type="button" (click)="share()"><span aria-hidden="true">↗</span> Скинуть в группу</button>
+        <a class="interests-shortcut" routerLink="/interests">Тусы по интересам <span aria-hidden="true">→</span></a>
+        <a class="calendar-shortcut" routerLink="/calendar">Календарь <span aria-hidden="true">→</span></a>
+        <span class="hero-note"><span aria-hidden="true">✳</span> Пока бесплатно</span>
+      </div>
+    </div>
+    <div class="hero-scene" aria-hidden="true">
+      <div class="scene-orbit orbit-one"></div><div class="scene-orbit orbit-two"></div>
+      <div class="scene-card"><span class="scene-label">АСТАНА · СЕГОДНЯ</span><strong>Твой вечер</strong><span class="scene-avatars"><i>⌖</i><i>✳</i><i>↗</i></span><span class="scene-caption">заведения города</span></div>
+      <span class="scene-spark spark-one">✳</span><span class="scene-spark spark-two">✦</span>
+    </div>
+  </section>
+
+  <div class="data-notice" role="status">
+    <span class="notice-icon" aria-hidden="true">⌖</span>
+    <span><strong>Реальные места, общий список.</strong> Каталог вручную сверён с публичными карточками 2GIS {{ api.sourceUpdatedAt() ? '· проверен ' + (api.sourceUpdatedAt() | date:'d MMM y') : '' }}. Отметки участников видны другим. Часы работы уточняй у заведения. @if (!telegram.isInTelegram) { <span class="auth-inline-note">Для общей отметки открой TUSA в Telegram.</span> }</span>
+  </div>
+
+  <section class="plans-section" aria-labelledby="plans-heading">
+    <div class="section-heading">
+      <div><p class="eyebrow">{{ formatDate(selectedDate()) | uppercase }}</p><h2 id="plans-heading">Куда идём?</h2></div>
+      <div class="view-switch" role="group" aria-label="Вид списка мест">
+        <button type="button" [class.active]="view() === 'list'" [attr.aria-pressed]="view() === 'list'" (click)="setView('list')"><span aria-hidden="true">▤</span> Список</button>
+        <button type="button" [class.active]="view() === 'map'" [attr.aria-pressed]="view() === 'map'" (click)="setView('map')"><span aria-hidden="true">⌖</span> Карта</button>
+      </div>
+    </div>
+
+    <div class="filter-row">
+      <div class="segmented" role="group" aria-label="Выбрать день">
+        <button type="button" [class.active]="dayFilter() === 'today'" [attr.aria-pressed]="dayFilter() === 'today'" (click)="chooseDay('today')">Сегодня</button>
+        <button type="button" [class.active]="dayFilter() === 'tomorrow'" [attr.aria-pressed]="dayFilter() === 'tomorrow'" (click)="chooseDay('tomorrow')">Завтра</button>
+        <button type="button" [class.active]="dayFilter() === 'weekend'" [attr.aria-pressed]="dayFilter() === 'weekend'" (click)="chooseDay('weekend')">Выходные</button>
+      </div>
+      <label class="type-filter"><span class="visually-hidden">Тип места</span>
+        <select [value]="venueFilter()" (change)="venueFilter.set($any($event.target).value); renderMapPins()">
+          <option value="all">Все места</option><option value="bar">Бары и пабы</option><option value="club">Клубы</option><option value="lounge">Лаунжи</option>
+        </select>
+      </label>
+      <label class="venue-search"><span class="visually-hidden">Найти место</span><input type="search" placeholder="Найти место или улицу" [value]="searchQuery()" (input)="searchQuery.set($any($event.target).value); renderMapPins()" /></label>
+      <span class="results-count">{{ visiblePlans().length }} мест</span>
+    </div>
+
+    @if (api.loading() && !api.loaded()) {
+      <div class="empty-state" role="status"><span aria-hidden="true">⌖</span><strong>Загружаем места…</strong><p>Получаем данные карты и отметки участников.</p></div>
+    } @else if (api.error()) {
+      <div class="empty-state error-state" role="alert"><span aria-hidden="true">⌁</span><strong>API пока недоступен</strong><p>Для реальных мест и общих отметок запусти API на своём компьютере и подключи к нему приложение.</p><button class="retry-button" type="button" (click)="api.load(selectedDate())">Повторить</button></div>
+    } @else if (!visiblePlans().length) {
+      <div class="empty-state"><span aria-hidden="true">☾</span><strong>Мест не найдено</strong><p>Попробуй другой тип заведения или поисковый запрос.</p></div>
+    } @else if (view() === 'list') {
+      <div class="plans-grid">
+        @for (plan of visiblePlans(); track plan.id) {
+          <article class="plan-card" [class.featured-card]="plan.featured">
+            <div class="venue-card-head">
+              <div class="venue-card-labels">
+                <span class="venue-type">{{ typeLabel(plan.type) }}</span>
+                @if (plan.featured) { <span class="meetup-featured-badge">{{ plan.promotionLabel || 'Выбор TUSA' }}</span> }
+              </div>
+              <time class="venue-date" [attr.datetime]="plan.date">{{ formatDate(plan.date) }}</time>
+            </div>
+            <div class="plan-body">
+              <div class="venue-title-row">
+                <div><h3>{{ plan.venue }}</h3><p class="venue-area">{{ plan.address }}</p></div>
+                <a class="map-link" [href]="plan.mapUrl" target="_blank" rel="noopener noreferrer" [attr.aria-label]="'Открыть карточку ' + plan.venue + ' в 2GIS'">⌖</a>
+              </div>
+              @if (plan.openingHours) { <p class="hours-line"><span aria-hidden="true">◷</span> Часы по карте: {{ plan.openingHours }}</p> }
+              @if (plan.website) { <a class="website-link" [href]="plan.website" target="_blank" rel="noopener noreferrer">Сайт заведения ↗</a> }
+              <div class="attendee-row">
+                @if (attendeesFor(plan).length) {
+                  <div class="avatar-stack" aria-label="Участники">
+                    @for (attendee of attendeesFor(plan).slice(0, 4); track attendee.id) {
+                      <button type="button" [class]="'avatar avatar-' + (attendee.anonymous ? 'slate' : attendee.isYou ? 'you' : 'public')" [disabled]="attendee.anonymous" [attr.aria-label]="attendee.anonymous ? 'Анонимный участник' : 'Посмотреть профиль: ' + attendee.name" (click)="openAttendee(attendee)">
+                        @if (attendee.photoUrl && !attendee.anonymous) { <img [src]="attendee.photoUrl" alt="" referrerpolicy="no-referrer" /> } @else { {{ attendee.anonymous ? '•' : attendee.name.slice(0, 1).toLocaleUpperCase('ru') }} }
+                      </button>
+                    }
+                    @if (attendeesFor(plan).length > 4) { <span class="avatar avatar-more">+{{ attendeesFor(plan).length - 4 }}</span> }
+                  </div>
+                }
+                <button class="attendee-summary" type="button" (click)="openParticipants(plan)">
+                  <strong>{{ plan.goingCount ? plan.goingCount + ' ' + attendeeCountLabel(plan.goingCount) : 'Пока никто' }}</strong>
+                  <span>{{ plan.goingCount ? 'собираются' : 'будь первым' }}</span>
+                </button>
+                @if (openMeetCount(plan)) { <span class="meet-count">✳ {{ openMeetCount(plan) }} открыты к знакомствам</span> }
+              </div>
+              <div class="card-actions">
+                @if (isJoined(plan)) {
+                  <button class="join-button joined" type="button" (click)="openJoin(plan)"><span aria-hidden="true">✓</span> Ты идёшь · {{ myTime(plan) }}</button>
+                  <button class="leave-button" type="button" [disabled]="saving()" (click)="leave(plan)" aria-label="Отменить участие">×</button>
+                } @else {
+                  <button class="join-button" type="button" (click)="openJoin(plan)"><span aria-hidden="true">＋</span> Я иду</button>
+                  <button class="plan-share" type="button" (click)="share()" [attr.aria-label]="'Поделиться планом: ' + plan.venue">↗</button>
+                }
+              </div>
+              @if (actionError()) { <p class="inline-error" role="alert">{{ actionError() }}</p> }
+            </div>
+          </article>
+        }
+      </div>
+    } @else {
+      <div class="map-panel">
+        <div #mapCanvas class="map-canvas" aria-label="Карта реальных баров, клубов и отметок участников"></div>
+        <div class="map-caption"><span class="map-key" aria-hidden="true"></span> Количество людей · открыты к знакомствам</div>
+        @if (mapTilesUnavailable()) {
+          <div class="map-load-warning" role="status"><span>Карта временно не загрузилась.</span><button type="button" (click)="setView('list')">Показать места списком</button></div>
+        }
+        @if (mapSelectedPlan(); as selected) {
+          <div class="map-selected-card"><div><strong>{{ selected.venue }}</strong><span>{{ selected.address }} · {{ selected.goingCount }} идут</span></div><button type="button" (click)="openJoin(selected)">{{ isJoined(selected) ? 'Изменить' : 'Присоединиться' }} <span aria-hidden="true">→</span></button></div>
+        }
+        @if (mapClusterPlans().length) {
+          <div class="map-cluster-card" aria-label="Места рядом">
+            <div class="map-cluster-heading"><strong>Места рядом</strong><button type="button" aria-label="Закрыть список мест" (click)="mapClusterPlans.set([])">×</button></div>
+            @for (plan of mapClusterPlans(); track plan.id) {
+              <button class="map-cluster-place" type="button" (click)="mapClusterPlans.set([]); mapSelectedPlan.set(plan)"><span><strong>{{ plan.venue }}</strong><small>{{ plan.address }}</small></span><span class="map-cluster-count">{{ plan.goingCount }} идут</span></button>
+            }
+          </div>
+        }
+      </div>
+    }
+  </section>
+
+  @if (savedMessage()) { <p class="saved-message" role="status">{{ savedMessage() }}</p> }
+  <section class="privacy-note" aria-label="Правила приватности"><span aria-hidden="true">⌑</span><p><strong>Твои границы — твои правила.</strong> Встречи 18+. Можно скрыть имя, username и фото. Анонимные отметки не раскрывают аккаунт; статус знакомств включается отдельно. Приложение не отслеживает точную геолокацию — встречайтесь в общественных местах.</p></section>
+  <p class="osm-attribution">Каталог заведений: <a href="https://2gis.kz/astana/search/%D0%91%D0%B0%D1%80%D1%8B%20%D0%B8%20%D0%BA%D0%BB%D1%83%D0%B1%D1%8B" target="_blank" rel="noopener noreferrer">публичные карточки 2GIS</a>. Подложка карты: <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">© OpenStreetMap contributors</a>. Часы и доступность уточняй у заведения.</p>
+</div>
+
+@if (joiningPlan(); as plan) {
+  <div class="dialog-backdrop" role="presentation" (click)="closeDialogs()">
+    <section class="join-dialog" role="dialog" aria-modal="true" aria-labelledby="join-dialog-title" (click)="$event.stopPropagation()">
+      <button class="dialog-close" type="button" aria-label="Закрыть" (click)="closeDialogs()">×</button>
+      <p class="eyebrow">ТВОЙ ПЛАН</p><h2 id="join-dialog-title">{{ isJoined(plan) ? 'Обновить отметку' : 'Ты с нами?' }}</h2>
+      <p class="dialog-venue">{{ plan.venue }} <span>·</span> {{ formatDate(plan.date) }}</p>
+      @if (!telegram.isInTelegram) { <p class="auth-notice">Открой TUSA внутри Telegram, чтобы сервер проверил аккаунт. Без этого отметка не будет общей.</p> }
+      <label class="time-field"><span>Примерное время</span><input type="time" [value]="draftTime()" (input)="draftTime.set($any($event.target).value)" /></label>
+      <p class="field-hint">Время ориентировочное. Если анонимность выключена, участники увидят имя и фото; @username для связи показывается только при включённом статусе знакомств.</p>
+      <label class="choice-row"><input type="checkbox" [checked]="draftAnonymous()" (change)="draftAnonymous.set($any($event.target).checked)" /><span class="choice-copy"><strong>Отметиться анонимно</strong><small>Имя, username и фото будут скрыты.</small></span><span class="choice-icon" aria-hidden="true">◌</span></label>
+      <label class="choice-row meet-choice"><input type="checkbox" [checked]="draftOpenToMeet()" (change)="draftOpenToMeet.set($any($event.target).checked)" /><span class="choice-copy"><strong>Открыт(а) к знакомствам</strong><small>Покажем статус другим только если включишь.</small></span><span class="choice-icon" aria-hidden="true">✳</span></label>
+      @if (actionError()) { <p class="inline-error" role="alert">{{ actionError() }}</p> }
+      <button class="confirm-button" type="button" [disabled]="saving()" (click)="saveJoin()">{{ saving() ? 'Сохраняем…' : isJoined(plan) ? 'Сохранить изменения' : 'Отметиться · бесплатно' }} <span aria-hidden="true">→</span></button>
+      <p class="dialog-demo">Отметка будет сохранена на общем сервере.</p>
+    </section>
+  </div>
+}
+@if (participantsPlan(); as plan) {
+  <div class="dialog-backdrop" role="presentation" (click)="closeDialogs()">
+    <section class="roster-dialog" role="dialog" aria-modal="true" aria-labelledby="roster-title" (click)="$event.stopPropagation()">
+      <button class="dialog-close" type="button" aria-label="Закрыть список участников" (click)="closeDialogs()">×</button>
+      <p class="eyebrow">{{ formatDate(plan.date) }}</p><h2 id="roster-title">Кто собирается в {{ plan.venue }}</h2>
+      <p class="roster-subtitle">{{ plan.goingCount }} {{ attendeeCountLabel(plan.goingCount) }} · профили показываются только с разрешения</p>
+      @if (attendeesFor(plan).length) {
+        <div class="roster-list">@for (attendee of attendeesFor(plan); track attendee.id) {
+          <div class="roster-person">
+            <button type="button" [class]="'avatar roster-avatar avatar-' + (attendee.anonymous ? 'slate' : attendee.isYou ? 'you' : 'public')" [disabled]="attendee.anonymous" [attr.aria-label]="attendee.anonymous ? 'Анонимный участник' : 'Посмотреть профиль: ' + attendee.name" (click)="selectedAttendee.set(attendee); participantsPlan.set(null)">
+              @if (attendee.photoUrl && !attendee.anonymous) { <img [src]="attendee.photoUrl" alt="" referrerpolicy="no-referrer" /> } @else { {{ attendee.anonymous ? '•' : attendee.name.slice(0, 1).toLocaleUpperCase('ru') }} }
+            </button>
+            <div class="roster-copy"><strong>{{ attendee.anonymous ? 'Анонимный гость' : attendee.name }}</strong>@if (attendee.username) { <span>@{{ attendee.username }}</span> }<small>Примерно в {{ attendee.time }}</small></div>
+            @if (attendee.openToMeet) { <span class="roster-open">✳ Открыт(а) к знакомствам</span> }
+            @if (!attendee.anonymous) { <button class="roster-view" type="button" (click)="selectedAttendee.set(attendee); participantsPlan.set(null)">Профиль <span aria-hidden="true">↗</span></button> }
+          </div>
+        }</div>
+      } @else { <p class="roster-subtitle">Пока никто не отметил участие. Будь первым!</p> }
+      <p class="roster-demo">Анонимные участники не раскрывают Telegram-профиль.</p>
+    </section>
+  </div>
+}
+@if (selectedAttendee(); as attendee) {
+  <div class="dialog-backdrop" role="presentation" (click)="closeDialogs()">
+    <section class="profile-dialog" role="dialog" aria-modal="true" aria-labelledby="attendee-title" (click)="$event.stopPropagation()">
+      <button class="dialog-close" type="button" aria-label="Закрыть профиль" (click)="closeDialogs()">×</button>
+      @if (attendee.photoUrl) { <img class="profile-avatar" [src]="attendee.photoUrl" alt="" referrerpolicy="no-referrer" /> } @else { <div class="profile-avatar avatar-public">{{ attendee.name.slice(0, 1).toLocaleUpperCase('ru') }}</div> }
+      <p class="eyebrow">УЧАСТНИК TUSA</p><h2 id="attendee-title">{{ attendee.name }}</h2>
+      @if (attendee.username) { <a class="profile-username" [href]="'https://t.me/' + attendee.username" target="_blank" rel="noopener noreferrer">Написать @{{ attendee.username }} ↗</a> }
+      @if (attendee.openToMeet) { <span class="profile-open">✳ Открыт(а) к знакомствам</span> }
+      <p class="profile-demo-copy">Telegram-профиль показывается участникам только при неанонимной отметке.</p>
+      <button class="confirm-button" type="button" (click)="closeDialogs()">Понятно</button>
+    </section>
+  </div>
+}
+

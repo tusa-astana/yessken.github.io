@@ -4,6 +4,8 @@ export type Locale = 'ru' | 'kz' | 'en';
 
 export type TranslationKey =
   | 'nav.events'
+  | 'nav.meetups'
+  | 'nav.calendar'
   | 'nav.map'
   | 'nav.tickets'
   | 'nav.profile'
@@ -15,6 +17,8 @@ export type TranslationKey =
   | 'theme.switchToLight'
   | 'breadcrumb.home'
   | 'breadcrumb.events'
+  | 'breadcrumb.meetups'
+  | 'breadcrumb.calendar'
   | 'breadcrumb.event'
   | 'breadcrumb.ticket'
   | 'breadcrumb.orders'
@@ -43,13 +47,33 @@ export type TranslationKey =
   | 'calendar.demoNotice'
   | 'map.demoNotice'
   | 'events.heading'
+  | 'events.allTitle'
   | 'events.subtitle'
   | 'events.organizer'
   | 'events.searchPlaceholder'
   | 'events.filters.all'
   | 'events.filters.free'
   | 'events.filters.under5000'
-  | 'events.filters.available'
+  | 'events.price.fromOrganizer'
+  | 'events.price.freeByOrganizer'
+  | 'events.price.contactOrganizer'
+  | 'events.details.place'
+  | 'events.details.price'
+  | 'events.details.organizerInfo'
+  | 'events.details.rsvpPolicy'
+  | 'events.details.demoNotice'
+  | 'events.details.rsvp'
+  | 'events.details.rsvpSaved'
+  | 'events.details.rsvpSaving'
+  | 'events.details.telegramPrompt'
+  | 'events.details.rsvpError'
+  | 'events.details.share'
+  | 'events.details.shareCopied'
+  | 'events.details.shareFailed'
+  | 'events.details.shareMaterials'
+  | 'events.details.copy'
+  | 'events.details.copied'
+  | 'events.details.notFound'
   | 'events.loading'
   | 'events.empty'
   | 'events.retry'
@@ -64,6 +88,7 @@ export type TranslationKey =
   | 'checkout.unavailable'
   | 'checkout.support'
   | 'tickets.heading'
+  | 'tickets.legacyNotice'
   | 'tickets.empty'
   | 'tickets.catalog'
   | 'tickets.status.paid'
@@ -88,6 +113,8 @@ export type TranslationKey =
 const translations: Record<Locale, Record<TranslationKey, string>> = {
   ru: {
     'nav.events': 'События',
+    'nav.meetups': 'Вместе',
+    'nav.calendar': 'Календарь',
     'nav.map': 'Карта города',
     'nav.tickets': 'Мои билеты',
     'nav.profile': 'Профиль',
@@ -99,13 +126,15 @@ const translations: Record<Locale, Record<TranslationKey, string>> = {
     'theme.switchToLight': 'Включить светлую тему',
     'breadcrumb.home': 'Главная',
     'breadcrumb.events': 'События',
+    'breadcrumb.meetups': 'Вместе',
+    'breadcrumb.calendar': 'Календарь',
     'breadcrumb.event': 'Событие',
     'breadcrumb.ticket': 'Билет',
     'breadcrumb.orders': 'Заказы',
     'breadcrumb.review': 'Проверка заявок',
     'breadcrumb.botMessages': 'Сообщения боту',
     'breadcrumb.map': 'Карта города',
-    'breadcrumb.tickets': 'Мои билеты',
+    'breadcrumb.tickets': 'Архив билетов',
     'breadcrumb.groups': 'Сообщества',
     'breadcrumb.createEvent': 'Новое событие',
     'breadcrumb.profile': 'Профиль',
@@ -126,14 +155,34 @@ const translations: Record<Locale, Record<TranslationKey, string>> = {
     'calendar.terms': 'Условия и правила',
     'calendar.demoNotice': 'Показаны демо-события: данные хранятся только в приложении и не подтверждают реальные продажи.',
     'map.demoNotice': 'Демо-карта · примеры событий',
-    'events.heading': 'Вечер начинается',
-    'events.subtitle': 'События, которые хочется запомнить. Выбирай по настроению, месту и бюджету.',
+    'events.heading': 'Куда сегодня?',
+    'events.allTitle': 'Афиша событий',
+    'events.subtitle': 'События Астаны на ближайшие дни. Смотри детали, делись планом и отмечай интерес.',
     'events.organizer': 'Организаторам: разместить событие бесплатно',
     'events.searchPlaceholder': 'Название, место или описание',
     'events.filters.all': 'Все категории',
     'events.filters.free': 'Бесплатно',
     'events.filters.under5000': 'До 5 000 ₸',
-    'events.filters.available': 'Есть места',
+    'events.price.fromOrganizer': 'Цена от организатора',
+    'events.price.freeByOrganizer': 'Бесплатно по данным организатора',
+    'events.price.contactOrganizer': 'Условия участия уточняйте у организатора',
+    'events.details.place': 'Место',
+    'events.details.price': 'Стоимость',
+    'events.details.organizerInfo': 'Информация предоставлена организатором',
+    'events.details.rsvpPolicy': 'RSVP — это отметка интереса, не билет и не бронь. Условия входа уточняйте у организатора.',
+    'events.details.demoNotice': 'Демо-пример. Событие и условия не подтверждены.',
+    'events.details.rsvp': 'Мне интересно',
+    'events.details.rsvpSaved': 'Вы отметили интерес',
+    'events.details.rsvpSaving': 'Сохраняем…',
+    'events.details.telegramPrompt': 'Откройте TUSA в Telegram, чтобы отметить интерес.',
+    'events.details.rsvpError': 'Не удалось сохранить отметку. Проверьте соединение и попробуйте ещё раз.',
+    'events.details.share': 'Поделиться событием',
+    'events.details.shareCopied': 'Ссылка скопирована',
+    'events.details.shareFailed': 'Не удалось поделиться',
+    'events.details.shareMaterials': 'Материалы для публикации',
+    'events.details.copy': 'Скопировать текст',
+    'events.details.copied': 'Текст скопирован',
+    'events.details.notFound': 'Событие не найдено.',
     'events.loading': 'Загружаем события…',
     'events.empty': 'Подходящих событий пока нет',
     'events.retry': 'Повторить',
@@ -141,14 +190,15 @@ const translations: Record<Locale, Record<TranslationKey, string>> = {
     'events.demo': 'Пример',
     'events.promo': 'Промо',
     'events.illustrative': 'Иллюстрация',
-    'checkout.heading': 'Оформить билет',
+    'checkout.heading': 'Информация о покупке',
     'checkout.acceptTerms': 'Я прочитал(а) и принимаю',
-    'checkout.continue': 'Продолжить в Telegram',
-    'checkout.hint': 'Оплата проходит в Telegram в тенге через подключённого платёжного провайдера. Telegram Stars для входа не используются.',
-    'checkout.unavailable': 'Билеты временно недоступны',
+    'checkout.continue': 'Покупка отключена',
+    'checkout.hint': 'TUSA не продаёт билеты на офлайн-события и не принимает оплату за вход. Внутренние платные цифровые услуги, если они включены, оплачиваются только Telegram Stars.',
+    'checkout.unavailable': 'Покупка офлайн-билетов отключена',
     'checkout.support': 'Написать в поддержку',
-    'tickets.heading': 'Мои билеты',
-    'tickets.empty': 'Здесь появятся ваши билеты и предстоящие события.',
+    'tickets.heading': 'Архив билетов',
+    'tickets.legacyNotice': 'Здесь доступны ранее оформленные билеты. TUSA больше не продаёт офлайн-вход; RSVP не является билетом.',
+    'tickets.empty': 'Ранее оформленных билетов нет. RSVP и отметка интереса не резервируют вход.',
     'tickets.catalog': 'Открыть каталог событий',
     'tickets.status.paid': 'Оплачено',
     'tickets.status.pending': 'Счёт выставлен',
@@ -158,7 +208,7 @@ const translations: Record<Locale, Record<TranslationKey, string>> = {
     'tickets.status.refundRequested': 'Возврат на проверке',
     'tickets.status.expired': 'Счёт истёк',
     'tickets.status.unknown': 'Статус уточняется',
-    'tickets.open': 'О сходке',
+    'tickets.open': 'О событии',
     'tickets.entryCode': 'Код входа:',
     'tickets.demoNotice': 'Демо-билет. QR-код не даёт права на вход.',
     'orders.heading': 'Заказы',
@@ -171,6 +221,8 @@ const translations: Record<Locale, Record<TranslationKey, string>> = {
   },
   kz: {
     'nav.events': 'Іс-шақтар',
+    'nav.meetups': 'Бірге',
+    'nav.calendar': 'Күнтізбе',
     'nav.map': 'Қала картасы',
     'nav.tickets': 'Билеттерім',
     'nav.profile': 'Профиль',
@@ -182,13 +234,15 @@ const translations: Record<Locale, Record<TranslationKey, string>> = {
     'theme.switchToLight': 'Ашық тақырыпты қосу',
     'breadcrumb.home': 'Басты бет',
     'breadcrumb.events': 'Іс-шақтар',
+    'breadcrumb.meetups': 'Бірге',
+    'breadcrumb.calendar': 'Күнтізбе',
     'breadcrumb.event': 'Іс-шақ',
     'breadcrumb.ticket': 'Билет',
     'breadcrumb.orders': 'Тапсырыстар',
     'breadcrumb.review': 'Өтінімдерді тексеру',
     'breadcrumb.botMessages': 'Бот хабарламалары',
     'breadcrumb.map': 'Қала картасы',
-    'breadcrumb.tickets': 'Билеттерім',
+    'breadcrumb.tickets': 'Билеттер мұрағаты',
     'breadcrumb.groups': 'Қауымдастықтар',
     'breadcrumb.createEvent': 'Жаңа іс-шақ',
     'breadcrumb.profile': 'Профиль',
@@ -209,14 +263,34 @@ const translations: Record<Locale, Record<TranslationKey, string>> = {
     'calendar.terms': 'Шарттар мен ережелер',
     'calendar.demoNotice': 'Демо іс-шақтар көрсетіліп тұр. Мәліметтер тек осы қолданбада сақталады және нақты сатылымды білдірмейді.',
     'map.demoNotice': 'Демо карта · үлгі іс-шақтар',
-    'events.heading': 'Кеш басталады',
-    'events.subtitle': 'Ұмытылмайтын іс-шақтар. Әуенге, орынға және бюджетке қарай таңдаңыз.',
+    'events.heading': 'Бүгін қайда?',
+    'events.allTitle': 'Іс-шақтар афишасы',
+    'events.subtitle': 'Астанадағы жақын күндердің іс-шақтары. Ақпаратты қарап, жоспармен бөлісіп, қызығушылығыңызды белгілеңіз.',
     'events.organizer': 'Ұйымдастырушылар: іс-шақты тегін орналастырыңыз',
     'events.searchPlaceholder': 'Атауы, орын немесе сипаттама',
     'events.filters.all': 'Барлық санаттар',
     'events.filters.free': 'Бесплатно',
     'events.filters.under5000': '5 000 ₸-ға дейін',
-    'events.filters.available': 'Орын бар',
+    'events.price.fromOrganizer': 'Ұйымдастырушы көрсеткен баға',
+    'events.price.freeByOrganizer': 'Ұйымдастырушы мәліметі бойынша тегін',
+    'events.price.contactOrganizer': 'Қатысу шарттарын ұйымдастырушыдан нақтылаңыз',
+    'events.details.place': 'Өтетін орны',
+    'events.details.price': 'Бағасы',
+    'events.details.organizerInfo': 'Ақпаратты ұйымдастырушы ұсынған',
+    'events.details.rsvpPolicy': 'RSVP — қызығушылық белгісі, билет не бронь емес. Кіру шарттарын ұйымдастырушыдан нақтылаңыз.',
+    'events.details.demoNotice': 'Демо мысал. Іс-шақ пен шарттар расталмаған.',
+    'events.details.rsvp': 'Қызығамын',
+    'events.details.rsvpSaved': 'Қызығушылығыңызды белгіледіңіз',
+    'events.details.rsvpSaving': 'Сақталуда…',
+    'events.details.telegramPrompt': 'Қызығушылықты белгілеу үшін TUSA-ны Telegram-да ашыңыз.',
+    'events.details.rsvpError': 'Белгіні сақтау мүмкін болмады. Байланысты тексеріп, қайталап көріңіз.',
+    'events.details.share': 'Іс-шақпен бөлісу',
+    'events.details.shareCopied': 'Сілтеме көшірілді',
+    'events.details.shareFailed': 'Бөлісу мүмкін болмады',
+    'events.details.shareMaterials': 'Жариялауға арналған материалдар',
+    'events.details.copy': 'Мәтінді көшіру',
+    'events.details.copied': 'Мәтін көшірілді',
+    'events.details.notFound': 'Іс-шақ табылмады.',
     'events.loading': 'Іс-шақтар жүктелуде…',
     'events.empty': 'Сәйкес іс-шақтар әлі жоқ',
     'events.retry': 'Қайталау',
@@ -224,14 +298,15 @@ const translations: Record<Locale, Record<TranslationKey, string>> = {
     'events.demo': 'Мысал',
     'events.promo': 'Промо',
     'events.illustrative': 'Иллюстрация',
-    'checkout.heading': 'Билет сатып алу',
+    'checkout.heading': 'Сатып алу туралы ақпарат',
     'checkout.acceptTerms': 'Мен оқып шықтым және келісемін',
-    'checkout.continue': 'Telegram арқылы жалғастыру',
-    'checkout.hint': 'Төлем Telegram арқылы, теңгемен, қосылған төлем провайдері арқылы жүргізіледі. Telegram Stars кіріс үшін қолданылмайды.',
-    'checkout.unavailable': 'Билеттер уақытша қолжетімсіз',
+    'checkout.continue': 'Сатып алу өшірулі',
+    'checkout.hint': 'TUSA офлайн іс-шақтарға билет сатпайды және кіру ақысын қабылдамайды. Қосылған цифрлық қызметтер тек Telegram Stars арқылы төленеді.',
+    'checkout.unavailable': 'Офлайн билеттерді сатып алу өшірулі',
     'checkout.support': 'Қолдау қызметіне жазылу',
-    'tickets.heading': 'Билеттерім',
-    'tickets.empty': 'Мұнда сіздің билеттеріңіз бен келесі іс-шақтар пайда болады.',
+    'tickets.heading': 'Билеттер мұрағаты',
+    'tickets.legacyNotice': 'Мұнда бұрын рәсімделген билеттер көрсетіледі. TUSA офлайн кіру билеттерін сатпайды; RSVP билет болып саналмайды.',
+    'tickets.empty': 'Бұрын рәсімделген билет жоқ. RSVP кіру орнын брондамайды.',
     'tickets.catalog': 'Іс-шақтар каталогын ашу',
     'tickets.status.paid': 'Төленді',
     'tickets.status.pending': 'Шот берілді',
@@ -241,7 +316,7 @@ const translations: Record<Locale, Record<TranslationKey, string>> = {
     'tickets.status.refundRequested': 'Қайтару тексеруде',
     'tickets.status.expired': 'Шот мерзімі аяқталды',
     'tickets.status.unknown': 'Статус уточняется',
-    'tickets.open': 'Орын туралы',
+    'tickets.open': 'Іс-шақ туралы',
     'tickets.entryCode': 'Кіру коды:',
     'tickets.demoNotice': 'Демо билет. Бұл QR-кодпен іс-шаққа кіруге болмайды.',
     'orders.heading': 'Заказы',
@@ -254,6 +329,8 @@ const translations: Record<Locale, Record<TranslationKey, string>> = {
   },
   en: {
     'nav.events': 'Events',
+    'nav.meetups': 'Together',
+    'nav.calendar': 'Calendar',
     'nav.map': 'City map',
     'nav.tickets': 'My tickets',
     'nav.profile': 'Profile',
@@ -265,13 +342,15 @@ const translations: Record<Locale, Record<TranslationKey, string>> = {
     'theme.switchToLight': 'Switch to light theme',
     'breadcrumb.home': 'Home',
     'breadcrumb.events': 'Events',
+    'breadcrumb.meetups': 'Together',
+    'breadcrumb.calendar': 'Calendar',
     'breadcrumb.event': 'Event',
     'breadcrumb.ticket': 'Ticket',
     'breadcrumb.orders': 'Orders',
     'breadcrumb.review': 'Submission review',
     'breadcrumb.botMessages': 'Bot messages',
     'breadcrumb.map': 'City map',
-    'breadcrumb.tickets': 'My tickets',
+    'breadcrumb.tickets': 'Ticket archive',
     'breadcrumb.groups': 'Communities',
     'breadcrumb.createEvent': 'New event',
     'breadcrumb.profile': 'Profile',
@@ -292,14 +371,34 @@ const translations: Record<Locale, Record<TranslationKey, string>> = {
     'calendar.terms': 'Terms and policies',
     'calendar.demoNotice': 'Showing demo events. These examples are stored only in this app and do not represent real ticket sales.',
     'map.demoNotice': 'Demo map · sample events',
-    'events.heading': 'The evening starts',
-    'events.subtitle': 'Events worth remembering. Choose by mood, location, and budget.',
+    'events.heading': 'What’s happening?',
+    'events.allTitle': 'Events in Astana',
+    'events.subtitle': 'Astana events for the next few days. See the details, share a plan, and RSVP for free.',
     'events.organizer': 'For organizers: publish an event for free',
     'events.searchPlaceholder': 'Event name, venue, or description',
     'events.filters.all': 'All categories',
     'events.filters.free': 'Free',
     'events.filters.under5000': 'Up to 5,000 ₸',
-    'events.filters.available': 'Available now',
+    'events.price.fromOrganizer': 'Organizer-stated price',
+    'events.price.freeByOrganizer': 'Free per organizer',
+    'events.price.contactOrganizer': 'Ask the organizer about admission',
+    'events.details.place': 'Venue',
+    'events.details.price': 'Price',
+    'events.details.organizerInfo': 'Information provided by the organizer',
+    'events.details.rsvpPolicy': 'RSVP is an expression of interest, not a ticket or reservation. Ask the organizer about admission.',
+    'events.details.demoNotice': 'Demo example. Event details and admission are not confirmed.',
+    'events.details.rsvp': 'I’m interested',
+    'events.details.rsvpSaved': 'Interest noted',
+    'events.details.rsvpSaving': 'Saving…',
+    'events.details.telegramPrompt': 'Open TUSA in Telegram to express interest.',
+    'events.details.rsvpError': 'Could not save your response. Check your connection and try again.',
+    'events.details.share': 'Share event',
+    'events.details.shareCopied': 'Link copied',
+    'events.details.shareFailed': 'Could not share',
+    'events.details.shareMaterials': 'Share materials',
+    'events.details.copy': 'Copy text',
+    'events.details.copied': 'Text copied',
+    'events.details.notFound': 'Event not found.',
     'events.loading': 'Loading events…',
     'events.empty': 'No matching events yet',
     'events.retry': 'Retry',
@@ -307,14 +406,15 @@ const translations: Record<Locale, Record<TranslationKey, string>> = {
     'events.demo': 'Sample',
     'events.promo': 'Promo',
     'events.illustrative': 'Illustration',
-    'checkout.heading': 'Buy ticket',
+    'checkout.heading': 'Purchase information',
     'checkout.acceptTerms': 'I have read and accept',
-    'checkout.continue': 'Continue in Telegram',
-    'checkout.hint': 'Payment is processed in Telegram in tenge through a connected payment provider. Telegram Stars are not used for entry.',
-    'checkout.unavailable': 'Tickets are temporarily unavailable',
+    'checkout.continue': 'Purchases are disabled',
+    'checkout.hint': 'TUSA does not sell admission to in-person events or collect entry fees. Paid digital services, if enabled, are paid only in Telegram Stars.',
+    'checkout.unavailable': 'In-person ticket sales are disabled',
     'checkout.support': 'Contact support',
-    'tickets.heading': 'My tickets',
-    'tickets.empty': 'Your tickets and upcoming events will appear here.',
+    'tickets.heading': 'Ticket archive',
+    'tickets.legacyNotice': 'Previously issued tickets appear here. TUSA no longer sells in-person admission; RSVP is not a ticket.',
+    'tickets.empty': 'No previously issued tickets. RSVP does not reserve admission.',
     'tickets.catalog': 'Open event catalog',
     'tickets.status.paid': 'Paid',
     'tickets.status.pending': 'Invoice sent',
@@ -348,7 +448,7 @@ export class I18nService {
       document.documentElement.setAttribute('data-locale', current);
       document.title = current === 'en' ? 'TUSA Astana' : current === 'kz' ? 'TUSA — Астана іс-шақтары' : 'TUSA — события Астаны';
       if (typeof window !== 'undefined') {
-        window.localStorage.setItem('tusa-locale', current);
+        window.localStorage.setItem('tusa-locale-preference-v1', current);
       }
     });
   }
@@ -369,11 +469,8 @@ export class I18nService {
 
   private getInitialLocale(): Locale {
     if (typeof window === 'undefined') return 'ru';
-    const saved = window.localStorage.getItem('tusa-locale');
+    const saved = window.localStorage.getItem('tusa-locale-preference-v1');
     if (saved === 'ru' || saved === 'kz' || saved === 'en') return saved;
-    const browser = navigator.language.toLowerCase();
-    if (browser.startsWith('kk') || browser.startsWith('kz')) return 'kz';
-    if (browser.startsWith('en')) return 'en';
     return 'ru';
   }
 }

@@ -12,114 +12,131 @@ import type { EventItem } from '../../core/types/event.model';
   imports: [CommonModule, RouterLink],
   template: `
     <div class="events-list">
-      <div class="intro">
-        <p class="date-line">{{ i18n.brandCity().toUpperCase() }} / {{ todayLabel() }}</p>
-        <h1>{{ i18n.t('events.heading') }}<br /><em>здесь.</em></h1>
-        <p>{{ i18n.t('events.subtitle') }}</p>
-        <a routerLink="/create-event" class="organizer-link" queryParamsHandling="preserve">{{ i18n.t('events.organizer') }}</a>
-      </div>
-      <div class="filters">
+      <header class="hero">
+        <div class="hero-copy">
+          <p class="date-line">{{ i18n.brandCity() }} <span aria-hidden="true">·</span> {{ todayLabel() }}</p>
+          <h1>{{ i18n.t('events.heading') }}</h1>
+          <p class="hero-subtitle">{{ i18n.t('events.subtitle') }}</p>
+          <div class="hero-actions">
+            <a routerLink="/create-event" class="organizer-link" queryParamsHandling="preserve">{{ i18n.t('events.organizer') }} <span aria-hidden="true">→</span></a>
+            <a routerLink="/meetups" class="together-link" queryParamsHandling="preserve">{{ i18n.t('nav.meetups') }} <span aria-hidden="true">↗</span></a>
+          </div>
+        </div>
+        <aside class="hero-note">
+          <span class="note-icon" aria-hidden="true">✳</span>
+          <p><strong>Бесплатный RSVP</strong><br />Билет и условия входа уточняйте у организатора.</p>
+        </aside>
+      </header>
+      <section class="discovery" aria-labelledby="discovery-title">
+        <div class="discovery-heading">
+          <div><p class="section-kicker">{{ i18n.brandCity().toUpperCase() }}</p><h2 id="discovery-title">{{ i18n.t('events.allTitle') }}</h2></div>
+          @if (!loading()) { <span class="result-count">{{ filteredEvents().length }} событий</span> }
+        </div>
+        <div class="filters" aria-label="Фильтры событий">
         <label class="search-label">
           <span class="visually-hidden">Поиск событий</span>
           <input type="search" [placeholder]="i18n.t('events.searchPlaceholder')" [value]="searchQuery" (input)="searchQuery = $any($event.target).value" />
         </label>
-        <select (change)="category = $any($event.target).value">
+        <select aria-label="Категория события" (change)="category = $any($event.target).value">
           <option value="">{{ i18n.t('events.filters.all') }}</option>
           <option value="концерт">Концерт</option>
           <option value="вечеринка">Вечеринка</option>
           <option value="развлечения">Развлечения</option>
         </select>
-        <select (change)="dateFilter = $any($event.target).value">
+        <select aria-label="Дата проведения" (change)="dateFilter = $any($event.target).value">
           <option value="">Любая дата</option>
           <option value="today">Сегодня</option>
           <option value="weekend">Эти выходные</option>
         </select>
-        <select (change)="priceFilter = $any($event.target).value">
+        <select aria-label="Цена, указанная организатором" (change)="priceFilter = $any($event.target).value">
           <option value="">Любая цена</option>
           <option value="free">{{ i18n.t('events.filters.free') }}</option>
           <option value="under5000">{{ i18n.t('events.filters.under5000') }}</option>
         </select>
-        <label class="availability"><input type="checkbox" [checked]="availableOnly" (change)="availableOnly = $any($event.target).checked" /> {{ i18n.t('events.filters.available') }}</label>
-      </div>
-      @if (loading()) { <p class="state">{{ i18n.t('events.loading') }}</p> }
+        </div>
+      </section>
+      @if (loading()) { <p class="state" role="status">{{ i18n.t('events.loading') }}</p> }
       @else if (!filteredEvents().length) {
         <div class="state"><strong>{{ data.eventsError() ? 'Не удалось загрузить события' : i18n.t('events.empty') }}</strong><span>{{ data.eventsError() ? 'Проверьте соединение с сервером.' : 'Попробуйте изменить фильтры.' }}</span><button type="button" (click)="reload()">{{ data.eventsError() ? i18n.t('events.retry') : i18n.t('events.reset') }}</button></div>
-      }
+      } @else {
       <div class="cards">
-        @for (event of filteredEvents(); track event.id) {
-          <a [routerLink]="['/events', event.id]" class="card" queryParamsHandling="preserve" (click)="analytics.track('event_open', event.id)">
-            <img [src]="event.imageUrl" [alt]="event.title" loading="lazy" />
-            <div class="card-body">
-              <div class="card-topline">
+        @for (event of filteredEvents(); track event.id; let first = $first) {
+          <a [routerLink]="['/events', event.id]" class="card" queryParamsHandling="preserve">
+            <div class="card-media">
+              <img [src]="event.imageUrl" [alt]="event.title" [loading]="first ? 'eager' : 'lazy'" [attr.fetchpriority]="first ? 'high' : 'auto'" />
+              <div class="card-badges">
                 <span class="category">{{ event.category }}</span>
                 @if (event.isDemo) { <span class="demo-badge">{{ i18n.t('events.demo') }}</span> }
                 @if (isIllustrativeImage(event.imageUrl)) { <span class="illustration-badge">{{ i18n.t('events.illustrative') }}</span> }
-                @if (event.featured) {
-                  <span class="featured-badge">{{ i18n.t('events.promo') }}</span>
-                }
               </div>
+              @if (event.featured) { <span class="featured-badge">{{ i18n.t('events.promo') }}</span> }
+            </div>
+            <div class="card-body">
               <h3>{{ event.title }}</h3>
-              <p class="meta">{{ formatDate(event.date) }} · {{ event.place }}</p>
-              <p class="price">{{ priceLabel(event) }}</p>
+              <p class="meta"><span>{{ formatDate(event.date) }}</span><span aria-hidden="true">·</span><span>{{ event.time }}</span></p>
+              <p class="place">{{ event.place }}</p>
+              <div class="card-footer"><span class="price">{{ priceLabel(event) }}</span><span class="card-arrow" aria-hidden="true">↗</span></div>
             </div>
           </a>
         }
       </div>
+      }
     </div>
   `,
   styles: [
     `
-      .events-list { padding: 1.5rem 1.25rem 88px; max-width: 1180px; margin: 0 auto; }
-      .intro { margin-bottom: 1.5rem; padding: 1rem 0 1.35rem; border-bottom: 1px solid var(--tg-line); }
-      .date-line { margin: 0 0 .7rem !important; color: var(--tg-button, #426c47); font-size: .68rem !important; font-weight: 800; letter-spacing: .18em; text-transform: uppercase; }
-      h1 { margin: 0 0 .85rem; font-size: clamp(2.25rem, 9vw, 4.5rem); line-height: .92; font-weight: 500; }
-      h1 em { color: var(--tg-button, #426c47); font-weight: 400; }
-      .intro p:not(.date-line) { margin: 0; max-width: 34rem; opacity: .66; font-size: .94rem; line-height: 1.5; }
-      .organizer-link { display: inline-block; margin-top: .75rem; color: var(--tg-button, #aabd7e); font-size: .8rem; font-weight: 700; text-decoration: none; }
-      .filters { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: 1.2rem; }
-      .search-label { flex: 1 1 100%; }
-      .search-label input { box-sizing: border-box; width: 100%; padding: 0.65rem .9rem; border-radius: 999px; background: var(--tg-surface, #ffffff); color: var(--tg-text, #26372b); border: 1px solid var(--tg-line); }
+      .events-list { max-width: 1240px; margin: 0 auto; padding: 1rem 1rem 6rem; }
+      .hero { display: grid; gap: 1.2rem; padding: 1.2rem 0 1.5rem; }
+      .date-line, .section-kicker { margin: 0 0 .65rem; color: var(--tg-button); font-size: .68rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+      h1 { max-width: 720px; margin: 0; font-size: clamp(2.1rem, 8vw, 3.8rem); line-height: 1.03; font-weight: 760; letter-spacing: -.055em; }
+      .hero-subtitle { max-width: 38rem; margin: .75rem 0 0; color: var(--tg-muted); font-size: .94rem; line-height: 1.55; }
+      .hero-actions { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem; margin-top: 1rem; }
+      .organizer-link, .together-link { display: inline-flex; align-items: center; gap: .4rem; min-height: 2.35rem; padding: 0 .8rem; border: 1px solid var(--tg-line); border-radius: 999px; color: var(--tg-text); font-size: .74rem; font-weight: 700; text-decoration: none; }
+      .organizer-link { border-color: transparent; padding-inline: .2rem; color: var(--tg-button); }
+      .together-link { color: var(--tg-button); background: var(--tg-surface); }
+      .hero-note { display: flex; align-items: flex-start; gap: .7rem; max-width: 26rem; padding: .8rem .9rem; border: 1px solid var(--tg-line); border-radius: 12px; background: var(--tg-surface); }
+      .note-icon { display: grid; flex: 0 0 auto; width: 1.55rem; height: 1.55rem; place-items: center; border-radius: 50%; background: color-mix(in srgb, var(--tg-button) 10%, transparent); color: var(--tg-button); }
+      .hero-note p { margin: 0; color: var(--tg-muted); font-size: .74rem; line-height: 1.45; }
+      .hero-note strong { color: var(--tg-text); }
+      .discovery { margin: .5rem 0 1rem; }
+      .discovery-heading { display: flex; justify-content: space-between; align-items: end; gap: 1rem; margin-bottom: .75rem; }
+      .section-kicker { margin-bottom: .25rem; font-size: .6rem; }
+      .discovery-heading h2 { margin: 0; font-size: 1.3rem; letter-spacing: -.03em; }
+      .result-count { padding: .3rem .6rem; border: 1px solid var(--tg-line); border-radius: 999px; color: var(--tg-muted); font-size: .68rem; white-space: nowrap; }
+      .filters { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; margin-bottom: 1rem; }
+      .search-label { grid-column: 1 / -1; }
+      .search-label input { box-sizing: border-box; width: 100%; min-height: 2.75rem; padding: 0 .95rem; border-radius: 12px; background: var(--tg-surface); color: var(--tg-text); border: 1px solid var(--tg-line); }
       .visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
-      .filters select { padding: 0.65rem .75rem; border-radius: 999px; min-width: 140px; background: var(--tg-surface, #ffffff); color: var(--tg-text, #26372b); border: 1px solid var(--tg-line); }
-      .availability { display: inline-flex; align-items: center; gap: .4rem; padding: .55rem .65rem; font-size: .8rem; }
-      .state { display: flex; flex-direction: column; gap: .45rem; padding: 1rem; margin: 0 0 1rem; background: var(--tg-surface, #ffffff); border: 1px solid var(--tg-line); border-radius: 8px; }
-      .state span { opacity: .72; font-size: .85rem; }
-      .state button { width: fit-content; padding: .5rem .7rem; border: 1px solid var(--tg-line); border-radius: 7px; background: transparent; color: var(--tg-text, #26372b); }
-      .cards { display: flex; flex-direction: column; gap: 1rem; }
-      .card {
-        display: block;
-        background: var(--tg-surface, #ffffff);
-        border-radius: 4px;
-        overflow: hidden;
-        text-decoration: none;
-        color: var(--tg-text, #26372b);
-        box-shadow: 0 12px 30px rgba(38,55,43,0.08);
-        border: 1px solid var(--tg-line);
-      }
-      .card img { width: 100%; height: 175px; object-fit: cover; filter: saturate(.82); }
-      .card-body { padding: 1rem 1.05rem 1.1rem; }
-      .card-topline { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
-      .category { font-size: 0.75rem; text-transform: uppercase; opacity: 0.8; }
-      .demo-badge { display: inline-flex; align-items: center; padding: .18rem .45rem; border: 1px solid rgba(242,190,104,.38); border-radius: 999px; color: #f2be68; font-size: .62rem; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; }
-      .illustration-badge { color: var(--tg-muted); font-size: .62rem; }
-      .featured-badge { display: inline-flex; align-items: center; padding: 0.18rem 0.5rem; border-radius: 999px; background: rgba(66,108,71,.1); color: var(--tg-button, #426c47); font-size: 0.65rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
-      .card h3 { margin: .35rem 0 .4rem; font-size: 1.35rem; font-weight: 500; }
-      .meta { margin: 0.25rem 0; font-size: 0.86rem; opacity: 0.62; }
-      .price { margin: .75rem 0 0; color: var(--tg-button, #426c47); font-size: .92rem; font-weight: 700; }
+      .filters select { min-width: 0; min-height: 2.75rem; padding: 0 .7rem; border-radius: 10px; background: var(--tg-surface); color: var(--tg-text); border: 1px solid var(--tg-line); font-size: .76rem; }
+      .filters select:last-child { grid-column: 1 / -1; }
+      .state { display: flex; flex-direction: column; gap: .45rem; padding: 1rem; margin: 0 0 1rem; background: var(--tg-surface); border: 1px solid var(--tg-line); border-radius: 12px; }
+      .state span { color: var(--tg-muted); font-size: .85rem; }
+      .state button { width: fit-content; padding: .5rem .7rem; border: 1px solid var(--tg-line); border-radius: 8px; background: transparent; color: var(--tg-text); }
+      .cards { display: grid; grid-template-columns: 1fr; gap: .8rem; }
+      .card { display: block; overflow: hidden; border: 1px solid var(--tg-line); border-radius: 16px; background: var(--tg-surface); color: var(--tg-text); text-decoration: none; box-shadow: 0 2px 8px rgba(20,35,25,.035); transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease; }
+      .card-media { position: relative; aspect-ratio: 1.72; overflow: hidden; background: color-mix(in srgb, var(--tg-button) 10%, var(--tg-surface)); }
+      .card img { display: block; width: 100%; height: 100%; object-fit: cover; filter: saturate(.9); transition: transform .3s ease; }
+      .card-badges { position: absolute; inset: .65rem .65rem auto; display: flex; flex-wrap: wrap; align-items: center; gap: .35rem; }
+      .category, .demo-badge, .illustration-badge, .featured-badge { display: inline-flex; align-items: center; min-height: 1.45rem; padding: 0 .5rem; border: 1px solid rgba(255,255,255,.55); border-radius: 999px; background: rgba(20,31,24,.75); color: #fff; font-size: .61rem; font-weight: 750; backdrop-filter: blur(8px); }
+      .featured-badge { position: absolute; right: .65rem; bottom: .65rem; border-color: transparent; background: var(--tg-button); color: var(--tg-button-text); }
+      .card-body { padding: .9rem .95rem .95rem; }
+      .card h3 { margin: 0; font-size: 1.08rem; line-height: 1.25; font-weight: 720; letter-spacing: -.025em; }
+      .meta { display: flex; gap: .4rem; margin: .5rem 0 .15rem; color: var(--tg-muted); font-size: .75rem; }
+      .place { overflow: hidden; margin: 0; color: var(--tg-muted); font-size: .75rem; text-overflow: ellipsis; white-space: nowrap; }
+      .card-footer { display: flex; justify-content: space-between; align-items: center; gap: .5rem; margin-top: .75rem; padding-top: .65rem; border-top: 1px solid var(--tg-line); }
+      .price { margin: 0; color: var(--tg-muted); font-size: .68rem; line-height: 1.35; }
+      .card-arrow { display: grid; flex: 0 0 auto; width: 1.8rem; height: 1.8rem; place-items: center; border-radius: 50%; background: color-mix(in srgb, var(--tg-button) 9%, transparent); color: var(--tg-button); }
       @media (min-width: 700px) {
-        .search-label { flex: 1 1 100%; }
-        .events-list { padding: 4.5rem clamp(2rem, 5vw, 5rem); }
-        .intro { display: grid; grid-template-columns: minmax(0, 1fr) minmax(220px, .48fr); column-gap: 4rem; align-items: end; padding-bottom: 2.25rem; }
-        .eyebrow, .date-line, h1 { grid-column: 1; }
-        .intro p:not(.date-line), .organizer-link { grid-column: 2; }
-        h1 { font-size: clamp(3.5rem, 6vw, 6rem); margin-bottom: 0; }
-        .intro p:not(.date-line) { grid-row: 2 / span 2; align-self: center; }
-        .organizer-link { align-self: start; }
-        .filters { margin: 1.75rem 0; }
-        .cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.25rem; }
-        .card img { height: 190px; }
-        .card { transition: transform .2s ease, border-color .2s ease; }
-        .card:hover { transform: translateY(-4px); border-color: rgba(66,108,71,.45); }
+        .events-list { padding: 2rem clamp(1.5rem, 4vw, 3rem) 4rem; }
+        .hero { grid-template-columns: minmax(0, 1fr) minmax(15rem, 22rem); align-items: end; gap: 2rem; padding: 1.5rem 0 1.7rem; }
+        .hero-note { justify-self: end; margin-bottom: .2rem; }
+        .hero-subtitle { font-size: 1rem; }
+        .filters { grid-template-columns: minmax(0, 1fr) repeat(3, minmax(0, auto)); }
+        .search-label { grid-column: 1 / -1; }
+        .filters select:last-child { grid-column: auto; }
+        .cards { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
+        .card:hover { transform: translateY(-3px); border-color: color-mix(in srgb, var(--tg-button) 40%, var(--tg-line)); box-shadow: 0 12px 30px rgba(20,35,25,.09); }
+        .card:hover img { transform: scale(1.035); }
       }
     `,
   ],
@@ -129,7 +146,6 @@ export class EventsListComponent implements OnInit {
   category = '';
   dateFilter = '';
   priceFilter = '';
-  availableOnly = false;
   loading = signal(true);
   events = signal<EventItem[]>([]);
 
@@ -156,11 +172,10 @@ export class EventsListComponent implements OnInit {
       .filter((event) => !this.category || event.category === this.category)
       .filter((event) => !this.dateFilter || this.matchesDateFilter(event.date, today, weekendStart, weekendEnd))
       .filter((event) => !this.priceFilter || (this.priceFilter === 'free' ? event.price === 0 || event.price === null : (event.price ?? 0) <= 5000))
-      .filter((event) => !this.availableOnly || (event.ticketCategories ?? []).some((category) => category.isActive && category.capacity > category.sold))
       .sort((a, b) => Number(b.featured) - Number(a.featured) || a.date.localeCompare(b.date));
   };
 
-  resetFilters(): void { this.searchQuery = ''; this.category = ''; this.dateFilter = ''; this.priceFilter = ''; this.availableOnly = false; }
+  resetFilters(): void { this.searchQuery = ''; this.category = ''; this.dateFilter = ''; this.priceFilter = ''; }
 
   reload(): void {
     if (this.data.eventsError()) this.data.getEvents().subscribe((list) => { this.events.set(list); this.loading.set(false); });
@@ -174,15 +189,20 @@ export class EventsListComponent implements OnInit {
   }
 
   formatDate(date: string): string {
-    return new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'short' }).format(new Date(`${date}T12:00:00`));
+    const locale = this.i18n.locale() === 'kz' ? 'kk-KZ' : this.i18n.locale() === 'en' ? 'en-US' : 'ru-RU';
+    return new Intl.DateTimeFormat(locale, { day: 'numeric', month: 'short' }).format(new Date(`${date}T12:00:00`));
   }
 
   priceLabel(event: EventItem): string {
-    if (event.id === 'tusa-2026' && !event.ticketCategories?.some((category) => category.isActive)) return 'Продажи приостановлены';
-    return event.price ? `${event.price} ₸` : 'Бесплатно';
+    if (event.price && event.price > 0) return `${this.i18n.t('events.price.fromOrganizer')}: ${event.price} ₸`;
+    if (event.price === 0) return this.i18n.t('events.price.freeByOrganizer');
+    return this.i18n.t('events.price.contactOrganizer');
   }
 
   isIllustrativeImage(imageUrl: string): boolean { return imageUrl.includes('images.unsplash.com'); }
 
-  todayLabel(): string { return new Intl.DateTimeFormat('ru-RU', { weekday: 'long', day: 'numeric', month: 'long' }).format(new Date()); }
+  todayLabel(): string {
+    const locale = this.i18n.locale() === 'kz' ? 'kk-KZ' : this.i18n.locale() === 'en' ? 'en-US' : 'ru-RU';
+    return new Intl.DateTimeFormat(locale, { weekday: 'long', day: 'numeric', month: 'long' }).format(new Date());
+  }
 }
