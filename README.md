@@ -4,23 +4,11 @@
 
 **Токен бота** хранится только на бэкенде (переменные окружения), в репозитории его нет.
 
-## Revenue plan and first-money target
+## Product and monetization policy
 
-The project is designed to start with organizer monetization, not a visitor subscription.
+TUSA is an Astana event-discovery and organizer-tools Mini App. Event discovery and RSVP are free. TUSA does **not** sell admission to offline events or collect entry fees. Its only planned paid offer is the digital Organizer Pro service, billed inside Telegram in Stars; the price is currently `0`, so checkout remains off until the digital benefits, terms, support, and refund flow are verified.
 
-Priority path:
-- sell visibility and ticket conversion to local organizers
-- support first 5–10 organizers with low-friction launch offers
-- validate 20 real events and 10 paid ticket sales
-- transition to a commission and featured-placement model
-
-Primary early revenue streams:
-- 5–10% commission on successful ticket sales
-- paid featured placement in discovery rankings
-- organizer toolkit: analytics, guest list, QR check-in
-
-The commercial roadmap is documented in [docs/MONETIZATION_PLAN.md](docs/MONETIZATION_PLAN.md) and the outreach motion is in [docs/SALES_PLAYBOOK.md](docs/SALES_PLAYBOOK.md).
-The first-organizer prospecting workflow and lead tracker are in [docs/CLIENT_PROSPECTING.md](docs/CLIENT_PROSPECTING.md).
+Telegram requires Stars for digital goods and services inside bots and Mini Apps. Stars must not be used to charge for admission to in-person events. See the [monetization plan](docs/MONETIZATION_PLAN.md) and [execution sprint](docs/EXECUTION_SPRINT.md) for the current direction. Older ticket-commission and KZT-provider proposals are superseded.
 
 ## GitHub Pages
 
@@ -51,7 +39,7 @@ This repository is currently the TUSA application, not a generic app generator. 
 
 In the backend project folder, configure the bot token, public Mini App URL, webhook URL, webhook secret, and numeric admin Telegram ID with .NET User Secrets for local Development. For deployment, use the hosting provider's secret/environment-variable store. Environment variable names use double underscores, for example `Telegram__BotToken`, `Telegram__WebAppUrl`, `Telegram__WebhookUrl`, `Telegram__WebhookSecret`, and `Telegram__AdminUserIds__0`.
 
-Never put bot tokens, payment-provider tokens, or webhook secrets in Angular source, `environment*.ts`, committed `appsettings*.json`, screenshots, or public chat. Rotate a credential immediately if it was exposed.
+Never put bot tokens or webhook secrets in Angular source, `environment*.ts`, committed `appsettings*.json`, screenshots, or public chat. The current Stars-only policy has no external payment-provider token. Rotate a credential immediately if it was exposed.
 
 ### 3. Point the frontend to your API
 
@@ -71,9 +59,9 @@ Organizer submissions stay unpublished until an administrator reviews them in `/
 
 - `Tusa2026EventSeeder` and TUSA-specific event IDs, prices, and copy;
 - TUSA event UI and brand assets;
-- organizer/admin policies and the current physical-ticket payment configuration.
+- organizer/admin policies and the digital Organizer Pro subscription.
 
-Payment providers depend on merchant, product, region, and contract. Do not enable live payments by copying a token alone: first confirm provider availability and permitted use, configure server-side secrets, and test invoice, success, failure, cancellation, refund, and webhook delivery.
+Use Telegram Stars only for digital services delivered inside TUSA. Never charge Stars for offline event admission, and do not add a third-party checkout/provider for tickets under the current product policy. Do not enable Organizer Pro checkout until its digital benefits, price, terms consent, successful payment, `/paysupport`, and Stars refund flow are verified.
 
 ## Code scaffolding
 

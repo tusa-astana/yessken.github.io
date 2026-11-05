@@ -80,6 +80,15 @@ export interface OrganizerOrderRow {
   purchasedAt: string;
 }
 
+export interface OrganizerEngagementRow {
+  eventId: string;
+  eventTitle: string;
+  eventDate: string;
+  views: number;
+  shares: number;
+  rsvps: number;
+}
+
 export interface AdminEventReport {
   eventId: string;
   eventTitle: string;

@@ -38,8 +38,8 @@ declare const L: typeof import('leaflet');
   `,
   styles: [
     `
-      :host { display: block; height: 100%; min-height: 0; }
-      .map-container { position: relative; width: 100%; height: 100%; min-height: 0; overflow: hidden; }
+      :host { display: block; min-height: 0; }
+      .map-container { position: relative; width: 100%; height: calc(100dvh - 64px - 42px - 5.4rem - env(safe-area-inset-bottom)); min-height: 420px; overflow: hidden; }
       .map { width: 100%; height: 100%; min-height: 0; display: block; background: var(--tg-surface, #252529); -webkit-tap-highlight-color: transparent; }
       .map-header {
         position: absolute;
@@ -61,6 +61,9 @@ declare const L: typeof import('leaflet');
         .map-header { left: .75rem; right: .75rem; }
         .map-sheet { left: .75rem; right: .75rem; bottom: .75rem; }
         .map-sheet strong { font-size: .95rem; }
+      }
+      @media (min-width: 760px) {
+        .map-container { height: calc(100dvh - 72px - 42px - 2rem); min-height: 400px; }
       }
       .map-kicker, .sheet-kicker { display: block; color: #c5d8b1; font-size: .62rem; font-weight: 800; letter-spacing: .18em; }
       .map-demo-flag { display: inline-block; margin-top: .55rem; padding: .25rem .45rem; border: 1px solid rgba(229,198,133,.35); border-radius: 999px; background: rgba(189,155,89,.16); color: #f0d7a3; font-size: .62rem; font-weight: 700; }
@@ -199,13 +202,6 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   ): void {
     const astana = { lat: 51.1694, lng: 71.4494 };
     const container = mapEl.parentElement;
-    const rawW = container?.offsetWidth ?? 0;
-    const rawH = container?.offsetHeight ?? 0;
-    const w = rawW > 0 ? rawW : window.innerWidth;
-    const h = Math.max(rawH, 280);
-    mapEl.style.width = `${w}px`;
-    mapEl.style.height = `${h}px`;
-
     this.map = L.map(mapEl, {
       fadeAnimation: false,
       zoomAnimation: false,

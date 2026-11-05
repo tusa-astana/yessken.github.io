@@ -1,37 +1,43 @@
-import { Component, OnInit, signal, computed } from '@angular/core';
+import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { DataService } from '../../core/services/data.service';
 import { AnalyticsService } from '../../core/services/analytics.service';
 import { TelegramService } from '../../core/services/telegram.service';
+import { I18nService } from '../../core/services/i18n.service';
 import type { EventItem } from '../../core/types/event.model';
 import QRCode from 'qrcode';
 
 @Component({
   selector: 'app-event-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule],
   template: `
     @if (event(); as ev) {
       <div class="event-detail">
-        <img [src]="ev.imageUrl" [alt]="ev.title" class="cover" fetchpriority="high" />
-        <div class="body">
-          @if (isIllustrativeImage(ev.imageUrl)) { <p class="image-note">Иллюстративное фото · афиша события ещё не добавлена</p> }
-          <div class="heading-row">
-            <span class="category">{{ ev.category }}</span>
-            @if (ev.featured) {
-              <span class="featured-badge">Промо-поднятие</span>
-            }
+        <header class="event-hero">
+          <img [src]="ev.imageUrl" [alt]="''" class="cover" fetchpriority="high" />
+          <div class="hero-content">
+            <div class="heading-row">
+              <span class="category">{{ ev.category }}</span>
+              @if (ev.featured) { <span class="featured-badge">{{ i18n.t('events.promo') }}</span> }
+            </div>
+            <h1>{{ ev.title }}</h1>
+            <p class="hero-meta"><span>{{ formatEventDate(ev.date) }}</span><span>{{ ev.time }}</span></p>
           </div>
-          <h1>{{ ev.title }}</h1>
-          @if (ev.isDemo) { <p class="demo-notice" role="note">Демо-пример. Это тестовая карточка, событие и билеты не подтверждены.</p> }
-          <p class="meta">{{ ev.date }} {{ ev.time }} · {{ ev.place }}</p>
-          <p class="address">{{ ev.address }}</p>
+          @if (isIllustrativeImage(ev.imageUrl)) { <span class="image-note">{{ i18n.t('events.illustrative') }}</span> }
+        </header>
+        <div class="body">
+          @if (ev.isDemo) { <p class="demo-notice" role="note">{{ i18n.t('events.details.demoNotice') }}</p> }
+          <section class="details-card" aria-label="Сведения о событии">
+            <div class="detail-line"><span class="detail-icon" aria-hidden="true">⌖</span><div><small>{{ i18n.t('events.details.place') }}</small><strong>{{ ev.place }}</strong>@if (ev.address) { <span>{{ ev.address }}</span> }</div></div>
+            <div class="detail-line"><span class="detail-icon" aria-hidden="true">₸</span><div><small>{{ i18n.t('events.details.price') }}</small><strong>{{ priceLabel(ev) }}</strong><span>{{ i18n.t('events.details.organizerInfo') }}</span></div></div>
+          </section>
           <p class="description">{{ ev.description }}</p>
-          <p class="price">{{ priceLabel(ev) }}</p>
+          <p class="ticket-policy" role="note">{{ i18n.t('events.details.rsvpPolicy') }}</p>
           <div class="going-row">
             @if (ev.goingCount !== undefined && ev.goingCount > 0) {
-              <span class="going-count">{{ ev.goingCount }} {{ goingLabel(ev.goingCount) }}</span>
+              <span class="going-count">{{ ev.goingCount }} RSVP</span>
             }
             <button
               type="button"
@@ -39,13 +45,13 @@ import QRCode from 'qrcode';
               [class.active]="ev.userGoing"
               (click)="toggleGoing(ev)"
               [disabled]="goingLoading() || ev.isDemo || !telegram.isInTelegram">
-              {{ ev.userGoing ? 'Вы отметили участие' : 'Буду участвовать' }}
+              {{ goingLoading() ? i18n.t('events.details.rsvpSaving') : (ev.userGoing ? i18n.t('events.details.rsvpSaved') : i18n.t('events.details.rsvp')) }}
             </button>
-            @if (!telegram.isInTelegram && !ev.isDemo) { <a class="telegram-hint" href="https://t.me/tusa_astana_bot">Откройте TUSA в Telegram, чтобы отметить участие</a> }
-            @if (goingError()) { <p class="going-error" role="alert">Не удалось сохранить отметку. Проверьте соединение и попробуйте ещё раз.</p> }
+            @if (!telegram.isInTelegram && !ev.isDemo) { <a class="telegram-hint" href="https://t.me/tusa_astana_bot">{{ i18n.t('events.details.telegramPrompt') }}</a> }
+            @if (goingError()) { <p class="going-error" role="alert">{{ i18n.t('events.details.rsvpError') }}</p> }
           </div>
-          <button type="button" class="btn-share" (click)="share(ev)">{{ shareLabel() }}</button>
-          <button type="button" class="btn-tools" (click)="toolsVisible.update((visible) => !visible)">Материалы для публикации</button>
+          <button type="button" class="btn-share" (click)="share(ev)">{{ shareLabel() || i18n.t('events.details.share') }}</button>
+          <button type="button" class="btn-tools" (click)="toolsVisible.update((visible) => !visible)">{{ i18n.t('events.details.shareMaterials') }}</button>
           @if (toolsVisible()) {
             <div class="share-tools">
               @if (qrCode()) {
@@ -53,96 +59,79 @@ import QRCode from 'qrcode';
                 <a class="download-qr" [href]="qrCode()" [download]="'tusa-' + ev.id + '-qr.png'">Скачать QR-код</a>
               }
               <textarea readonly [value]="shareText(ev)"></textarea>
-              <button type="button" class="copy-text" (click)="copyShareText(ev)">{{ copyLabel() }}</button>
+              <button type="button" class="copy-text" (click)="copyShareText(ev)">{{ copyLabel() || i18n.t('events.details.copy') }}</button>
             </div>
-          }
-          @if (ticketSalesAvailable(ev)) {
-            <a [routerLink]="['/events', ev.id, 'buy']" class="btn-buy" queryParamsHandling="preserve">Получить билет</a>
-          } @else if (!ev.isDemo && ev.price && ev.id === 'tusa-2026') {
-            <a class="btn-buy interest-link" [href]="ticketInterestLink(ev)">Сообщить, когда билеты появятся</a>
-          } @else {
-            <span class="btn-buy unavailable" aria-disabled="true">{{ ev.isDemo ? 'Демо — билеты недоступны' : ev.price ? 'Продажи билетов пока не подключены' : 'Вход бесплатный' }}</span>
           }
         </div>
       </div>
     } @else {
-      <p>Событие не найдено.</p>
+      <p>{{ i18n.t('events.details.notFound') }}</p>
     }
   `,
   styles: [
     `
-      .event-detail { padding-bottom: 80px; }
-      .cover { width: 100%; height: 200px; object-fit: cover; }
-      .body { padding: 1rem; }
-      .heading-row { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
-      .category { font-size: 0.75rem; text-transform: uppercase; opacity: 0.8; }
-      .featured-badge { display: inline-flex; align-items: center; padding: 0.18rem 0.55rem; border-radius: 999px; background: rgba(66,108,71,.1); color: var(--tg-button, #426c47); font-size: 0.65rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; }
-      h1 { margin: 0.25rem 0 0.5rem; font-size: 1.35rem; }
-      .meta, .address { margin: 0.25rem 0; font-size: 0.95rem; opacity: 0.9; }
-      .description { margin: 1rem 0; }
-      .price { font-size: 1.1rem; font-weight: 600; margin: 1rem 0; }
-      .demo-notice { margin: .75rem 0; padding: .7rem .8rem; border-left: 2px solid #f2be68; background: rgba(242,190,104,.08); color: #f2d29b; font-size: .78rem; line-height: 1.45; }
-      .image-note { display: inline-block; margin: .35rem 0 .5rem; color: var(--tg-muted); font-size: .68rem; }
-      .going-row { display: flex; align-items: center; gap: 0.75rem; margin: 1rem 0; flex-wrap: wrap; }
-      .going-count { font-size: 0.9rem; opacity: 0.9; }
+      .event-detail { max-width: 1040px; margin: 0 auto; padding: 0 1rem 5.5rem; }
+      .event-hero { position: relative; display: flex; align-items: end; min-height: 260px; margin: .35rem -1rem 0; overflow: hidden; border-radius: 0 0 20px 20px; background: #24352b; }
+      .cover { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+      .event-hero::after { position: absolute; inset: 0; content: ''; background: linear-gradient(180deg, rgba(10,18,13,.05) 15%, rgba(10,18,13,.78) 100%); }
+      .hero-content { position: relative; z-index: 1; width: 100%; padding: 1.25rem; color: #fff; }
+      .heading-row { display: flex; align-items: center; gap: .5rem; }
+      .category, .featured-badge { display: inline-flex; align-items: center; min-height: 1.55rem; padding: 0 .58rem; border: 1px solid rgba(255,255,255,.55); border-radius: 999px; background: rgba(15,24,18,.48); color: #fff; font-size: .66rem; font-weight: 700; backdrop-filter: blur(8px); }
+      h1 { max-width: 740px; margin: .6rem 0 .55rem; font-size: clamp(1.8rem, 6vw, 3.25rem); line-height: 1.04; font-weight: 780; letter-spacing: -.05em; }
+      .hero-meta { display: flex; flex-wrap: wrap; gap: .45rem .8rem; margin: 0; color: rgba(255,255,255,.83); font-size: .82rem; }
+      .image-note { position: absolute; z-index: 2; top: .7rem; right: .7rem; padding: .3rem .55rem; border-radius: 999px; background: rgba(15,24,18,.65); color: #fff; font-size: .62rem; backdrop-filter: blur(8px); }
+      .body { max-width: 760px; margin: 0 auto; padding: 1rem 0; }
+      .details-card { display: grid; gap: .25rem; margin: 1rem 0; padding: .35rem .9rem; border: 1px solid var(--tg-line); border-radius: 14px; background: var(--tg-surface); }
+      .detail-line { display: flex; align-items: flex-start; gap: .75rem; padding: .7rem 0; }
+      .detail-line + .detail-line { border-top: 1px solid var(--tg-line); }
+      .detail-icon { display: grid; flex: 0 0 auto; width: 2rem; height: 2rem; place-items: center; border-radius: 10px; background: color-mix(in srgb, var(--tg-button) 9%, transparent); color: var(--tg-button); }
+      .detail-line div { display: grid; gap: .16rem; }
+      .detail-line small { color: var(--tg-muted); font-size: .65rem; }
+      .detail-line strong { font-size: .83rem; font-weight: 700; }
+      .detail-line span:not(.detail-icon) { color: var(--tg-muted); font-size: .7rem; }
+      .description { margin: 1.2rem 0; color: var(--tg-text); font-size: .92rem; line-height: 1.65; white-space: pre-line; }
+      .demo-notice { margin: .75rem 0; padding: .7rem .8rem; border-left: 2px solid #a87a28; background: rgba(242,190,104,.12); color: #624814; font-size: .78rem; line-height: 1.45; }
+      :host-context(.dark-theme) .demo-notice { border-left-color: #f2be68; color: #f2d29b; }
+      .going-row { display: flex; align-items: center; gap: .75rem; margin: 1rem 0; flex-wrap: wrap; }
+      .going-count { color: var(--tg-muted); font-size: .8rem; }
       .telegram-hint { flex-basis: 100%; color: var(--tg-button, #426c47); font-size: .78rem; }
       .going-error { flex-basis: 100%; margin: 0; color: #f27b68; font-size: .78rem; }
       .btn-going {
-        padding: 0.5rem 1rem;
-        border-radius: 8px;
-        border: 2px solid var(--tg-button, #426c47);
-        background: transparent;
-        color: var(--tg-button, #426c47);
-        font-size: 0.95rem;
-        font-weight: 500;
+        min-height: 2.8rem;
+        padding: 0 1.1rem;
+        border-radius: 999px;
+        border: 1px solid var(--tg-button, #426c47);
+        background: var(--tg-button, #426c47);
+        color: var(--tg-button-text, #ffffff);
+        font-size: .84rem;
+        font-weight: 700;
         cursor: pointer;
-        box-shadow: 0 0 8px rgba(0, 255, 65, 0.3);
+        box-shadow: var(--tg-glow);
       }
       .btn-going.active {
-        background: var(--tg-button, #426c47);
-        color: var(--tg-button-text, #0a0a0c);
-        box-shadow: var(--tg-glow);
+        background: color-mix(in srgb, var(--tg-button) 12%, var(--tg-surface));
+        color: var(--tg-button);
+        box-shadow: none;
       }
       .btn-going:disabled { opacity: 0.6; cursor: not-allowed; }
-      .btn-buy {
-        display: inline-block;
-        padding: 0.75rem 1.5rem;
-        background: var(--tg-button, #426c47);
-        color: var(--tg-button-text, #0a0a0c);
-        border-radius: 8px;
-        text-decoration: none;
-        font-weight: 500;
-        box-shadow: var(--tg-glow);
-      }
-      .btn-buy.unavailable { background: var(--tg-surface, #ffffff); color: var(--tg-text, #26372b); box-shadow: none; cursor: not-allowed; }
-      .btn-buy.interest-link { background: var(--tg-surface, #ffffff); color: var(--tg-button, #426c47); border: 1px solid rgba(66,108,71,.32); box-shadow: none; text-align: center; }
-      @media (max-width: 699px) {
-        .event-detail { padding-bottom: 4.75rem; }
-        .btn-buy {
-          position: fixed;
-          left: 1rem;
-          right: 1rem;
-          bottom: calc(4.5rem + env(safe-area-inset-bottom));
-          z-index: 95;
-          display: block;
-          text-align: center;
-        }
-      }
-      .btn-share { display: block; margin: .75rem 0; padding: .65rem 1rem; border: 1px solid var(--tg-line); border-radius: 8px; background: transparent; color: var(--tg-text, #26372b); cursor: pointer; }
-      .btn-tools, .copy-text { display: block; width: 100%; margin: .5rem 0; padding: .6rem .8rem; border: 1px solid var(--tg-line); border-radius: 8px; background: var(--tg-surface, #ffffff); color: var(--tg-text, #26372b); cursor: pointer; }
-      .share-tools { padding: .75rem; margin: .5rem 0 1rem; background: var(--tg-surface, #ffffff); border: 1px solid var(--tg-line); border-radius: 8px; }
+      .ticket-policy { margin: 1rem 0; padding: .8rem .9rem; border: 1px solid var(--tg-line); border-radius: 10px; color: var(--tg-muted); background: var(--tg-surface); font-size: .76rem; line-height: 1.5; }
+      .btn-share { display: inline-flex; align-items: center; min-height: 2.65rem; margin: .3rem .4rem .3rem 0; padding: 0 .9rem; border: 1px solid var(--tg-line); border-radius: 999px; background: var(--tg-surface); color: var(--tg-text); cursor: pointer; font-size: .78rem; font-weight: 650; }
+      .btn-tools, .copy-text { display: inline-flex; align-items: center; min-height: 2.65rem; margin: .3rem 0; padding: 0 .9rem; border: 1px solid var(--tg-line); border-radius: 999px; background: var(--tg-surface); color: var(--tg-text); cursor: pointer; font-size: .78rem; }
+      .share-tools { padding: .9rem; margin: .6rem 0 1rem; background: var(--tg-surface); border: 1px solid var(--tg-line); border-radius: 12px; }
       .event-qr { display: block; width: 150px; height: 150px; margin: 0 auto .75rem; background: white; }
       .download-qr { display: block; width: fit-content; margin: 0 auto .75rem; color: var(--tg-button, #aabd7e); font-size: .85rem; }
       .share-tools textarea { width: 100%; min-height: 84px; box-sizing: border-box; resize: vertical; padding: .6rem; border: 1px solid var(--tg-line); border-radius: 6px; background: var(--tg-surface, #ffffff); color: var(--tg-text, #26372b); font: inherit; }
+      @media (min-width: 760px) { .event-detail { padding: 0 2rem 3rem; } .event-hero { min-height: 380px; margin: .6rem 0 0; border-radius: 20px; } .hero-content { padding: 2rem; } }
     `,
   ],
 })
 export class EventDetailComponent implements OnInit {
+  protected readonly i18n = inject(I18nService);
   event = signal<EventItem | null>(null);
   goingLoading = signal(false);
   goingError = signal(false);
-  shareLabel = signal('Поделиться событием');
-  copyLabel = signal('Скопировать текст');
+  shareLabel = signal('');
+  copyLabel = signal('');
   toolsVisible = signal(false);
   qrCode = signal('');
 
@@ -167,25 +156,16 @@ export class EventDetailComponent implements OnInit {
     }
   }
 
-  goingLabel(n: number): string {
-    const last = n % 10;
-    const last2 = n % 100;
-    if (last === 1 && last2 !== 11) return 'человек идёт';
-    if (last >= 2 && last <= 4 && (last2 < 12 || last2 > 14)) return 'человека идут';
-    return 'человек идут';
-  }
-
-  ticketSalesAvailable(ev: EventItem): boolean {
-    return !ev.isDemo && ev.ticketSalesEnabled === true;
-  }
-
-  ticketInterestLink(ev: EventItem): string {
-    return `https://t.me/tusa_astana_bot?start=interest_${encodeURIComponent(ev.id)}`;
+  formatEventDate(date: string): string {
+    const locale = this.i18n.locale() === 'kz' ? 'kk-KZ' : this.i18n.locale() === 'en' ? 'en-US' : 'ru-RU';
+    return new Intl.DateTimeFormat(locale, { weekday: 'long', day: 'numeric', month: 'long' })
+      .format(new Date(`${date}T12:00:00`));
   }
 
   priceLabel(ev: EventItem): string {
-    if (ev.id === 'tusa-2026' && !this.ticketSalesAvailable(ev)) return 'Продажи приостановлены';
-    return ev.price ? `${ev.price} ₸` : 'Бесплатно';
+    if (ev.price && ev.price > 0) return `${this.i18n.t('events.price.fromOrganizer')}: ${ev.price} ₸`;
+    if (ev.price === 0) return this.i18n.t('events.price.freeByOrganizer');
+    return this.i18n.t('events.price.contactOrganizer');
   }
 
   isIllustrativeImage(imageUrl: string): boolean { return imageUrl.includes('images.unsplash.com'); }
@@ -203,7 +183,7 @@ export class EventDetailComponent implements OnInit {
   }
 
   async share(ev: EventItem): Promise<void> {
-    const url = typeof window !== 'undefined' ? `${window.location.origin}/events/${ev.id}?ref=tusa-event-${ev.id}` : '';
+    const url = this.telegram.miniAppLink(`event_${ev.id}`);
     const text = `${ev.title} — ${ev.date} в ${ev.place}. Подробнее в TUSA.`;
     this.analytics.track('event_share', ev.id, `tusa-event-${ev.id}`);
     try {
@@ -211,29 +191,29 @@ export class EventDetailComponent implements OnInit {
         await navigator.share({ title: ev.title, text, url });
       } else if (typeof navigator !== 'undefined' && navigator.clipboard) {
         await navigator.clipboard.writeText(`${text} ${url}`);
-        this.shareLabel.set('Ссылка скопирована');
-        setTimeout(() => this.shareLabel.set('Поделиться событием'), 2200);
+        this.shareLabel.set(this.i18n.t('events.details.shareCopied'));
+        setTimeout(() => this.shareLabel.set(''), 2200);
       }
     } catch {
-      this.shareLabel.set('Не удалось поделиться');
-      setTimeout(() => this.shareLabel.set('Поделиться событием'), 2200);
+      this.shareLabel.set(this.i18n.t('events.details.shareFailed'));
+      setTimeout(() => this.shareLabel.set(''), 2200);
     }
   }
 
   shareText(ev: EventItem): string {
-    const url = typeof window !== 'undefined' ? `${window.location.origin}/events/${ev.id}?ref=tusa-event-${ev.id}` : '';
+    const url = this.telegram.miniAppLink(`event_${ev.id}`);
     return `${ev.title}\n${ev.date} · ${ev.time} · ${ev.place}\nПодробнее в TUSA: ${url}`;
   }
 
   async copyShareText(ev: EventItem): Promise<void> {
     if (typeof navigator === 'undefined' || !navigator.clipboard) return;
     await navigator.clipboard.writeText(this.shareText(ev));
-    this.copyLabel.set('Текст скопирован');
-    setTimeout(() => this.copyLabel.set('Скопировать текст'), 2200);
+    this.copyLabel.set(this.i18n.t('events.details.copied'));
+    setTimeout(() => this.copyLabel.set(''), 2200);
   }
 
   private async generateQr(ev: EventItem): Promise<void> {
-    const url = typeof window !== 'undefined' ? `${window.location.origin}/events/${ev.id}?ref=tusa-event-${ev.id}` : ev.id;
+    const url = this.telegram.miniAppLink(`event_${ev.id}`);
     this.qrCode.set(await QRCode.toDataURL(url, { width: 220, margin: 1, errorCorrectionLevel: 'M' }));
   }
 }

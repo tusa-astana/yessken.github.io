@@ -2,7 +2,7 @@
 
 ## Objective
 
-Find the first 10 organizers who already have events, an audience, and a reason to improve ticket conversion.
+Find the first 10 organizers with real events and an audience who value Telegram discovery and measurable RSVP interest. TUSA does not sell offline tickets or take admission payments.
 
 ## Best client profile
 
@@ -23,7 +23,7 @@ Prioritize organizers who:
 - electronic music collectives
 - recurring nightlife series
 
-Offer: event page, Telegram distribution, ticket sales, QR check-in.
+Offer: free moderated event page, Telegram sharing, and RSVP/interest measurement.
 
 ### Priority 2: comedy and culture
 
@@ -32,7 +32,7 @@ Offer: event page, Telegram distribution, ticket sales, QR check-in.
 - workshops and creative spaces
 - small concert organizers
 
-Offer: clean event information, simple checkout, guest list, reminder flow.
+Offer: clean event information, Telegram sharing, and RSVP/interest measurement.
 
 ### Priority 3: venues
 
@@ -41,7 +41,7 @@ Offer: clean event information, simple checkout, guest list, reminder flow.
 - coworking and community spaces
 - university and professional communities
 
-Offer: recurring event calendar and a direct channel to local attendees.
+Offer: recurring event calendar and an in-Telegram discovery channel.
 
 ## Where to search
 
@@ -84,7 +84,7 @@ Checked 2026-09-27. Use only these public business channels for the first outrea
 
 Subject: Бесплатный пилот для ближайшей игры в Астане
 
-Здравствуйте! Увидел расписание игр «Квиз, пожалуйста!» в Астане. Мы запускаем TUSA — сервис событий с переходом к регистрации и оплате через Telegram.
+Здравствуйте! Увидел расписание игр «Квиз, пожалуйста!» в Астане. Мы запускаем TUSA — бесплатную Telegram-афишу событий Астаны с карточкой события, RSVP и статистикой интереса.
 
 Предлагаем бесплатно протестировать одно ближайшее мероприятие: подготовим страницу, ссылку для вашей аудитории и покажем статистику переходов. Если формат не подойдёт, никаких обязательств нет.
 
@@ -94,7 +94,7 @@ Subject: Бесплатный пилот для ближайшей игры в �
 
 Здравствуйте! Мы запускаем TUSA — локальный Telegram-сервис для событий Астаны. Хотим предложить небольшой партнёрский тест: вы направляете один актуальный event или знакомите с организатором, а мы бесплатно готовим страницу, Telegram-путь и базовую статистику.
 
-Не предлагаем заменять ваш каталог. Хотим проверить дополнительный ticketing/distribution layer на одном событии и обсудить процент только при результате. Кому лучше отправить детали?
+Не предлагаем заменять ваш каталог или продавать билеты. Хотим бесплатно разместить одно актуальное событие и измерить переходы/RSVP как дополнительный канал discovery. Кому лучше отправить детали?
 
 ## Verified first prospects
 
@@ -102,12 +102,12 @@ These prospects were identified from the public Astana listings on [Давай �
 
 | Prospect | Evidence of activity | Sales angle | Public source |
 |---|---|---|---|
-| Stand Up Bar Pozitiv | Recurring stand-up and conversation shows at ул. Габдуллина, 18 | Recurring event pages, ticket conversion, QR check-in | [Astana listings](https://sxodim.com/astana) |
-| VkusKino | Repeated themed cinema dinners at Astana restaurants | Repeatable event template, reminders, paid ticket flow | [VkusKino listings](https://sxodim.com/astana/events/vkuskino) |
-| JAN Theatre | Multiple theatre performances at BIArt | Event catalogue, categories, ticket sales, audience reminders | [JAN listings](https://sxodim.com/astana/events/jan-theatre-spektakli) |
-| The Bus Music Pub | Stand-up and concerts at Коргалжынское шоссе, 3 | Venue event calendar and direct Telegram ticket path | [The Bus event example](https://sxodim.com/astana/event/shou-komiki-reshayut-problemy-v-astane) |
-| Quiz, пожалуйста! | Repeated quiz events at Astana bars | Recurring event links, registration, capacity tracking | [Quiz event example](https://sxodim.com/astana/event/kviz-pliz-300k1-18-7) |
-| Uly Dala Fest | Paid festival listing at the Palace of Martial Arts | Featured campaign, capacity, ticket categories | [Festival listing](https://sxodim.com/astana/event/uly-dala-fest) |
+| Stand Up Bar Pozitiv | Recurring stand-up and conversation shows at ул. Габдуллина, 18 | Recurring event pages and measurable RSVP interest | [Astana listings](https://sxodim.com/astana) |
+| VkusKino | Repeated themed cinema dinners at Astana restaurants | Repeatable event pages, reminders, and discovery | [VkusKino listings](https://sxodim.com/astana/events/vkuskino) |
+| JAN Theatre | Multiple theatre performances at BIArt | Event catalogue and audience discovery | [JAN listings](https://sxodim.com/astana/events/jan-theatre-spektakli) |
+| The Bus Music Pub | Stand-up and concerts at Коргалжынское шоссе, 3 | Venue event calendar and Telegram sharing | [The Bus event example](https://sxodim.com/astana/event/shou-komiki-reshayut-problemy-v-astane) |
+| Quiz, пожалуйста! | Repeated quiz events at Astana bars | Recurring event links and free RSVP interest | [Quiz event example](https://sxodim.com/astana/event/kviz-pliz-300k1-18-7) |
+| Uly Dala Fest | Paid festival listing at the Palace of Martial Arts | Event discovery and organizer-authorized information | [Festival listing](https://sxodim.com/astana/event/uly-dala-fest) |
 | LM Kulanshi Art Gallery | Repeated exhibitions and Art Lab workshops | Event discovery plus workshop registration | [Gallery event example](https://sxodim.com/astana/event/seriya-master-klassov-i-lekcii-mark-shagal-art-lab) |
 | Sxodim Astana | Existing city events publication and Telegram channel | Distribution partnership or referral channel, not a direct organizer lead | [Sxodim Astana](https://sxodim.com/astana) |
 
@@ -137,7 +137,7 @@ Start with recurring organizers because one successful pilot can become multiple
 
 ### First message
 
-“Здравствуйте! Мы запускаем TUSA для событий Астаны: пользователи находят событие в Telegram и сразу переходят к покупке билета. Хотим бесплатно разместить одно ваше ближайшее событие, подготовить страницу и показать результат. Куда лучше отправить детали?”
+“Здравствуйте! Мы запускаем TUSA для событий Астаны: пользователи находят событие в Telegram, смотрят детали и отмечают интерес. TUSA не продаёт офлайн-билеты и не принимает оплату за вход. Хотим бесплатно разместить одно ваше ближайшее событие и показать охват/RSVP. Куда лучше отправить детали?”
 
 ### Follow-up after two days
 
@@ -157,19 +157,19 @@ Use the public event evidence as the reason for contacting each prospect. Do not
 
 ### Stand Up Bar Pozitiv
 
-“Здравствуйте! Увидел, что у Pozitiv регулярно идут стендап и разговорные шоу в Астане. Мы запускаем TUSA — Telegram-каталог событий с быстрым переходом к билету. Можем бесплатно подготовить страницу одного ближайшего шоу и показать переходы/заявки. Кому отправить детали?”
+“Здравствуйте! Увидел, что у Pozitiv регулярно идут стендап и разговорные шоу в Астане. Мы запускаем TUSA — бесплатную Telegram-афишу событий с RSVP. Билеты TUSA не продаёт. Можем подготовить страницу одного ближайшего шоу и показать просмотры/интерес. Кому отправить детали?”
 
 ### VkusKino
 
-“Здравствуйте! Увидел серию киноужинов VkusKino в Астане. Для повторяющихся событий можем сделать постоянный формат страницы, ссылку для Telegram и простой билетный поток. Предлагаем первый запуск бесплатно, чтобы сравнить результат. Кто отвечает за продвижение событий?”
+“Здравствуйте! Увидел серию киноужинов VkusKino в Астане. Для повторяющихся событий можем бесплатно подготовить страницу TUSA и Telegram-ссылку, чтобы измерить просмотры и RSVP. TUSA не принимает оплату за офлайн-вход. Кто отвечает за продвижение событий?”
 
 ### JAN Theatre
 
-“Здравствуйте! У JAN Theatre много спектаклей в Астане, и мы хотим помочь локальным событиям получать больше переходов из Telegram. Можем бесплатно разместить один спектакль, добавить категории билетов и подготовить ссылку для аудитории. С кем можно обсудить тест?”
+“Здравствуйте! У JAN Theatre много спектаклей в Астане, и мы хотим помочь аудитории находить события в Telegram. Можем бесплатно разместить один спектакль и подготовить ссылку для измерения просмотров/RSVP. С кем можно обсудить тест?”
 
 ### The Bus Music Pub
 
-“Здравствуйте! Увидел концерты и шоу в The Bus. TUSA помогает собрать событие, место, цену и билет в один Telegram-путь. Предлагаем бесплатно протестировать ближайшее мероприятие и после показать статистику. Кому лучше отправить предложение?”
+“Здравствуйте! Увидел концерты и шоу в The Bus. TUSA помогает собрать информацию о событии в одну Telegram-страницу и измерить интерес аудитории. Предлагаем бесплатно протестировать ближайшее мероприятие. Кому лучше отправить предложение?”
 
 ### Quiz, пожалуйста!
 
@@ -198,7 +198,7 @@ Use the public event evidence as the reason for contacting each prospect. Do not
 - follow up once with the concrete free pilot offer;
 - publish the first approved pilot event;
 - give the organizer a shareable Telegram link;
-- record views, event opens, checkout starts, and ticket orders;
+- record views, event opens, shares, and RSVP;
 - ask for the next event only after delivering the first result.
 
 ## CRM statuses
@@ -211,7 +211,7 @@ Use one status per lead:
 - `Qualified`: event and decision-maker confirmed
 - `Pilot`: event being prepared
 - `Live`: event published
-- `Paid`: organizer paid or ticket commission generated
+- `Paid`: organizer paid for a verified digital Organizer Pro subscription in Telegram Stars
 - `Repeat`: organizer supplied another event
 - `No response`: follow-up needed once
 - `Not fit`: no suitable event or channel
@@ -220,17 +220,17 @@ The only statuses that matter for first money are `Pilot`, `Live`, `Paid`, and `
 
 ## Offer ladder
 
-1. First event: free setup and listing.
-2. Pilot campaign: featured placement with a small fixed fee after results.
-3. Ticketing: 5–10% commission on successful paid orders.
-4. Repeat organizer: monthly visibility and ticketing package.
+1. First event: free setup and moderated listing.
+2. Pilot: measure views, shares, and RSVP without claiming ticket sales.
+3. Organizer Pro: offer a Stars-paid digital subscription only after the actual benefit bundle, price, terms, support, and refund flow are verified.
+4. Repeat organizer: retain organizers through useful in-app digital tools; no offline ticket commission or external checkout under the current TUSA policy.
 
 ## Qualification score
 
 Add one point for each yes:
 
 - event within the next 30 days;
-- paid ticket or reservation;
+- recurring event format;
 - active audience channel;
 - organizer replies quickly;
 - recurring event format;

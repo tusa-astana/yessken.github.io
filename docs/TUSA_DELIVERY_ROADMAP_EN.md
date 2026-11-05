@@ -33,11 +33,13 @@ flowchart TD
 
 ## Current-state snapshot
 
+> **Current payment policy (2026-11-05):** TUSA provides free event discovery and RSVP; it does not sell offline admission or process ticket payments. Telegram Stars may be used only for digital Organizer Pro services. The physical-ticket payment and check-in sections below describe legacy code/design and are not the current launch plan. Organizer Pro checkout remains disabled while its price is `0`. See [MONETIZATION_PLAN.md](MONETIZATION_PLAN.md).
+
 | Module | Current evidence in the repository | Gap / caution |
 |---|---|---|
 | Event discovery and organizer submission | Angular event catalog, calendar, event detail, submission form; .NET API, moderation routes and SQLite/PostgreSQL support | A real organizer, permission to publish, stable production hosting, and maintained event inventory are still needed. |
-| Payments | Backend Telegram invoice flow has payment states, capacity reservation/expiry, and provider charge references. Planning notes say live sales remain disabled until merchant approval and end-to-end testing. | Provider/merchant eligibility for KZT and the final production configuration must be confirmed. Keep sales disabled until a successful test and refund process are demonstrated. |
-| QR display | A paid ticket can receive a QR payload; frontend renders it as an image. Event-page QR currently shares/opens the event page and is **not** an admission credential. | Current QR token is a short code; it should be upgraded before public use. A ticket row may represent quantity greater than one, while check-in marks the whole row used. |
+| Payments | Stars invoice support exists for the digital Organizer Pro subscription; its price is `0`, so checkout is off. Offline-ticket invoices are removed/hard-disabled in the backend. | Implement and test the digital Pro benefit bundle and Stars lifecycle. Do not add offline ticket payment or third-party checkout under the current policy. |
+| Offline ticket QR/check-in | Legacy models and protected scan endpoint remain in the API, but the current product does not issue offline admission tickets. | Do not expose or sell these legacy tickets. Any future change requires a separate product/compliance decision; Stars must not be used for offline admission. |
 | Check-in | Protected `POST /api/check-in/scan` verifies paid/not-refunded/not-used and records a check-in; admin/checker role is required. | A complete staff-facing scanner, event-scoped permissions, concurrency-safe scan handling, per-attendee tickets, offline/fallback operations, and venue rehearsal are not established by that endpoint alone. |
 | External ticket platforms | No verified seller API integration is identified. | Start with a clearly labeled outbound official ticket link. Only promise unified inventory or TUSA validation after a written partner agreement and tested API. |
 | Receipts and refunds | Backend stores payment/provider references and exposes support/refund-related states; some provider refunds require manual work. | A Telegram payment confirmation is not automatically the same as a Kazakhstan fiscal receipt. Confirm legal issuer, fiscalization method, delivery channel, cancellation, and refund workflow with the merchant/provider and qualified local accountant/legal adviser. |
@@ -87,7 +89,9 @@ flowchart TD
 
 **Done when:** Visitor reaches the official checkout; the screen makes clear who sells the ticket; TUSA’s analytics do not mislabel outbound clicks as orders; organizer can correct or withdraw the link.
 
-### M3 — Payment provider, merchant eligibility and commercial decision
+### M3 — Legacy physical ticket provider design (superseded; not current scope)
+
+The provider-selection guidance in this section is retained as historical engineering context only. It must not be treated as an instruction to enable physical ticket payments. The current model is free event discovery/RSVP plus a digital Organizer Pro service payable only in Telegram Stars.
 
 **Challenge:** “Supports KZT” alone is insufficient. The merchant must be eligible, events must fit the provider’s terms, and payment notifications/refunds/settlement must reconcile to orders. A provider token in configuration does not prove production readiness.
 
@@ -143,7 +147,7 @@ stateDiagram-v2
 
 **Recommended model:**
 - Do not put a person’s name, phone, payment data, or predictable ticket ID in the QR.
-- Generate a cryptographically random, high-entropy, opaque credential per **attendee/admission**, not just one short code per order. Store a hash where practical; support revoke/regenerate.
+- Generate a cryptographically random, high-entropy, opaque credential per **attendee/admission**, not just one shared code per order. Store a hash where practical; support revoke/regenerate.
 - Keep an order separate from its admission tickets: an order for quantity 4 should normally create four individually scannable credentials and four named/unnamed attendee records, depending on the organizer’s policy.
 - For one-person access, successful check-in atomically marks only that credential used. If the business intentionally sells a group pass, make its “one scan admits N people” rule explicit and record the count/door operator.
 - Scan result should show event, ticket class, valid/invalid reason, remaining group admissions if relevant, and a clear duplicate warning—without exposing more attendee data than staff need.

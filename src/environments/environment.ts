@@ -1,5 +1,5 @@
 export const environment = {
   production: false,
-  /** URL бэкенда (пустая строка = только моки) */
-  apiUrl: 'http://localhost:5001',
+  /** Local Angular dev server proxies /api to the backend on port 5001. */
+  apiUrl: '',
 };

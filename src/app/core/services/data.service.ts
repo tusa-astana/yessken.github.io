@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable, of, switchMap } from 'rxjs';
 import { MockDataService } from './mock-data.service';
 import { EventsApiService } from './events-api.service';
-import type { AdminEventReport, AdminSalesSummary, EventItem, OrganizerOrderRow, OrganizerSubscriptionOffer, OrganizerSubscriptionStatus, Ticket, TelegramGroupItem } from '../types/event.model';
+import type { AdminEventReport, AdminSalesSummary, EventItem, OrganizerEngagementRow, OrganizerOrderRow, OrganizerSubscriptionOffer, OrganizerSubscriptionStatus, Ticket, TelegramGroupItem } from '../types/event.model';
 import { environment } from '../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
@@ -11,8 +11,9 @@ export class DataService {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
       if (params.get('mock') === '1' && params.get('api') !== '1') return false;
+      if (params.get('api') === '1') return true;
     }
-    return !!environment.apiUrl?.trim();
+    return !!environment.apiUrl?.trim() || !environment.production;
   }
 
   constructor(
@@ -55,6 +56,11 @@ export class DataService {
 
   getOrganizerOrders(): Observable<OrganizerOrderRow[]> {
     if (this.useApi) return this.api.getOrganizerOrders();
+    return of([]);
+  }
+
+  getOrganizerEngagement(): Observable<OrganizerEngagementRow[] | null> {
+    if (this.useApi) return this.api.getOrganizerEngagement();
     return of([]);
   }
 

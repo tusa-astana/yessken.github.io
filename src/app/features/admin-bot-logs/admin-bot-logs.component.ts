@@ -63,11 +63,12 @@ import type { BotMessageLogRow } from '../../core/types/event.model';
     .heading p, .state { color: var(--tg-muted); font-size: .88rem; line-height: 1.5; }
     .panel { margin-top: 1rem; padding: 1rem; background: var(--tg-surface, #ffffff); border: 1px solid var(--tg-line); border-radius: 6px; }
     .toolbar { display: flex; justify-content: space-between; align-items: center; gap: .75rem; margin-bottom: .8rem; color: var(--tg-muted); font-size: .8rem; }
-    button { padding: .55rem .8rem; border: 1px solid var(--tg-line); border-radius: 6px; background: transparent; color: var(--tg-text, #26372b); cursor: pointer; }
+    button { min-height: 44px; padding: .55rem .8rem; border: 1px solid var(--tg-line); border-radius: 6px; background: transparent; color: var(--tg-text, #26372b); cursor: pointer; }
     button:disabled { opacity: .55; cursor: wait; }
     .state { display: grid; gap: .5rem; padding: 1.2rem .3rem; }
     .state strong { color: var(--tg-text, #26372b); }
-    .error { color: #f2be68; }
+    .error { color: #74500f; }
+    :host-context(.dark-theme) .error { color: #f2be68; }
     .error button { width: fit-content; }
     .table-wrap { overflow-x: auto; }
     table { width: 100%; border-collapse: collapse; text-align: left; font-size: .82rem; }

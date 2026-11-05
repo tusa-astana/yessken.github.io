@@ -1,5 +1,7 @@
 # TUSA Astana — Business Diagrams
 
+> **Current policy (2026-11-05):** free event discovery/RSVP; no TUSA offline-ticket sales or external checkout. The diagrams and business-plan links below contain legacy ticketing assumptions. Use [MONETIZATION_PLAN.md](MONETIZATION_PLAN.md) and [EXECUTION_SPRINT.md](EXECUTION_SPRINT.md) as the current source of truth: the only planned paid offer is a digital Organizer Pro service in Telegram Stars, currently disabled.
+
 ## Business plans
 
 - [Бизнес-план на русском языке](TUSA_BUSINESS_PLAN_RU.md)
@@ -150,7 +152,7 @@ mindmap
 ## Presentation narrative
 
 - TUSA solves a local discovery problem: people do not know what is happening in Astana this evening.
-- It creates a strong organizer funnel: submit event -> moderate -> publish -> sell tickets -> collect revenue.
-- Each sold ticket improves engagement, creates social proof, and brings more organizers and visitors into the ecosystem.
-- The most scalable revenue model is a combination of ticket commissions, organizer subscriptions, and sponsored placements.
-- The product is especially attractive because it is integrated into Telegram and built around local events, which lowers the friction of both discovery and payment.
+- It creates an organizer funnel: submit event -> moderate -> publish -> share -> measure views and free RSVP.
+- TUSA does not sell offline admission or claim organizer ticket sales as its own revenue.
+- The only planned paid offer is a digital Organizer Pro service inside Telegram, payable only in Stars after its benefits and support/refund flow are verified.
+- The product is integrated into Telegram; payment for offline event admission is outside TUSA's product scope.

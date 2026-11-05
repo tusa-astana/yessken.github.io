@@ -75,6 +75,7 @@ import type { EventItem } from '../../core/types/event.model';
         @if (actionError()) { <p class="action-error" role="alert">{{ actionError() }}</p> }
         @if (announcement()) { <p class="announcement" role="status">{{ announcement() }}</p> }
       </section>
+      <a class="back-link" routerLink="/admin/interest-reports">Жалобы в интерес-группах →</a>
       <a class="back-link" routerLink="/profile">← В профиль</a>
     </main>
   `,
@@ -86,12 +87,12 @@ import type { EventItem } from '../../core/types/event.model';
     .heading p, .state, .empty-state p { color: var(--tg-muted); font-size: .88rem; line-height: 1.55; }
     .queue { margin-top: 1rem; }
     .toolbar { display: flex; align-items: center; justify-content: space-between; gap: .75rem; margin-bottom: .8rem; color: var(--tg-muted); font-size: .8rem; }
-    button { padding: .62rem .85rem; border: 1px solid var(--tg-line); border-radius: 5px; background: transparent; color: var(--tg-text, #26372b); font: inherit; cursor: pointer; }
+    button { min-height: 44px; padding: .62rem .85rem; border: 1px solid var(--tg-line); border-radius: 5px; background: transparent; color: var(--tg-text, #26372b); font: inherit; cursor: pointer; }
     button:disabled { opacity: .55; cursor: wait; }
     .state, .empty-state { padding: 2rem 1rem; text-align: center; background: var(--tg-surface, #ffffff); border: 1px solid var(--tg-line); border-radius: 6px; }
     .state { display: grid; justify-items: center; gap: .7rem; }
     .state strong { color: var(--tg-text, #26372b); }
-    .state.error { color: #f2be68; }
+    .state.error { color: #74500f; }
     .state span { max-width: 34rem; }
     .empty-state h2 { margin: .7rem 0 .2rem; font-size: 1.35rem; font-weight: 500; }
     .empty-state p { max-width: 34rem; margin: .35rem auto 0; }
@@ -101,7 +102,7 @@ import type { EventItem } from '../../core/types/event.model';
     .event-topline { display: flex; justify-content: space-between; gap: .75rem; }
     .category, .pending { font-size: .68rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
     .category { color: var(--tg-muted); }
-    .pending { color: #f2be68; }
+    .pending { padding: .25rem .45rem; border-radius: 999px; background: rgba(168,122,40,.12); color: #74500f; }
     .request-card h2 { margin: .55rem 0 .3rem; font-size: 1.4rem; font-weight: 500; }
     .event-meta, .address { margin: .25rem 0; color: var(--tg-muted); font-size: .84rem; line-height: 1.45; }
     .description { margin: .8rem 0; color: var(--tg-text); font-size: .88rem; line-height: 1.6; white-space: pre-wrap; }
@@ -116,18 +117,23 @@ import type { EventItem } from '../../core/types/event.model';
     .card-footer > small { color: var(--tg-muted); font-size: .68rem; overflow-wrap: anywhere; }
     .actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: .45rem; }
     .approve { border-color: var(--tg-button, #426c47); background: var(--tg-button, #426c47); color: var(--tg-button-text, #ffffff); font-weight: 800; }
-    .reject { border-color: rgba(242,123,104,.55); color: #f2a08f; }
-    .reject-confirm { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: .4rem; color: #f2be68; font-size: .75rem; }
+    .reject { border-color: rgba(154,55,46,.35); color: #9a372e; }
+    .reject-confirm { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: .4rem; color: #74500f; font-size: .75rem; }
     .cancel { border-color: var(--tg-line); color: var(--tg-muted); }
-    .action-error { color: #f27b68; }
+    .action-error { color: #9a372e; }
     .announcement { color: var(--tg-button, #426c47); }
     .back-link { display: inline-block; margin-top: 1rem; font-size: .82rem; text-decoration: none; }
+    :host-context(.dark-theme) .state.error, :host-context(.dark-theme) .pending, :host-context(.dark-theme) .reject-confirm { color: #f2be68; }
+    :host-context(.dark-theme) .pending { background: rgba(242,190,104,.14); }
+    :host-context(.dark-theme) .reject { border-color: rgba(242,123,104,.55); color: #f2a08f; }
+    :host-context(.dark-theme) .action-error { color: #f27b68; }
     @media (max-width: 620px) {
       .review-page { padding: 1rem .75rem 6rem; }
       .card-footer { align-items: stretch; flex-direction: column; }
       .actions { justify-content: stretch; }
-      .actions > button { flex: 1; }
+      .actions > button { flex: 1; min-height: 44px; }
       .reject-confirm { justify-content: flex-start; }
+      .reject-confirm button { min-height: 44px; }
       .approve { min-height: 44px; }
     }
   `],

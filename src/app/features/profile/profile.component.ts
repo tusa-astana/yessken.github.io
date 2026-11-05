@@ -15,7 +15,7 @@ import type { OrganizerSubscriptionOffer, OrganizerSubscriptionStatus } from '..
       <header class="page-heading">
         <span class="eyebrow">ЛИЧНЫЙ КАБИНЕТ</span>
         <h1>Профиль</h1>
-        <p>Всё важное о ваших событиях и билетах — в одном месте.</p>
+        <p>События, интересы и инструменты организатора — в одном месте.</p>
       </header>
       @if (user(); as u) {
         <section class="user-card" aria-label="Аккаунт Telegram">
@@ -30,7 +30,7 @@ import type { OrganizerSubscriptionOffer, OrganizerSubscriptionStatus } from '..
       } @else {
         <section class="user-card guest-card">
           <span class="avatar avatar-fallback" aria-hidden="true">T</span>
-          <div class="user-details"><span class="connected">Гостевой режим</span><h2>Откройте TUSA в Telegram</h2><p>Чтобы видеть билеты и участвовать в событиях, войдите через бота.</p></div>
+          <div class="user-details"><span class="connected">Гостевой режим</span><h2>Откройте TUSA в Telegram</h2><p>Чтобы управлять профилем и отмечать интерес к событиям, войдите через бота.</p></div>
           <a class="telegram-mark" href="https://t.me/tusa_astana_bot" aria-label="Открыть бота TUSA">↗</a>
         </section>
       }
@@ -45,7 +45,7 @@ import type { OrganizerSubscriptionOffer, OrganizerSubscriptionStatus } from '..
             @if (currentOffer.available) { <span class="pro-price">{{ currentOffer.stars }} ⭐ / {{ currentOffer.durationDays }} дней</span> }
           }
         </div>
-        <p class="pro-description">Публикуйте события и следите за продажами из одного кабинета.</p>
+        <p class="pro-description">Планируемая цифровая услуга внутри Telegram. Состав функций и цена будут утверждены до включения подписки; офлайн-билеты и их продажи в Pro не входят.</p>
         @if (offerLoading()) {
           <p class="pro-note" role="status">Проверяем доступность подписки…</p>
         } @else if (offer()?.available) {
@@ -62,8 +62,8 @@ import type { OrganizerSubscriptionOffer, OrganizerSubscriptionStatus } from '..
       <section class="account-section" aria-labelledby="account-links-title">
         <div class="section-heading"><h2 id="account-links-title">Быстрый доступ</h2><span>ВАШ TUSA</span></div>
         <nav class="quick-links" aria-label="Разделы профиля">
-          <a class="nav-card" routerLink="/my-tickets" queryParamsHandling="preserve"><span class="nav-icon">▤</span><span><strong>Мои билеты</strong><small>Покупки и вход на события</small></span><span class="nav-arrow" aria-hidden="true">→</span></a>
-          <a class="nav-card" routerLink="/orders" queryParamsHandling="preserve"><span class="nav-icon">↗</span><span><strong>Заказы организатора</strong><small>Продажи по вашим событиям</small></span><span class="nav-arrow" aria-hidden="true">→</span></a>
+          <a class="nav-card" routerLink="/my-tickets" queryParamsHandling="preserve"><span class="nav-icon">▤</span><span><strong>Архив билетов</strong><small>Ранее оформленные билеты · RSVP не билет</small></span><span class="nav-arrow" aria-hidden="true">→</span></a>
+          <a class="nav-card" routerLink="/organizer/insights" queryParamsHandling="preserve"><span class="nav-icon">↗</span><span><strong>Интерес к событиям</strong><small>Открытия, отправки ссылки и RSVP</small></span><span class="nav-arrow" aria-hidden="true">→</span></a>
           <a class="nav-card" routerLink="/create-event" queryParamsHandling="preserve"><span class="nav-icon">＋</span><span><strong>Разместить событие</strong><small>Бесплатная заявка на публикацию</small></span><span class="nav-arrow" aria-hidden="true">→</span></a>
           <a class="nav-card" routerLink="/events" queryParamsHandling="preserve"><span class="nav-icon">✳</span><span><strong>Афиша событий</strong><small>Найти, куда пойти</small></span><span class="nav-arrow" aria-hidden="true">→</span></a>
           <a class="nav-card" routerLink="/city-map" queryParamsHandling="preserve"><span class="nav-icon">⌖</span><span><strong>Карта города</strong><small>События рядом</small></span><span class="nav-arrow" aria-hidden="true">→</span></a>
