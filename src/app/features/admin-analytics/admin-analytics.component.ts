@@ -4,7 +4,7 @@ import { RouterLink } from '@angular/router';
 import { EventsApiService } from '../../core/services/events-api.service';
 import { I18nService } from '../../core/services/i18n.service';
 import { TelegramService } from '../../core/services/telegram.service';
-import type { FunnelSummaryRow, MeetupCampaignSummaryRow, MeetupVenueOption } from '../../core/types/event.model';
+import type { FunnelSummaryRow, MeetupCampaignSummaryRow, MeetupDensitySummary, MeetupVenueOption } from '../../core/types/event.model';
 
 @Component({
   selector: 'app-admin-analytics',
@@ -41,6 +41,26 @@ import type { FunnelSummaryRow, MeetupCampaignSummaryRow, MeetupVenueOption } fr
               </article>
             }
           </div>
+          <section class="density" aria-labelledby="density-heading" aria-live="polite">
+            <h2 id="density-heading">{{ i18n.t('analytics.densityHeading') }}</h2>
+            @if (densityLoading() && density() === null) {
+              <p class="state" role="status">{{ i18n.t('analytics.densityLoading') }}</p>
+            } @else if (density() === null) {
+              <p class="state error" role="alert">{{ i18n.t('analytics.densityUnavailable') }}</p>
+            } @else {
+              <p class="density-window">{{ i18n.t('analytics.densityDescription') }} {{ density()!.fromDate }} — {{ density()!.throughDate }}</p>
+              @if (density()!.plans.length === 0) {
+                <p class="state">{{ i18n.t('analytics.noDensePlans') }}</p>
+              } @else {
+                <ul class="density-list">
+                  @for (plan of density()!.plans; track plan.venueId + plan.date) {
+                    <li><strong>{{ plan.venue }}</strong><time [attr.datetime]="plan.date">{{ plan.date }}</time><b>{{ plan.rsvpCount }} {{ i18n.t('analytics.densityCount') }}</b></li>
+                  }
+                </ul>
+              }
+              <p class="caveat">{{ i18n.t('analytics.densityNote') }}</p>
+            }
+          </section>
           @if (campaigns() !== null) {
             <section class="campaigns" aria-labelledby="campaign-heading">
               <h2 id="campaign-heading">{{ i18n.t('analytics.campaigns') }}</h2>
@@ -117,6 +137,13 @@ import type { FunnelSummaryRow, MeetupCampaignSummaryRow, MeetupVenueOption } fr
     .metric-card span { color: var(--tg-muted); font-size: .74rem; }
     .metric-card strong { color: var(--tg-button); font-size: 1.8rem; font-variant-numeric: tabular-nums; }
     .metric-card small { color: var(--tg-muted); font-size: .68rem; line-height: 1.4; }
+    .density { margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid var(--tg-line); }
+    .density h2 { margin: 0 0 .4rem; font-size: 1rem; }
+    .density-window { color: var(--tg-muted); font-size: .75rem; }
+    .density-list { display: grid; gap: .5rem; margin: .75rem 0 0; padding: 0; list-style: none; }
+    .density-list li { display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: .75rem; padding: .7rem; border: 1px solid var(--tg-line); border-radius: 6px; font-size: .8rem; }
+    .density-list time { color: var(--tg-muted); }
+    .density-list b { color: var(--tg-button); font-variant-numeric: tabular-nums; }
     .campaigns { margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid var(--tg-line); }
     .campaigns h2 { margin: 0 0 .75rem; font-size: 1rem; }
     .campaign-builder { margin: .75rem 0 1rem; padding: .8rem; border: 1px solid var(--tg-line); border-radius: 7px; }
@@ -135,6 +162,7 @@ import type { FunnelSummaryRow, MeetupCampaignSummaryRow, MeetupVenueOption } fr
     .back-link { display: inline-block; margin-top: 1rem; color: var(--tg-button); font-size: .82rem; text-decoration: none; }
     @media (max-width: 600px) { .analytics-page { padding: 1rem .75rem 6rem; } .panel { padding: .75rem; } .campaign-form { grid-template-columns: 1fr; gap: .3rem; } .campaign-form label:not(:first-child) { margin-top: .4rem; } }
     @media (max-width: 560px) { .campaigns li { grid-template-columns: 1fr auto; } .campaigns li span { grid-column: 1; } .campaigns li b { grid-column: 2; grid-row: 1 / span 3; } }
+    @media (max-width: 560px) { .density-list li { grid-template-columns: 1fr auto; } .density-list time { grid-column: 1; } .density-list b { grid-column: 2; grid-row: 1 / span 2; } }
   `],
 })
 export class AdminAnalyticsComponent {
@@ -142,6 +170,8 @@ export class AdminAnalyticsComponent {
   private readonly telegram = inject(TelegramService);
   readonly summary = signal<FunnelSummaryRow[] | null>(null);
   readonly campaigns = signal<MeetupCampaignSummaryRow[] | null>(null);
+  readonly density = signal<MeetupDensitySummary | null>(null);
+  readonly densityLoading = signal(false);
   readonly loading = signal(false);
   readonly venueOptions = signal<MeetupVenueOption[]>([]);
   readonly venueOptionsLoading = signal(true);
@@ -184,6 +214,11 @@ export class AdminAnalyticsComponent {
     this.api.getAdminFunnelSummary().subscribe((rows) => {
       this.summary.set(rows);
       this.loading.set(false);
+    });
+    this.densityLoading.set(true);
+    this.api.getAdminMeetupDensitySummary().subscribe((result) => {
+      this.density.set(result);
+      this.densityLoading.set(false);
     });
     this.api.getAdminMeetupCampaignSummary().subscribe((rows) => this.campaigns.set(rows));
   }

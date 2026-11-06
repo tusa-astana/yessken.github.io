@@ -16,6 +16,7 @@ describe('AdminAnalyticsComponent', () => {
         provideRouter([]),
         { provide: EventsApiService, useValue: {
           getAdminFunnelSummary: () => of([{ name: 'community_open', count: 4 }]),
+          getAdminMeetupDensitySummary: () => of({ fromDate: '2026-11-06', throughDate: '2026-11-12', plans: [] }),
           getAdminMeetupCampaignSummary: () => of([]),
           getMeetupVenueOptions: () => of([{ id: 'bourbon-street-astana', name: 'Bourbon Street Bar' }]),
         } },
@@ -67,6 +68,21 @@ describe('AdminAnalyticsComponent', () => {
     expect(element.textContent).toContain('5');
     expect(element.textContent).toContain('2');
     expect(element.textContent).toContain('1');
+  });
+
+  it('shows only venue/date plans that have crossed the two-RSVP threshold', () => {
+    fixture.componentInstance.density.set({
+      fromDate: '2026-11-06',
+      throughDate: '2026-11-12',
+      plans: [{ venueId: 'astana-joy', venue: 'Joy bar&restaurant', date: '2026-11-08', rsvpCount: 2 }],
+    });
+    fixture.detectChanges();
+    const element = fixture.nativeElement as HTMLElement;
+
+    expect(element.textContent).toContain('Планы мест на ближайшие 7 дней с 2+ RSVP');
+    expect(element.textContent).toContain('Joy bar&restaurant');
+    expect(element.textContent).toContain('2026-11-08');
+    expect(element.textContent).toContain('не уникальный охват и не подтверждение посещения');
   });
 
   it('shows campaign aliases as aggregate counts without identifying hosts', () => {

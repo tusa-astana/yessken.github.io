@@ -47,6 +47,20 @@ describe('EventsApiService', () => {
     await expect(result).resolves.toEqual([{ name: 'community_open', count: 4 }]);
   });
 
+  it('loads the admin weekly venue RSVP density with verified initData', async () => {
+    const result = firstValueFrom(service.getAdminMeetupDensitySummary());
+    const request = http.expectOne('/api/analytics/summary/meetup-density');
+    expect(request.request.method).toBe('GET');
+    expect(request.request.headers.get('X-Telegram-Init-Data')).toBe('verified-telegram-init-data');
+    const summary = {
+      fromDate: '2026-11-06',
+      throughDate: '2026-11-12',
+      plans: [{ venueId: 'astana-joy', venue: 'Joy bar&restaurant', date: '2026-11-08', rsvpCount: 2 }],
+    };
+    request.flush(summary);
+    await expect(result).resolves.toEqual(summary);
+  });
+
   it('loads only public venue options without sending Telegram identity', async () => {
     const result = firstValueFrom(service.getMeetupVenueOptions());
     const request = http.expectOne('/api/meetups/venues');

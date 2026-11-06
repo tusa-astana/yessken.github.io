@@ -61,6 +61,8 @@ Track:
 - outbound clicks from the curated Telegram community directory (clicks are not group joins)
 - Organizer Pro offer views and Stars invoice starts only if/when that future hypothesis is re-opened
 
+The admin pilot dashboard reports curated venue/date plans in the current Astana day plus the next six days that have at least two current attendance rows. It is an upcoming seven-day snapshot, not historical weekly retention; it returns aggregate counts only, and RSVP remains intent rather than attendance.
+
 Output:
 - a simple weekly activation, plan-density, repeat-use, host-supply and referral report
 

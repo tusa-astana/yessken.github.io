@@ -95,6 +95,13 @@ export type TranslationKey =
   | 'analytics.gatheringOpensNote'
   | 'analytics.gatheringRsvps'
   | 'analytics.gatheringRsvpsNote'
+  | 'analytics.densityHeading'
+  | 'analytics.densityDescription'
+  | 'analytics.densityLoading'
+  | 'analytics.densityUnavailable'
+  | 'analytics.noDensePlans'
+  | 'analytics.densityCount'
+  | 'analytics.densityNote'
   | 'analytics.campaigns'
   | 'analytics.noCampaigns'
   | 'analytics.campaignsNote'
@@ -265,6 +272,13 @@ const translations: Record<Locale, Record<TranslationKey, string>> = {
     'analytics.gatheringOpensNote': 'Повторные открытия включены; посещение не подтверждено',
     'analytics.gatheringRsvps': 'Записи на встречи участников',
     'analytics.gatheringRsvpsNote': 'Новые RSVP; отмена или посещение отдельно не подтверждены',
+    'analytics.densityHeading': 'Планы мест на ближайшие 7 дней с 2+ RSVP',
+    'analytics.densityDescription': 'Текущее окно:',
+    'analytics.densityLoading': 'Считаем планы…',
+    'analytics.densityUnavailable': 'Не удалось загрузить плотность RSVP.',
+    'analytics.noDensePlans': 'Пока нет планов с двумя отметками RSVP в этом окне.',
+    'analytics.densityCount': 'отметки RSVP',
+    'analytics.densityNote': 'Это агрегатные отметки интереса, не уникальный охват и не подтверждение посещения.',
     'analytics.campaigns': 'Каналы seed-host пилота',
     'analytics.noCampaigns': 'Пока нет событий с кодом кампании.',
     'analytics.campaignsNote': 'Коды не содержат имён или username; внешний список соответствия host-ам храните отдельно. Повторные открытия считаются отдельно; метрика не показывает уникальных людей, доставку или посещаемость.',
@@ -434,6 +448,13 @@ const translations: Record<Locale, Record<TranslationKey, string>> = {
     'analytics.gatheringOpensNote': 'Қайта ашулар бар; қатысу расталмайды',
     'analytics.gatheringRsvps': 'Қатысушылар кездесулеріне RSVP',
     'analytics.gatheringRsvpsNote': 'Жаңа RSVP; бас тарту не нақты келу бөлек расталмайды',
+    'analytics.densityHeading': 'Алдағы 7 күнде 2+ RSVP бар орын жоспарлары',
+    'analytics.densityDescription': 'Ағымдағы аралық:',
+    'analytics.densityLoading': 'Жоспарлар есептелуде…',
+    'analytics.densityUnavailable': 'RSVP тығыздығын жүктеу мүмкін болмады.',
+    'analytics.noDensePlans': 'Бұл аралықта екі RSVP белгісі бар жоспар әзірге жоқ.',
+    'analytics.densityCount': 'RSVP белгілері',
+    'analytics.densityNote': 'Бұл — жиынтық қызығушылық белгілері; бірегей қамту не нақты қатысу дәлелі емес.',
     'analytics.campaigns': 'Seed-host пилотының арналары',
     'analytics.noCampaigns': 'Әзірге науқан коды бар оқиғалар жоқ.',
     'analytics.campaignsNote': 'Кодтарда есімдер мен username жоқ; host-пен сәйкестік тізімін бөлек сақтаңыз. Қайта ашулар бөлек саналады; метрика бірегей адамдарды, жеткізуді немесе қатысуды көрсетпейді.',
@@ -603,6 +624,13 @@ const translations: Record<Locale, Record<TranslationKey, string>> = {
     'analytics.gatheringOpensNote': 'Repeat opens count; attendance is unverified',
     'analytics.gatheringRsvps': 'Community meetup RSVPs',
     'analytics.gatheringRsvpsNote': 'New RSVPs only; cancellation and attendance are not verified',
+    'analytics.densityHeading': 'Venue plans with 2+ RSVPs in the next 7 days',
+    'analytics.densityDescription': 'Current window:',
+    'analytics.densityLoading': 'Counting plans…',
+    'analytics.densityUnavailable': 'Could not load RSVP density.',
+    'analytics.noDensePlans': 'No plans with two RSVP marks in this window yet.',
+    'analytics.densityCount': 'RSVP marks',
+    'analytics.densityNote': 'These are aggregate expressions of interest, not unique reach or confirmed attendance.',
     'analytics.campaigns': 'Seed-host pilot channels',
     'analytics.noCampaigns': 'No campaign-tagged events yet.',
     'analytics.campaignsNote': 'Codes contain no names or usernames; keep any host mapping separately. Repeat opens count separately; these metrics do not show unique people, delivery, or attendance.',

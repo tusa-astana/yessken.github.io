@@ -82,6 +82,19 @@ export interface MeetupCampaignSummaryRow {
   count: number;
 }
 
+export interface MeetupDensityPlan {
+  venueId: string;
+  venue: string;
+  date: string;
+  rsvpCount: number;
+}
+
+export interface MeetupDensitySummary {
+  fromDate: string;
+  throughDate: string;
+  plans: MeetupDensityPlan[];
+}
+
 export interface MeetupVenueOption {
   id: string;
   name: string;
