@@ -51,7 +51,7 @@ TUSA не продаёт офлайн-вход, не принимает опла
 
 - **North Star пилота:** количество планов venue/date за неделю с 2+ RSVP-отметками. Это координационный сигнал, не посещаемость, не уникальные люди и не продажи.
 - открытие deep link -> просмотр выбранного места -> RSVP;
-- `meetup_share_intent` -> `meetup_invite_open` -> второй RSVP на тот же venue/date; share intent не подтверждает доставку сообщения, а invite opens могут включать повторы;
+- `community_gathering_share` -> `community_gathering_open` for exact member-created plans; `meetup_share_intent` -> `meetup_invite_open` for venue/date intentions. All can include repeats and do not prove delivery, unique people, group join, RSVP or attendance;
 - возврат пользователя в течение 7 дней и повторный план у того же host;
 - клики по внешним Instagram/Telegram ссылкам отдельно от join и RSVP.
 

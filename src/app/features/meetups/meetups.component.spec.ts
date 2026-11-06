@@ -116,6 +116,9 @@ describe('MeetupsComponent privacy defaults', () => {
     try {
       await fixture.componentInstance.shareGathering(gathering);
       expect(telegram.miniAppLink).toHaveBeenCalledWith('gathering_0123456789abcdef0123456789abcdef');
+      expect(TestBed.inject(AnalyticsService).track).toHaveBeenCalledWith(
+        'community_gathering_share', undefined, 'gathering:0123456789abcdef0123456789abcdef',
+      );
       expect(share).toHaveBeenCalledWith(expect.objectContaining({
         title: 'Партия для новичков',
         url: 'https://t.me/tusa_astana_bot?startapp=gathering_0123456789abcdef0123456789abcdef',

@@ -52,6 +52,20 @@ describe('AdminAnalyticsComponent', () => {
     expect(element.textContent).toContain('3');
   });
 
+  it('shows community-created meetup share and open totals separately', () => {
+    fixture.componentInstance.summary.set([
+      { name: 'community_gathering_share', count: 5 },
+      { name: 'community_gathering_open', count: 2 },
+    ]);
+    fixture.detectChanges();
+    const element = fixture.nativeElement as HTMLElement;
+
+    expect(element.textContent).toContain('Отправки встреч участников');
+    expect(element.textContent).toContain('Открытия встреч участников');
+    expect(element.textContent).toContain('5');
+    expect(element.textContent).toContain('2');
+  });
+
   it('shows campaign aliases as aggregate counts without identifying hosts', () => {
     fixture.componentInstance.campaigns.set([
       { name: 'meetup_invite_open', campaign: 'host-a', venueId: 'bourbon-street-astana', count: 3 },

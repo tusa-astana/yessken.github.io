@@ -89,6 +89,10 @@ export type TranslationKey =
   | 'analytics.meetupSharesNote'
   | 'analytics.meetupInviteOpens'
   | 'analytics.meetupInviteOpensNote'
+  | 'analytics.gatheringShares'
+  | 'analytics.gatheringSharesNote'
+  | 'analytics.gatheringOpens'
+  | 'analytics.gatheringOpensNote'
   | 'analytics.campaigns'
   | 'analytics.noCampaigns'
   | 'analytics.campaignsNote'
@@ -253,6 +257,10 @@ const translations: Record<Locale, Record<TranslationKey, string>> = {
     'analytics.meetupSharesNote': 'Намерения поделиться местом и датой',
     'analytics.meetupInviteOpens': 'Открытия приглашений',
     'analytics.meetupInviteOpensNote': 'Повторные открытия включены',
+    'analytics.gatheringShares': 'Отправки встреч участников',
+    'analytics.gatheringSharesNote': 'Нажатия «Поделиться» на реальном плане',
+    'analytics.gatheringOpens': 'Открытия встреч участников',
+    'analytics.gatheringOpensNote': 'Повторные открытия включены; посещение не подтверждено',
     'analytics.campaigns': 'Каналы seed-host пилота',
     'analytics.noCampaigns': 'Пока нет событий с кодом кампании.',
     'analytics.campaignsNote': 'Коды не содержат имён или username; внешний список соответствия host-ам храните отдельно. Повторные открытия считаются отдельно; метрика не показывает уникальных людей, доставку или посещаемость.',
@@ -416,6 +424,10 @@ const translations: Record<Locale, Record<TranslationKey, string>> = {
     'analytics.meetupSharesNote': 'Орын мен күнді бөлісу әрекеттері',
     'analytics.meetupInviteOpens': 'Шақыруларды ашу',
     'analytics.meetupInviteOpensNote': 'Қайта ашулар есептеледі',
+    'analytics.gatheringShares': 'Қатысушылар кездесулерін бөлісу',
+    'analytics.gatheringSharesNote': 'Нақты жоспардағы бөлісу батырмасын басу',
+    'analytics.gatheringOpens': 'Қатысушылар кездесулерін ашу',
+    'analytics.gatheringOpensNote': 'Қайта ашулар бар; қатысу расталмайды',
     'analytics.campaigns': 'Seed-host пилотының арналары',
     'analytics.noCampaigns': 'Әзірге науқан коды бар оқиғалар жоқ.',
     'analytics.campaignsNote': 'Кодтарда есімдер мен username жоқ; host-пен сәйкестік тізімін бөлек сақтаңыз. Қайта ашулар бөлек саналады; метрика бірегей адамдарды, жеткізуді немесе қатысуды көрсетпейді.',
@@ -579,6 +591,10 @@ const translations: Record<Locale, Record<TranslationKey, string>> = {
     'analytics.meetupSharesNote': 'Attempts to share a place and date',
     'analytics.meetupInviteOpens': 'Invite link opens',
     'analytics.meetupInviteOpensNote': 'Repeat opens are included',
+    'analytics.gatheringShares': 'Community meetup shares',
+    'analytics.gatheringSharesNote': 'Share-button actions on real member plans',
+    'analytics.gatheringOpens': 'Community meetup opens',
+    'analytics.gatheringOpensNote': 'Repeat opens count; attendance is unverified',
     'analytics.campaigns': 'Seed-host pilot channels',
     'analytics.noCampaigns': 'No campaign-tagged events yet.',
     'analytics.campaignsNote': 'Codes contain no names or usernames; keep any host mapping separately. Repeat opens count separately; these metrics do not show unique people, delivery, or attendance.',

@@ -9,7 +9,9 @@ export type FunnelEvent =
   | 'event_share'
   | 'community_open'
   | 'meetup_share_intent'
-  | 'meetup_invite_open';
+  | 'meetup_invite_open'
+  | 'community_gathering_share'
+  | 'community_gathering_open';
 
 interface StoredFunnelEvent {
   name: FunnelEvent;
@@ -54,6 +56,8 @@ export class AnalyticsService {
       community_open: 0,
       meetup_share_intent: 0,
       meetup_invite_open: 0,
+      community_gathering_share: 0,
+      community_gathering_open: 0,
     } satisfies Record<FunnelEvent, number>;
     for (const event of this.read()) summary[event.name] += 1;
     return summary;

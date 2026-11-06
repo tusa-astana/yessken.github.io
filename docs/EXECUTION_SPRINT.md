@@ -14,7 +14,7 @@ The next milestone is not “complete app” or ticket revenue. It is a small, r
 
 **North Star:** weekly venue/date plans with at least two RSVP marks. This measures coordination intent, not verified attendance, ticket sales, or unique people; repeat marks and anonymous RSVPs remain valid.
 
-Leading indicators: map-to-RSVP conversion, `meetup_share_intent`, `meetup_invite_open`, second RSVP on a plan, and seven-day return. A share intent is a button action, not proof the message was delivered; deep-link opens include repeats and are not unique people. Report each separately; do not infer group joins from clicks.
+Leading indicators: member-plan `community_gathering_share` / `community_gathering_open`, venue-plan `meetup_share_intent` / `meetup_invite_open`, second RSVP on a plan, and seven-day return. Gathering share/open analytics store no Telegram user ID; they are action counts, not unique reach, delivery, group joins, RSVP, or verified attendance. Venue-plan legacy funnel metrics may retain a validated Telegram ID when initData is present. Report the two plan types separately.
 
 Guardrails: no ticket checkout, no age inference, no scraping Instagram, no exposing Telegram identity without explicit opt-in, and no fabricated event or availability claims. Age ranges/interests are not in the meetup data model; keep them out until a consent and safety design is agreed.
 
@@ -56,7 +56,7 @@ Output:
 Goal: prove the people loop before optimizing revenue.
 
 Track:
-- map/list views, map pin opens, `meetup_share_intent`, `meetup_invite_open`, and RSVPs (not ticket reservations)
+- member-created gathering `community_gathering_share` / `community_gathering_open`, venue-plan `meetup_share_intent` / `meetup_invite_open`, map/list views, and RSVP actions (not ticket reservations)
 - weekly plans reaching at least two RSVP marks; seven-day return visits
 - outbound clicks from the curated Telegram community directory (clicks are not group joins)
 - Organizer Pro offer views and Stars invoice starts only if/when that future hypothesis is re-opened

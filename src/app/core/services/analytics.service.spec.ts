@@ -69,6 +69,24 @@ describe('AnalyticsService', () => {
     openRequest.flush(null);
   });
 
+  it('tracks community meetup shares and opens using only the public gathering reference', () => {
+    service.track('community_gathering_share', undefined, 'gathering:0123456789abcdef0123456789abcdef');
+    const shareRequest = http.expectOne('/api/analytics');
+    expect(shareRequest.request.body).toEqual({
+      name: 'community_gathering_share', eventId: undefined, ref: 'gathering:0123456789abcdef0123456789abcdef',
+    });
+    shareRequest.flush(null);
+
+    service.track('community_gathering_open', undefined, 'gathering:0123456789abcdef0123456789abcdef');
+    const openRequest = http.expectOne('/api/analytics');
+    expect(openRequest.request.body).toEqual({
+      name: 'community_gathering_open', eventId: undefined, ref: 'gathering:0123456789abcdef0123456789abcdef',
+    });
+    expect(service.getSummary().community_gathering_share).toBe(1);
+    expect(service.getSummary().community_gathering_open).toBe(1);
+    openRequest.flush(null);
+  });
+
   it('falls back to the regular API request if the browser cannot queue a beacon', () => {
     const sendBeacon = vi.fn().mockReturnValue(false);
     Object.defineProperty(navigator, 'sendBeacon', { configurable: true, value: sendBeacon });

@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@ang
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { TelegramService } from '../../core/services/telegram.service';
+import { AnalyticsService } from '../../core/services/analytics.service';
 import type { InterestGathering, InterestGroup, InterestMember, InterestReportReason } from './interest.model';
 import { InterestsApiService } from './interests-api.service';
 
@@ -232,6 +233,7 @@ import { InterestsApiService } from './interests-api.service';
 })
 export class InterestsComponent implements OnInit {
   protected readonly telegram = inject(TelegramService);
+  private readonly analytics = inject(AnalyticsService);
   private readonly route = inject(ActivatedRoute);
   private readonly api = inject(InterestsApiService);
   readonly groups = signal<InterestGroup[]>([]);
@@ -252,6 +254,7 @@ export class InterestsComponent implements OnInit {
   readonly actionError = signal('');
   readonly highlightedInterestId = signal<string | null>(null);
   readonly highlightedGatheringId = signal<string | null>(null);
+  private trackedGatheringInviteId: string | null = null;
   readonly createGroupId = signal<string | null>(null);
   readonly draftTitle = signal('');
   readonly draftDate = signal(this.defaultGatheringDate());
@@ -290,6 +293,10 @@ export class InterestsComponent implements OnInit {
       const containingGroup = groups.find((group) => group.gatherings.some((item) => item.id === targetGathering));
       if (containingGroup) {
         this.highlightedInterestId.set(containingGroup.id);
+        if (this.trackedGatheringInviteId !== targetGathering) {
+          this.analytics.track('community_gathering_open', undefined, `gathering:${targetGathering}`);
+          this.trackedGatheringInviteId = targetGathering;
+        }
         if (typeof window !== 'undefined') {
           window.requestAnimationFrame(() => {
             document.getElementById(`gathering-${targetGathering}`)?.scrollIntoView?.({ behavior: 'smooth', block: 'center' });

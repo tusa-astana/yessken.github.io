@@ -165,6 +165,8 @@ export class AdminAnalyticsComponent {
     { name: 'community_open', labelKey: 'analytics.communityClicks', noteKey: 'analytics.communityClicksNote' },
     { name: 'meetup_share_intent', labelKey: 'analytics.meetupShares', noteKey: 'analytics.meetupSharesNote' },
     { name: 'meetup_invite_open', labelKey: 'analytics.meetupInviteOpens', noteKey: 'analytics.meetupInviteOpensNote' },
+    { name: 'community_gathering_share', labelKey: 'analytics.gatheringShares', noteKey: 'analytics.gatheringSharesNote' },
+    { name: 'community_gathering_open', labelKey: 'analytics.gatheringOpens', noteKey: 'analytics.gatheringOpensNote' },
   ] as const;
 
   constructor(private readonly api: EventsApiService) {
