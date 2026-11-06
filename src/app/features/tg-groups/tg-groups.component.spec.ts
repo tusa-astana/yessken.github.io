@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { vi } from 'vitest';
 import { TelegramService } from '../../core/services/telegram.service';
 import { AnalyticsService } from '../../core/services/analytics.service';
+import { I18nService } from '../../core/services/i18n.service';
 import { TgGroupsComponent } from './tg-groups.component';
 
 describe('TgGroupsComponent', () => {
@@ -17,6 +18,7 @@ describe('TgGroupsComponent', () => {
     }).compileComponents();
 
     fixture = TestBed.createComponent(TgGroupsComponent);
+    TestBed.inject(I18nService).setLocale('ru');
     fixture.detectChanges();
   });
 
@@ -35,5 +37,15 @@ describe('TgGroupsComponent', () => {
     link?.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
 
     expect(analytics.track).toHaveBeenCalledWith('community_open', undefined, 'rollmove-astana', 'beacon');
+  });
+
+  it('updates community directory labels when the global locale changes', () => {
+    TestBed.inject(I18nService).setLocale('en');
+    fixture.detectChanges();
+    const element = fixture.nativeElement as HTMLElement;
+
+    expect(element.querySelector('h1')?.textContent).toContain('Communities');
+    expect(element.querySelector('.join')?.textContent).toContain('Open Telegram');
+    expect(element.querySelector('.description')?.textContent).toContain('Board-game club');
   });
 });

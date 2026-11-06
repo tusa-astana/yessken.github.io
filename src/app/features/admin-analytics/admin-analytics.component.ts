@@ -1,7 +1,8 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { EventsApiService } from '../../core/services/events-api.service';
+import { I18nService } from '../../core/services/i18n.service';
 import type { FunnelSummaryRow } from '../../core/types/event.model';
 
 @Component({
@@ -12,37 +13,37 @@ import type { FunnelSummaryRow } from '../../core/types/event.model';
     <main class="analytics-page">
       <header class="heading">
         <span class="eyebrow">TUSA / ADMIN</span>
-        <h1>Аналитика пилота</h1>
-        <p>Считаем действия в приложении. Повторные открытия возможны; переход в Telegram не означает вступление, RSVP или продажу.</p>
+        <h1>{{ i18n.t('analytics.heading') }}</h1>
+        <p>{{ i18n.t('analytics.description') }}</p>
       </header>
 
       <section class="panel" aria-live="polite">
         <div class="toolbar">
-          <span>Сводные события воронки</span>
-          <button type="button" (click)="refresh()" [disabled]="loading()">Обновить</button>
+          <span>{{ i18n.t('analytics.summary') }}</span>
+          <button type="button" (click)="refresh()" [disabled]="loading()">{{ i18n.t('analytics.refresh') }}</button>
         </div>
         @if (loading() && summary() === null) {
-          <p class="state" role="status">Загружаем сводку…</p>
+          <p class="state" role="status">{{ i18n.t('analytics.loading') }}</p>
         } @else if (summary() === null) {
           <div class="state error" role="alert">
-            <strong>Не удалось загрузить аналитику</strong>
-            <span>Нужен доступ администратора TUSA из Telegram и соединение с API.</span>
-            <button type="button" (click)="refresh()">Повторить</button>
+            <strong>{{ i18n.t('analytics.loadError') }}</strong>
+            <span>{{ i18n.t('analytics.adminRequired') }}</span>
+            <button type="button" (click)="refresh()">{{ i18n.t('analytics.retry') }}</button>
           </div>
         } @else {
           <div class="metric-grid">
             @for (metric of metrics; track metric.name) {
               <article class="metric-card">
-                <span>{{ metric.label }}</span>
+                <span>{{ i18n.t(metric.labelKey) }}</span>
                 <strong>{{ count(metric.name) }}</strong>
-                <small>{{ metric.note }}</small>
+                <small>{{ i18n.t(metric.noteKey) }}</small>
               </article>
             }
           </div>
-          <p class="caveat">«Переходы в сообщества» — нажатия на внешние Telegram-ссылки, не число вступивших участников. RSVP — отметка интереса, не билет.</p>
+          <p class="caveat">{{ i18n.t('analytics.caveat') }}</p>
         }
       </section>
-      <a class="back-link" routerLink="/profile">← В профиль</a>
+      <a class="back-link" routerLink="/profile">{{ i18n.t('analytics.backToProfile') }}</a>
     </main>
   `,
   styles: [`
@@ -68,13 +69,14 @@ import type { FunnelSummaryRow } from '../../core/types/event.model';
   `],
 })
 export class AdminAnalyticsComponent {
+  protected readonly i18n = inject(I18nService);
   readonly summary = signal<FunnelSummaryRow[] | null>(null);
   readonly loading = signal(false);
   readonly metrics = [
-    { name: 'catalog_view', label: 'Открытия афиши', note: 'Повторные открытия включены' },
-    { name: 'event_open', label: 'Открытия событий', note: 'Карточки событий' },
-    { name: 'event_share', label: 'Отправки ссылок', note: 'Попытки поделиться событием' },
-    { name: 'community_open', label: 'Переходы в сообщества', note: 'Нажатия на внешние ссылки' },
+    { name: 'catalog_view', labelKey: 'analytics.catalogViews', noteKey: 'analytics.repeatedViewsNote' },
+    { name: 'event_open', labelKey: 'analytics.eventOpens', noteKey: 'analytics.eventOpensNote' },
+    { name: 'event_share', labelKey: 'analytics.shares', noteKey: 'analytics.sharesNote' },
+    { name: 'community_open', labelKey: 'analytics.communityClicks', noteKey: 'analytics.communityClicksNote' },
   ] as const;
 
   constructor(private readonly api: EventsApiService) {

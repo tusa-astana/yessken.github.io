@@ -1,7 +1,8 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TelegramService } from '../../core/services/telegram.service';
 import { AnalyticsService } from '../../core/services/analytics.service';
+import { I18nService } from '../../core/services/i18n.service';
 import type { TelegramGroupItem } from '../../core/types/event.model';
 
 const CURATED_GROUPS: TelegramGroupItem[] = [
@@ -19,22 +20,22 @@ const CURATED_GROUPS: TelegramGroupItem[] = [
   imports: [CommonModule],
   template: `
     <div class="tg-groups">
-      <h1>Сообщества</h1>
-      <p class="subtitle">Городские сообщества и каналы, где появляются новые события. Это независимые сообщества — правила и условия уточняйте у их администраторов.</p>
+      <h1>{{ i18n.t('communities.heading') }}</h1>
+      <p class="subtitle">{{ i18n.t('communities.subtitle') }} {{ i18n.t('communities.disclaimer') }}</p>
       @if (groups().length === 0) {
-        <p class="empty">Сообщества скоро появятся. Следите за обновлениями TUSA.</p>
+        <p class="empty">{{ i18n.t('communities.empty') }}</p>
       } @else {
         <ul class="list">
           @for (g of groups(); track g.id) {
             <li class="card">
               <div class="info">
                 <span class="title">{{ g.title }}</span>
-                @if (g.description) { <span class="description">{{ g.description }}</span> }
+                @if (g.id === 'rollmove-astana') { <span class="description">{{ i18n.t('communities.boardGamesDescription') }}</span> }
                 @if (g.memberCount !== undefined && g.memberCount > 0) { <span class="count">{{ g.memberCount }} участников</span> }
               </div>
               @if (g.inviteLink) {
                 <a [href]="g.inviteLink" target="_blank" rel="noopener" class="join" (click)="openLink($event, g.inviteLink, g.id)">
-                  Открыть Telegram
+                  {{ i18n.t('communities.openTelegram') }}
                 </a>
               }
             </li>
@@ -79,6 +80,7 @@ const CURATED_GROUPS: TelegramGroupItem[] = [
 })
 export class TgGroupsComponent {
   readonly groups = signal<TelegramGroupItem[]>(CURATED_GROUPS);
+  protected readonly i18n = inject(I18nService);
 
   constructor(private telegram: TelegramService, private analytics: AnalyticsService) {}
 

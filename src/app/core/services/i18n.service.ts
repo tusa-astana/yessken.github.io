@@ -52,6 +52,30 @@ export type TranslationKey =
   | 'events.subtitle'
   | 'events.organizer'
   | 'events.hobbies'
+  | 'communities.heading'
+  | 'communities.subtitle'
+  | 'communities.disclaimer'
+  | 'communities.empty'
+  | 'communities.openTelegram'
+  | 'communities.boardGamesDescription'
+  | 'analytics.heading'
+  | 'analytics.description'
+  | 'analytics.summary'
+  | 'analytics.refresh'
+  | 'analytics.loading'
+  | 'analytics.loadError'
+  | 'analytics.adminRequired'
+  | 'analytics.retry'
+  | 'analytics.catalogViews'
+  | 'analytics.repeatedViewsNote'
+  | 'analytics.eventOpens'
+  | 'analytics.eventOpensNote'
+  | 'analytics.shares'
+  | 'analytics.sharesNote'
+  | 'analytics.communityClicks'
+  | 'analytics.communityClicksNote'
+  | 'analytics.caveat'
+  | 'analytics.backToProfile'
   | 'events.searchPlaceholder'
   | 'events.filters.all'
   | 'events.filters.free'
@@ -163,6 +187,30 @@ const translations: Record<Locale, Record<TranslationKey, string>> = {
     'events.subtitle': 'События Астаны на ближайшие дни. Смотри детали, делись планом и отмечай интерес.',
     'events.organizer': 'Организаторам: разместить событие бесплатно',
     'events.hobbies': 'Хобби и клубы',
+    'communities.heading': 'Сообщества',
+    'communities.subtitle': 'Городские сообщества и каналы, где появляются новые события.',
+    'communities.disclaimer': 'Это независимые сообщества — правила и условия уточняйте у их администраторов.',
+    'communities.empty': 'Сообщества скоро появятся. Следите за обновлениями TUSA.',
+    'communities.openTelegram': 'Открыть Telegram',
+    'communities.boardGamesDescription': 'Клуб настольных игр в Астане.',
+    'analytics.heading': 'Аналитика пилота',
+    'analytics.description': 'Считаем действия в приложении. Повторные открытия возможны; переход в Telegram не означает вступление, RSVP или продажу.',
+    'analytics.summary': 'Сводные события воронки',
+    'analytics.refresh': 'Обновить',
+    'analytics.loading': 'Загружаем сводку…',
+    'analytics.loadError': 'Не удалось загрузить аналитику',
+    'analytics.adminRequired': 'Нужен доступ администратора TUSA из Telegram и соединение с API.',
+    'analytics.retry': 'Повторить',
+    'analytics.catalogViews': 'Открытия афиши',
+    'analytics.repeatedViewsNote': 'Повторные открытия включены',
+    'analytics.eventOpens': 'Открытия событий',
+    'analytics.eventOpensNote': 'Карточки событий',
+    'analytics.shares': 'Отправки ссылок',
+    'analytics.sharesNote': 'Попытки поделиться событием',
+    'analytics.communityClicks': 'Переходы в сообщества',
+    'analytics.communityClicksNote': 'Нажатия на внешние ссылки',
+    'analytics.caveat': '«Переходы в сообщества» — нажатия на внешние Telegram-ссылки, не число вступивших участников. RSVP — отметка интереса, не билет.',
+    'analytics.backToProfile': '← В профиль',
     'events.searchPlaceholder': 'Название, место или описание',
     'events.filters.all': 'Все категории',
     'events.filters.free': 'Бесплатно',
@@ -273,6 +321,30 @@ const translations: Record<Locale, Record<TranslationKey, string>> = {
     'events.subtitle': 'Астанадағы жақын күндердің іс-шақтары. Ақпаратты қарап, жоспармен бөлісіп, қызығушылығыңызды белгілеңіз.',
     'events.organizer': 'Ұйымдастырушылар: іс-шақты тегін орналастырыңыз',
     'events.hobbies': 'Хобби мен клубтар',
+    'communities.heading': 'Қауымдастықтар',
+    'communities.subtitle': 'Қаладағы жаңа іс-шақтар жарияланатын қауымдастықтар мен арналар.',
+    'communities.disclaimer': 'Бұл — тәуелсіз қауымдастықтар. Ережелері мен шарттарын әкімшілерінен нақтылаңыз.',
+    'communities.empty': 'Қауымдастықтар жақында пайда болады. TUSA жаңалықтарын бақылаңыз.',
+    'communities.openTelegram': 'Telegram-ды ашу',
+    'communities.boardGamesDescription': 'Астанадағы үстел ойындары клубы.',
+    'analytics.heading': 'Пилот аналитикасы',
+    'analytics.description': 'Қолданбадағы әрекеттер есептеледі. Қайта ашулар болуы мүмкін; Telegram-ға өту топқа қосылуды, RSVP-ті не сатылымды білдірмейді.',
+    'analytics.summary': 'Воронка оқиғаларының жиынтығы',
+    'analytics.refresh': 'Жаңарту',
+    'analytics.loading': 'Жиынтық жүктелуде…',
+    'analytics.loadError': 'Аналитиканы жүктеу мүмкін болмады',
+    'analytics.adminRequired': 'Telegram арқылы TUSA әкімшісі ретінде кіру және API қосылымы қажет.',
+    'analytics.retry': 'Қайталау',
+    'analytics.catalogViews': 'Афишаны ашу',
+    'analytics.repeatedViewsNote': 'Қайта ашулар есептеледі',
+    'analytics.eventOpens': 'Іс-шақтарды ашу',
+    'analytics.eventOpensNote': 'Іс-шақ карточкалары',
+    'analytics.shares': 'Сілтемелерді жіберу',
+    'analytics.sharesNote': 'Іс-шақты бөлісу әрекеттері',
+    'analytics.communityClicks': 'Қауымдастықтарға өту',
+    'analytics.communityClicksNote': 'Сыртқы сілтемелерді басу',
+    'analytics.caveat': '«Қауымдастықтарға өту» — Telegram-сілтемесін басу саны, қосылған адамдар саны емес. RSVP — қызығушылық белгісі, билет емес.',
+    'analytics.backToProfile': '← Профильге',
     'events.searchPlaceholder': 'Атауы, орын немесе сипаттама',
     'events.filters.all': 'Барлық санаттар',
     'events.filters.free': 'Бесплатно',
@@ -383,6 +455,30 @@ const translations: Record<Locale, Record<TranslationKey, string>> = {
     'events.subtitle': 'Astana events for the next few days. See the details, share a plan, and RSVP for free.',
     'events.organizer': 'For organizers: publish an event for free',
     'events.hobbies': 'Hobbies & clubs',
+    'communities.heading': 'Communities',
+    'communities.subtitle': 'Local communities and channels where new events are shared.',
+    'communities.disclaimer': 'These are independent communities; check their rules and terms with their admins.',
+    'communities.empty': 'Community listings are coming soon. Follow TUSA for updates.',
+    'communities.openTelegram': 'Open Telegram',
+    'communities.boardGamesDescription': 'Board-game club in Astana.',
+    'analytics.heading': 'Pilot analytics',
+    'analytics.description': 'We count actions in the app. Repeat opens are possible; opening Telegram does not mean joining a group, RSVPing, or making a purchase.',
+    'analytics.summary': 'Funnel event totals',
+    'analytics.refresh': 'Refresh',
+    'analytics.loading': 'Loading summary…',
+    'analytics.loadError': 'Could not load analytics',
+    'analytics.adminRequired': 'Open TUSA in Telegram as an administrator and check the API connection.',
+    'analytics.retry': 'Retry',
+    'analytics.catalogViews': 'Event catalog opens',
+    'analytics.repeatedViewsNote': 'Repeat opens are included',
+    'analytics.eventOpens': 'Event page opens',
+    'analytics.eventOpensNote': 'Event detail pages',
+    'analytics.shares': 'Link shares',
+    'analytics.sharesNote': 'Attempts to share an event',
+    'analytics.communityClicks': 'Community link clicks',
+    'analytics.communityClicksNote': 'Clicks on external links',
+    'analytics.caveat': '“Community link clicks” counts clicks on external Telegram links, not group joins. RSVP expresses interest; it is not a ticket.',
+    'analytics.backToProfile': '← Back to profile',
     'events.searchPlaceholder': 'Event name, venue, or description',
     'events.filters.all': 'All categories',
     'events.filters.free': 'Free',
