@@ -41,7 +41,7 @@
             <h3>{{ gathering.title }}</h3>
             <p class="people-plan-place">{{ gathering.place }}</p>
             @if (gathering.details) { <p class="people-plan-details">{{ gathering.details }}</p> }
-            <div class="people-plan-footer"><span>{{ gathering.goingCount }} {{ i18n.t('meetups.peopleGoing') }}</span><a routerLink="/interests" [queryParams]="{ group: gathering.interestId }">{{ i18n.t('meetups.openPlan') }} <span aria-hidden="true">→</span></a></div>
+            <div class="people-plan-footer"><span>{{ gathering.goingCount }} {{ i18n.t('meetups.peopleGoing') }}</span><div><button class="people-plan-share" type="button" (click)="shareGathering(gathering)" [attr.aria-label]="i18n.t('meetups.sharePlan')">↗</button><a routerLink="/interests" [queryParams]="{ group: gathering.interestId }">{{ i18n.t('meetups.openPlan') }} <span aria-hidden="true">→</span></a></div></div>
           </article>
         }
       </div>

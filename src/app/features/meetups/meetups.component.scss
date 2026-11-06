@@ -63,6 +63,9 @@ app-meetups { display: block; min-height: 100%; }
 .people-plan-details { display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 3; }
 .people-plan-footer { margin-top: .25rem; padding-top: .5rem; border-top: 1px solid var(--tg-line); }
 .people-plan-footer > span { color: var(--tg-muted); font-size: .66rem; }
+.people-plan-footer > div { display: flex; align-items: center; gap: .55rem; }
+.people-plan-share { display: grid; width: 36px; height: 36px; place-items: center; border: 1px solid var(--tg-line); border-radius: 50%; background: transparent; color: var(--tg-button); font-size: 1rem; cursor: pointer; }
+.people-plan-share:hover { background: color-mix(in srgb, var(--tg-button) 8%, transparent); }
 .people-plans-state, .people-plans-empty { margin: 0; padding: .9rem; border: 1px dashed var(--tg-line); border-radius: 8px; color: var(--tg-muted); font-size: .74rem; line-height: 1.5; }
 .people-plans-empty p { margin: 0 0 .45rem; }
 .people-plans-disclaimer { margin: .7rem 0 0; color: var(--tg-muted); font-size: .65rem; line-height: 1.45; }

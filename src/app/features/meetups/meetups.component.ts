@@ -98,6 +98,22 @@ export class MeetupsComponent implements OnInit, OnDestroy {
     this.upcomingGatheringsLoading.set(false);
   }
 
+  async shareGathering(gathering: InterestGatheringPreview): Promise<void> {
+    const url = this.telegram.miniAppLink(`interest_${gathering.interestId}`);
+    const title = gathering.title;
+    const text = `${gathering.title} · ${this.formatDate(gathering.date)} в ${gathering.time}, ${gathering.place}. План по интересу «${gathering.interestName}».`;
+    if (navigator.share) {
+      try {
+        await navigator.share({ title, text, url });
+        return;
+      } catch {
+        // A dismissed share sheet falls back to Telegram's share dialog.
+      }
+    }
+    const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`;
+    if (!this.telegram.openTelegramLink(shareUrl)) window.open(shareUrl, '_blank', 'noopener,noreferrer');
+  }
+
   selectedDate(): string {
     if (this.sharedDate()) return this.sharedDate()!;
     const now = new Date();

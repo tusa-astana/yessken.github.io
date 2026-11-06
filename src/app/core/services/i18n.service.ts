@@ -12,6 +12,7 @@ export type TranslationKey =
   | 'meetups.peoplePlansUnavailable'
   | 'meetups.peopleGoing'
   | 'meetups.openPlan'
+  | 'meetups.sharePlan'
   | 'meetups.peoplePlansDisclaimer'
   | 'meetups.peoplePlansEmpty'
   | 'meetups.proposePlan'
@@ -175,6 +176,7 @@ const translations: Record<Locale, Record<TranslationKey, string>> = {
     'meetups.peoplePlansUnavailable': 'Не получилось загрузить встречи участников. Общий список мест остаётся ниже.',
     'meetups.peopleGoing': 'идут',
     'meetups.openPlan': 'Открыть по интересу',
+    'meetups.sharePlan': 'Поделиться планом с другом',
     'meetups.peoplePlansDisclaimer': 'Планы предложены участниками групп интересов, не организованы TUSA. Уточняй детали у автора; отметка не гарантирует присутствие.',
     'meetups.peoplePlansEmpty': 'Пока нет ближайших встреч от участников. Можно предложить свой план в группе по интересу.',
     'meetups.proposePlan': 'Найти интерес и предложить встречу',
@@ -337,6 +339,7 @@ const translations: Record<Locale, Record<TranslationKey, string>> = {
     'meetups.peoplePlansUnavailable': 'Қатысушылар кездесулерін жүктеу мүмкін болмады. Орындар тізімі төменде қолжетімді.',
     'meetups.peopleGoing': 'барады',
     'meetups.openPlan': 'Қызығушылық тобын ашу',
+    'meetups.sharePlan': 'Жоспарды досыңызбен бөлісу',
     'meetups.peoplePlansDisclaimer': 'Жоспарларды қызығушылық топтарының мүшелері ұсынады, TUSA ұйымдастырмайды. Мәліметтерді автордан нақтылаңыз; белгі қатысуды кепілдемейді.',
     'meetups.peoplePlansEmpty': 'Әзірге қатысушылар ұсынған жақын кездесулер жоқ. Қызығушылық тобында өз жоспарыңызды ұсыныңыз.',
     'meetups.proposePlan': 'Қызығушылықты тауып, кездесу ұсыну',
@@ -499,6 +502,7 @@ const translations: Record<Locale, Record<TranslationKey, string>> = {
     'meetups.peoplePlansUnavailable': 'Could not load community meetups. The venue list is still available below.',
     'meetups.peopleGoing': 'going',
     'meetups.openPlan': 'Open interest group',
+    'meetups.sharePlan': 'Share this plan with a friend',
     'meetups.peoplePlansDisclaimer': 'Plans are proposed by interest-group members, not organized by TUSA. Confirm details with the host; an RSVP does not guarantee attendance.',
     'meetups.peoplePlansEmpty': 'No upcoming member-created meetups yet. Propose a plan in an interest group.',
     'meetups.proposePlan': 'Find an interest and propose a meetup',
