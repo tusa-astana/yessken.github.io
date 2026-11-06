@@ -13,7 +13,10 @@ describe('AdminAnalyticsComponent', () => {
       imports: [AdminAnalyticsComponent],
       providers: [
         provideRouter([]),
-        { provide: EventsApiService, useValue: { getAdminFunnelSummary: () => of([{ name: 'community_open', count: 4 }]) } },
+        { provide: EventsApiService, useValue: {
+          getAdminFunnelSummary: () => of([{ name: 'community_open', count: 4 }]),
+          getAdminMeetupCampaignSummary: () => of([]),
+        } },
       ],
     }).compileComponents();
 
@@ -42,6 +45,20 @@ describe('AdminAnalyticsComponent', () => {
     expect(element.textContent).toContain('Открытия приглашений');
     expect(element.textContent).toContain('6');
     expect(element.textContent).toContain('3');
+  });
+
+  it('shows campaign aliases as aggregate counts without identifying hosts', () => {
+    fixture.componentInstance.campaigns.set([
+      { name: 'meetup_invite_open', campaign: 'host-a', venueId: 'bourbon-street-astana', count: 3 },
+    ]);
+    fixture.detectChanges();
+    const element = fixture.nativeElement as HTMLElement;
+
+    expect(element.textContent).toContain('Каналы seed-host пилота');
+    expect(element.textContent).toContain('host-a');
+    expect(element.textContent).toContain('bourbon-street-astana');
+    expect(element.textContent).toContain('3');
+    expect(element.textContent).toContain('не показывает уникальных людей');
   });
 
   it('translates pilot analytics when the global locale changes', () => {

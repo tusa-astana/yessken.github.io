@@ -2,7 +2,7 @@ import { Injectable, signal } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { Observable, catchError, of, timeout } from 'rxjs';
 import { TelegramService } from './telegram.service';
-import type { AdminEventReport, AdminSalesSummary, BotMessageLogRow, EventItem, FunnelSummaryRow, OrganizerEngagementRow, OrganizerOrderRow, OrganizerSubscriptionOffer, OrganizerSubscriptionStatus, Ticket, TelegramGroupItem } from '../types/event.model';
+import type { AdminEventReport, AdminSalesSummary, BotMessageLogRow, EventItem, FunnelSummaryRow, MeetupCampaignSummaryRow, OrganizerEngagementRow, OrganizerOrderRow, OrganizerSubscriptionOffer, OrganizerSubscriptionStatus, Ticket, TelegramGroupItem } from '../types/event.model';
 import { environment } from '../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
@@ -101,6 +101,12 @@ export class EventsApiService {
   getAdminFunnelSummary(): Observable<FunnelSummaryRow[] | null> {
     if (this.apiDisabled) return of(null);
     return this.http.get<FunnelSummaryRow[]>(`${this.base}/api/analytics/summary`, { headers: this.headers() })
+      .pipe(catchError(() => of(null)));
+  }
+
+  getAdminMeetupCampaignSummary(): Observable<MeetupCampaignSummaryRow[] | null> {
+    if (this.apiDisabled) return of(null);
+    return this.http.get<MeetupCampaignSummaryRow[]>(`${this.base}/api/analytics/summary/meetup-campaigns`, { headers: this.headers() })
       .pipe(catchError(() => of(null)));
   }
 

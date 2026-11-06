@@ -78,6 +78,9 @@ export type TranslationKey =
   | 'analytics.meetupSharesNote'
   | 'analytics.meetupInviteOpens'
   | 'analytics.meetupInviteOpensNote'
+  | 'analytics.campaigns'
+  | 'analytics.noCampaigns'
+  | 'analytics.campaignsNote'
   | 'analytics.caveat'
   | 'analytics.backToProfile'
   | 'events.searchPlaceholder'
@@ -217,6 +220,9 @@ const translations: Record<Locale, Record<TranslationKey, string>> = {
     'analytics.meetupSharesNote': 'Намерения поделиться местом и датой',
     'analytics.meetupInviteOpens': 'Открытия приглашений',
     'analytics.meetupInviteOpensNote': 'Повторные открытия включены',
+    'analytics.campaigns': 'Каналы seed-host пилота',
+    'analytics.noCampaigns': 'Пока нет событий с кодом кампании.',
+    'analytics.campaignsNote': 'Коды не содержат имён или username; внешний список соответствия host-ам храните отдельно. Повторные открытия считаются отдельно; метрика не показывает уникальных людей, доставку или посещаемость.',
     'analytics.caveat': '«Переходы в сообщества» — нажатия на внешние Telegram-ссылки, не число вступивших участников. RSVP — отметка интереса, не билет.',
     'analytics.backToProfile': '← В профиль',
     'events.searchPlaceholder': 'Название, место или описание',
@@ -355,6 +361,9 @@ const translations: Record<Locale, Record<TranslationKey, string>> = {
     'analytics.meetupSharesNote': 'Орын мен күнді бөлісу әрекеттері',
     'analytics.meetupInviteOpens': 'Шақыруларды ашу',
     'analytics.meetupInviteOpensNote': 'Қайта ашулар есептеледі',
+    'analytics.campaigns': 'Seed-host пилотының арналары',
+    'analytics.noCampaigns': 'Әзірге науқан коды бар оқиғалар жоқ.',
+    'analytics.campaignsNote': 'Кодтарда есімдер мен username жоқ; host-пен сәйкестік тізімін бөлек сақтаңыз. Қайта ашулар бөлек саналады; метрика бірегей адамдарды, жеткізуді немесе қатысуды көрсетпейді.',
     'analytics.caveat': '«Қауымдастықтарға өту» — Telegram-сілтемесін басу саны, қосылған адамдар саны емес. RSVP — қызығушылық белгісі, билет емес.',
     'analytics.backToProfile': '← Профильге',
     'events.searchPlaceholder': 'Атауы, орын немесе сипаттама',
@@ -493,6 +502,9 @@ const translations: Record<Locale, Record<TranslationKey, string>> = {
     'analytics.meetupSharesNote': 'Attempts to share a place and date',
     'analytics.meetupInviteOpens': 'Invite link opens',
     'analytics.meetupInviteOpensNote': 'Repeat opens are included',
+    'analytics.campaigns': 'Seed-host pilot channels',
+    'analytics.noCampaigns': 'No campaign-tagged events yet.',
+    'analytics.campaignsNote': 'Codes contain no names or usernames; keep any host mapping separately. Repeat opens count separately; these metrics do not show unique people, delivery, or attendance.',
     'analytics.caveat': '“Community link clicks” counts clicks on external Telegram links, not group joins. RSVP expresses interest; it is not a ticket.',
     'analytics.backToProfile': '← Back to profile',
     'events.searchPlaceholder': 'Event name, venue, or description',

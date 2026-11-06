@@ -34,6 +34,7 @@ export class MeetupsComponent implements OnInit, OnDestroy {
   readonly dayFilter = signal<MeetupDay>('today');
   readonly sharedDate = signal<string | null>(null);
   readonly sharedVenueId = signal<string | null>(null);
+  readonly sharedCampaign = signal<string | null>(null);
   readonly venueFilter = signal<VenueType | 'all'>('all');
   readonly searchQuery = signal('');
   readonly view = signal<'list' | 'map'>('list');
@@ -61,14 +62,18 @@ export class MeetupsComponent implements OnInit, OnDestroy {
     const query = this.route.snapshot.queryParamMap;
     const requestedDate = query.get('date');
     const requestedVenue = query.get('venue');
+    const requestedCampaign = query.get('campaign');
     if (requestedDate && this.isShareableDate(requestedDate)) this.sharedDate.set(requestedDate);
     if (requestedVenue && /^[a-z\d-]{1,60}$/i.test(requestedVenue)) this.sharedVenueId.set(requestedVenue);
+    if (requestedCampaign && ['host-a', 'host-b', 'host-c'].includes(requestedCampaign.toLowerCase())) {
+      this.sharedCampaign.set(requestedCampaign.toLowerCase());
+    }
     void this.api.load(this.selectedDate()).then(() => {
       const sharedVenue = this.sharedVenueId();
       if (!sharedVenue) return;
       const plan = this.api.plans().find((item) => item.id === sharedVenue);
       if (!plan) return;
-      this.analytics.track('meetup_invite_open', undefined, plan.id);
+      this.analytics.track('meetup_invite_open', undefined, this.meetupAnalyticsRef(plan.id));
       this.mapSelectedPlan.set(plan);
       void this.setView('map');
     });
@@ -93,6 +98,7 @@ export class MeetupsComponent implements OnInit, OnDestroy {
     this.dayFilter.set(day);
     this.sharedDate.set(null);
     this.sharedVenueId.set(null);
+    this.sharedCampaign.set(null);
     this.mapSelectedPlan.set(null);
     await this.api.load(this.selectedDate());
     this.renderMapPins();
@@ -335,9 +341,10 @@ export class MeetupsComponent implements OnInit, OnDestroy {
 
   async share(plan?: MeetupPlan): Promise<void> {
     const date = plan?.date ?? this.selectedDate();
-    if (plan) this.analytics.track('meetup_share_intent', undefined, plan.id);
+    const campaign = this.sharedCampaign();
+    if (plan) this.analytics.track('meetup_share_intent', undefined, this.meetupAnalyticsRef(plan.id));
     const startParam = plan && /^[a-z\d-]{1,60}$/i.test(plan.id)
-      ? `meetup_${plan.id}_${date.replaceAll('-', '')}`
+      ? `meetup_${plan.id}_${date.replaceAll('-', '')}${campaign ? `_c_${campaign}` : ''}`
       : 'meetups';
     const url = this.telegram.miniAppLink(startParam);
     const text = plan
@@ -353,6 +360,11 @@ export class MeetupsComponent implements OnInit, OnDestroy {
     }
     const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`;
     if (!this.telegram.openTelegramLink(shareUrl)) window.open(shareUrl, '_blank', 'noopener,noreferrer');
+  }
+
+  private meetupAnalyticsRef(venueId: string): string {
+    const campaign = this.sharedCampaign();
+    return campaign ? `${venueId}|c:${campaign}` : venueId;
   }
 
   private isShareableDate(value: string): boolean {

@@ -75,6 +75,13 @@ export interface FunnelSummaryRow {
   count: number;
 }
 
+export interface MeetupCampaignSummaryRow {
+  name: 'meetup_share_intent' | 'meetup_invite_open';
+  venueId: string;
+  campaign: string;
+  count: number;
+}
+
 export interface OrganizerOrderRow {
   ticketId: string;
   eventId: string;

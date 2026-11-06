@@ -37,6 +37,12 @@ describe('App', () => {
     expect(routeFromStartParam('meetup_bad%2Fvenue_20261106')).toBeNull();
   });
 
+  it('preserves an allowlisted host campaign in a shared meetup link', () => {
+    expect(routeFromStartParam('meetup_bourbon-street-astana_20261106_c_host-a'))
+      .toBe('/meetups?venue=bourbon-street-astana&date=2026-11-06&campaign=host-a');
+    expect(routeFromStartParam('meetup_bourbon-street-astana_20261106_c_unknown-host')).toBeNull();
+  });
+
   it('lands visitors in Together as the primary people-first experience', async () => {
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();

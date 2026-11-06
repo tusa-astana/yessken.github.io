@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
 import { vi } from 'vitest';
 import { AnalyticsService } from '../../core/services/analytics.service';
 import { TelegramService } from '../../core/services/telegram.service';
@@ -146,6 +146,28 @@ describe('MeetupsComponent privacy defaults', () => {
 
     expect(telegram.miniAppLink).toHaveBeenCalledWith('meetup_venue-1_20261106');
     expect(analytics.track).toHaveBeenCalledWith('meetup_share_intent', undefined, 'venue-1');
+    fixture.destroy();
+  });
+
+  it('tracks an allowlisted campaign on invite open and preserves it when resharing', async () => {
+    TestBed.overrideProvider(ActivatedRoute, { useValue: {
+      snapshot: { queryParamMap: convertToParamMap({ venue: plan.id, campaign: 'host-a' }) },
+    } });
+    const api = TestBed.inject(MeetupsApiService);
+    api.plans.set([plan]);
+    const fixture = TestBed.createComponent(MeetupsComponent);
+    const setView = vi.spyOn(fixture.componentInstance, 'setView').mockResolvedValue();
+    fixture.detectChanges();
+    await Promise.resolve();
+
+    const analytics = TestBed.inject(AnalyticsService);
+    const telegram = TestBed.inject(TelegramService);
+    expect(analytics.track).toHaveBeenCalledWith('meetup_invite_open', undefined, 'venue-1|c:host-a');
+
+    await fixture.componentInstance.share(plan);
+    expect(analytics.track).toHaveBeenCalledWith('meetup_share_intent', undefined, 'venue-1|c:host-a');
+    expect(telegram.miniAppLink).toHaveBeenCalledWith('meetup_venue-1_20261106_c_host-a');
+    setView.mockRestore();
     fixture.destroy();
   });
 });

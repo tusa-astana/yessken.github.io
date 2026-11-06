@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { EventsApiService } from '../../core/services/events-api.service';
 import { I18nService } from '../../core/services/i18n.service';
-import type { FunnelSummaryRow } from '../../core/types/event.model';
+import type { FunnelSummaryRow, MeetupCampaignSummaryRow } from '../../core/types/event.model';
 
 @Component({
   selector: 'app-admin-analytics',
@@ -40,6 +40,26 @@ import type { FunnelSummaryRow } from '../../core/types/event.model';
               </article>
             }
           </div>
+          @if (campaigns() !== null) {
+            <section class="campaigns" aria-labelledby="campaign-heading">
+              <h2 id="campaign-heading">{{ i18n.t('analytics.campaigns') }}</h2>
+              @if (campaigns()!.length === 0) {
+                <p class="state">{{ i18n.t('analytics.noCampaigns') }}</p>
+              } @else {
+                <ul>
+                  @for (campaign of campaigns(); track $index) {
+                    <li>
+                      <strong>{{ campaign.campaign }}</strong>
+                      <span>{{ campaign.venueId }}</span>
+                      <span>{{ i18n.t(campaign.name === 'meetup_share_intent' ? 'analytics.meetupShares' : 'analytics.meetupInviteOpens') }}</span>
+                      <b>{{ campaign.count }}</b>
+                    </li>
+                  }
+                </ul>
+              }
+              <p class="caveat">{{ i18n.t('analytics.campaignsNote') }}</p>
+            </section>
+          }
           <p class="caveat">{{ i18n.t('analytics.caveat') }}</p>
         }
       </section>
@@ -63,14 +83,22 @@ import type { FunnelSummaryRow } from '../../core/types/event.model';
     .metric-card span { color: var(--tg-muted); font-size: .74rem; }
     .metric-card strong { color: var(--tg-button); font-size: 1.8rem; font-variant-numeric: tabular-nums; }
     .metric-card small { color: var(--tg-muted); font-size: .68rem; line-height: 1.4; }
+    .campaigns { margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid var(--tg-line); }
+    .campaigns h2 { margin: 0 0 .75rem; font-size: 1rem; }
+    .campaigns ul { display: grid; gap: .5rem; margin: 0; padding: 0; list-style: none; }
+    .campaigns li { display: grid; grid-template-columns: minmax(5rem, .7fr) minmax(8rem, 1fr) minmax(8rem, 1fr) auto; align-items: center; gap: .6rem; padding: .65rem; border: 1px solid var(--tg-line); border-radius: 6px; font-size: .78rem; }
+    .campaigns li span { color: var(--tg-muted); }
+    .campaigns li b { color: var(--tg-button); font-size: 1.1rem; }
     .caveat { margin: .85rem 0 0; font-size: .72rem; }
     .back-link { display: inline-block; margin-top: 1rem; color: var(--tg-button); font-size: .82rem; text-decoration: none; }
     @media (max-width: 600px) { .analytics-page { padding: 1rem .75rem 6rem; } .panel { padding: .75rem; } }
+    @media (max-width: 560px) { .campaigns li { grid-template-columns: 1fr auto; } .campaigns li span { grid-column: 1; } .campaigns li b { grid-column: 2; grid-row: 1 / span 3; } }
   `],
 })
 export class AdminAnalyticsComponent {
   protected readonly i18n = inject(I18nService);
   readonly summary = signal<FunnelSummaryRow[] | null>(null);
+  readonly campaigns = signal<MeetupCampaignSummaryRow[] | null>(null);
   readonly loading = signal(false);
   readonly metrics = [
     { name: 'catalog_view', labelKey: 'analytics.catalogViews', noteKey: 'analytics.repeatedViewsNote' },
@@ -91,6 +119,7 @@ export class AdminAnalyticsComponent {
       this.summary.set(rows);
       this.loading.set(false);
     });
+    this.api.getAdminMeetupCampaignSummary().subscribe((rows) => this.campaigns.set(rows));
   }
 
   count(name: string): number {

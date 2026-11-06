@@ -153,13 +153,15 @@ export function routeFromStartParam(startParam: string): string | null {
     return /^[a-z\d-]{1,60}$/i.test(interestId) ? `/interests?group=${encodeURIComponent(interestId)}` : null;
   }
   if (startParam.startsWith('meetup_')) {
-    const match = /^meetup_([a-z\d-]{1,60})_(\d{8})$/i.exec(startParam);
+    const match = /^meetup_([a-z\d-]{1,60})_(\d{8})(?:_c_([a-z\d-]{1,24}))?$/i.exec(startParam);
     if (!match) return null;
-    const [, venueId, date] = match;
+    const [, venueId, date, campaign] = match;
+    if (campaign && !['host-a', 'host-b', 'host-c'].includes(campaign.toLowerCase())) return null;
     const isoDate = `${date.slice(0, 4)}-${date.slice(4, 6)}-${date.slice(6, 8)}`;
     const parsedDate = new Date(`${isoDate}T00:00:00.000Z`);
     if (!Number.isFinite(parsedDate.getTime()) || parsedDate.toISOString().slice(0, 10) !== isoDate) return null;
-    return `/meetups?venue=${encodeURIComponent(venueId)}&date=${isoDate}`;
+    const campaignParam = campaign ? `&campaign=${encodeURIComponent(campaign.toLowerCase())}` : '';
+    return `/meetups?venue=${encodeURIComponent(venueId)}&date=${isoDate}${campaignParam}`;
   }
   if (!startParam.startsWith('event_')) return null;
   const eventId = startParam.slice('event_'.length);
