@@ -45,13 +45,16 @@ TUSA не продаёт офлайн-вход, не принимает опла
 
 ## Минимальная воронка
 
-`пост host/creator -> точный deep link места и даты -> pin на карте -> RSVP -> друг открывает тот же план -> второй RSVP -> повторная встреча`
+Основной путь: `анонс host-а -> ссылка на точную встречу/группу -> открытие карточки -> вступление в группу (если нужно) -> RSVP -> друг открывает тот же план -> повторная встреча`.
+
+Запасной путь, если никто ещё не создал activity-план: `публичное место + дата -> анонимный venue/date RSVP -> поделиться ссылкой -> друг отмечается`. Эти сценарии считаются отдельно.
 
 Главные метрики:
 
 - **North Star пилота:** количество планов venue/date за неделю с 2+ RSVP-отметками. Это координационный сигнал, не посещаемость, не уникальные люди и не продажи.
 - открытие deep link -> просмотр выбранного места -> RSVP;
-- `community_gathering_share` -> `community_gathering_open` for exact member-created plans; `meetup_share_intent` -> `meetup_invite_open` for venue/date intentions. All can include repeats and do not prove delivery, unique people, group join, RSVP or attendance;
+- `community_gathering_share` -> `community_gathering_open` для встречи участника; `meetup_share_intent` -> `meetup_invite_open` для venue/date намерения. Считай эти воронки отдельно от RSVP и подтверждённой посещаемости;
+- share intent — нажатие, а не доказательство доставки; открытия могут повторяться. Gathering share/open не сохраняют Telegram user ID, а счётчики не являются уникальными людьми;
 - возврат пользователя в течение 7 дней и повторный план у того же host;
 - клики по внешним Instagram/Telegram ссылкам отдельно от join и RSVP.
 
