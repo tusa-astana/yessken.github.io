@@ -55,6 +55,20 @@ describe('AnalyticsService', () => {
     sendBeacon.mockRestore();
   });
 
+  it('sends meetup share and invite-open funnel steps with the curated venue reference', () => {
+    service.track('meetup_share_intent', undefined, 'bourbon-street-astana');
+    const shareRequest = http.expectOne('/api/analytics');
+    expect(shareRequest.request.body).toEqual({ name: 'meetup_share_intent', eventId: undefined, ref: 'bourbon-street-astana' });
+    shareRequest.flush(null);
+
+    service.track('meetup_invite_open', undefined, 'bourbon-street-astana');
+    const openRequest = http.expectOne('/api/analytics');
+    expect(openRequest.request.body).toEqual({ name: 'meetup_invite_open', eventId: undefined, ref: 'bourbon-street-astana' });
+    expect(service.getSummary().meetup_share_intent).toBe(1);
+    expect(service.getSummary().meetup_invite_open).toBe(1);
+    openRequest.flush(null);
+  });
+
   it('falls back to the regular API request if the browser cannot queue a beacon', () => {
     const sendBeacon = vi.fn().mockReturnValue(false);
     Object.defineProperty(navigator, 'sendBeacon', { configurable: true, value: sendBeacon });

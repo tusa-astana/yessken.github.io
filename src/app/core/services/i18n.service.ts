@@ -74,6 +74,10 @@ export type TranslationKey =
   | 'analytics.sharesNote'
   | 'analytics.communityClicks'
   | 'analytics.communityClicksNote'
+  | 'analytics.meetupShares'
+  | 'analytics.meetupSharesNote'
+  | 'analytics.meetupInviteOpens'
+  | 'analytics.meetupInviteOpensNote'
   | 'analytics.caveat'
   | 'analytics.backToProfile'
   | 'events.searchPlaceholder'
@@ -209,6 +213,10 @@ const translations: Record<Locale, Record<TranslationKey, string>> = {
     'analytics.sharesNote': 'Попытки поделиться событием',
     'analytics.communityClicks': 'Переходы в сообщества',
     'analytics.communityClicksNote': 'Нажатия на внешние ссылки',
+    'analytics.meetupShares': 'Отправки планов',
+    'analytics.meetupSharesNote': 'Намерения поделиться местом и датой',
+    'analytics.meetupInviteOpens': 'Открытия приглашений',
+    'analytics.meetupInviteOpensNote': 'Повторные открытия включены',
     'analytics.caveat': '«Переходы в сообщества» — нажатия на внешние Telegram-ссылки, не число вступивших участников. RSVP — отметка интереса, не билет.',
     'analytics.backToProfile': '← В профиль',
     'events.searchPlaceholder': 'Название, место или описание',
@@ -343,6 +351,10 @@ const translations: Record<Locale, Record<TranslationKey, string>> = {
     'analytics.sharesNote': 'Іс-шақты бөлісу әрекеттері',
     'analytics.communityClicks': 'Қауымдастықтарға өту',
     'analytics.communityClicksNote': 'Сыртқы сілтемелерді басу',
+    'analytics.meetupShares': 'Жоспарларды бөлісу',
+    'analytics.meetupSharesNote': 'Орын мен күнді бөлісу әрекеттері',
+    'analytics.meetupInviteOpens': 'Шақыруларды ашу',
+    'analytics.meetupInviteOpensNote': 'Қайта ашулар есептеледі',
     'analytics.caveat': '«Қауымдастықтарға өту» — Telegram-сілтемесін басу саны, қосылған адамдар саны емес. RSVP — қызығушылық белгісі, билет емес.',
     'analytics.backToProfile': '← Профильге',
     'events.searchPlaceholder': 'Атауы, орын немесе сипаттама',
@@ -477,6 +489,10 @@ const translations: Record<Locale, Record<TranslationKey, string>> = {
     'analytics.sharesNote': 'Attempts to share an event',
     'analytics.communityClicks': 'Community link clicks',
     'analytics.communityClicksNote': 'Clicks on external links',
+    'analytics.meetupShares': 'Plan share intents',
+    'analytics.meetupSharesNote': 'Attempts to share a place and date',
+    'analytics.meetupInviteOpens': 'Invite link opens',
+    'analytics.meetupInviteOpensNote': 'Repeat opens are included',
     'analytics.caveat': '“Community link clicks” counts clicks on external Telegram links, not group joins. RSVP expresses interest; it is not a ticket.',
     'analytics.backToProfile': '← Back to profile',
     'events.searchPlaceholder': 'Event name, venue, or description',

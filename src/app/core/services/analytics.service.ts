@@ -3,7 +3,13 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { TelegramService } from './telegram.service';
 import { environment } from '../../../environments/environment';
 
-export type FunnelEvent = 'catalog_view' | 'event_open' | 'event_share' | 'community_open';
+export type FunnelEvent =
+  | 'catalog_view'
+  | 'event_open'
+  | 'event_share'
+  | 'community_open'
+  | 'meetup_share_intent'
+  | 'meetup_invite_open';
 
 interface StoredFunnelEvent {
   name: FunnelEvent;
@@ -46,6 +52,8 @@ export class AnalyticsService {
       event_open: 0,
       event_share: 0,
       community_open: 0,
+      meetup_share_intent: 0,
+      meetup_invite_open: 0,
     } satisfies Record<FunnelEvent, number>;
     for (const event of this.read()) summary[event.name] += 1;
     return summary;

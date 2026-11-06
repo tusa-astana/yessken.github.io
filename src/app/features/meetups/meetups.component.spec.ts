@@ -2,6 +2,7 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { vi } from 'vitest';
+import { AnalyticsService } from '../../core/services/analytics.service';
 import { TelegramService } from '../../core/services/telegram.service';
 import { MeetupsApiService } from './meetups-api.service';
 import type { MeetupPlan } from './meetup.model';
@@ -43,6 +44,7 @@ describe('MeetupsComponent privacy defaults', () => {
           miniAppLink: vi.fn((startParam: string) => `https://t.me/tusa_astana_bot?startapp=${startParam}`),
           openTelegramLink: vi.fn(() => true),
         } },
+        { provide: AnalyticsService, useValue: { track: vi.fn() } },
       ],
     }).compileComponents();
   });
@@ -139,9 +141,11 @@ describe('MeetupsComponent privacy defaults', () => {
   it('shares a venue-specific Telegram deep link with the plan date', async () => {
     const fixture = TestBed.createComponent(MeetupsComponent);
     const telegram = TestBed.inject(TelegramService);
+    const analytics = TestBed.inject(AnalyticsService);
     await fixture.componentInstance.share(plan);
 
     expect(telegram.miniAppLink).toHaveBeenCalledWith('meetup_venue-1_20261106');
+    expect(analytics.track).toHaveBeenCalledWith('meetup_share_intent', undefined, 'venue-1');
     fixture.destroy();
   });
 });

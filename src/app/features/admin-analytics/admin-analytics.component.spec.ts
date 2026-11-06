@@ -30,6 +30,20 @@ describe('AdminAnalyticsComponent', () => {
     expect(element.textContent).toContain('не число вступивших участников');
   });
 
+  it('shows meetup share intents and deep-link opens as separate funnel steps', () => {
+    fixture.componentInstance.summary.set([
+      { name: 'meetup_share_intent', count: 6 },
+      { name: 'meetup_invite_open', count: 3 },
+    ]);
+    fixture.detectChanges();
+    const element = fixture.nativeElement as HTMLElement;
+
+    expect(element.textContent).toContain('Отправки планов');
+    expect(element.textContent).toContain('Открытия приглашений');
+    expect(element.textContent).toContain('6');
+    expect(element.textContent).toContain('3');
+  });
+
   it('translates pilot analytics when the global locale changes', () => {
     TestBed.inject(I18nService).setLocale('en');
     fixture.detectChanges();

@@ -4,6 +4,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { MeetupsApiService } from './meetups-api.service';
 import type { MeetupAttendee, MeetupDay, MeetupPlan, MeetupSelection, VenueType } from './meetup.model';
 import { TelegramService } from '../../core/services/telegram.service';
+import { AnalyticsService } from '../../core/services/analytics.service';
 
 @Component({
   selector: 'app-meetups',
@@ -15,6 +16,7 @@ import { TelegramService } from '../../core/services/telegram.service';
 export class MeetupsComponent implements OnInit, OnDestroy {
   readonly api = inject(MeetupsApiService);
   protected readonly telegram = inject(TelegramService);
+  private readonly analytics = inject(AnalyticsService);
   private readonly route = inject(ActivatedRoute);
   private mapElement?: ElementRef<HTMLDivElement>;
   private map: import('leaflet').Map | null = null;
@@ -66,6 +68,7 @@ export class MeetupsComponent implements OnInit, OnDestroy {
       if (!sharedVenue) return;
       const plan = this.api.plans().find((item) => item.id === sharedVenue);
       if (!plan) return;
+      this.analytics.track('meetup_invite_open', undefined, plan.id);
       this.mapSelectedPlan.set(plan);
       void this.setView('map');
     });
@@ -332,6 +335,7 @@ export class MeetupsComponent implements OnInit, OnDestroy {
 
   async share(plan?: MeetupPlan): Promise<void> {
     const date = plan?.date ?? this.selectedDate();
+    if (plan) this.analytics.track('meetup_share_intent', undefined, plan.id);
     const startParam = plan && /^[a-z\d-]{1,60}$/i.test(plan.id)
       ? `meetup_${plan.id}_${date.replaceAll('-', '')}`
       : 'meetups';
