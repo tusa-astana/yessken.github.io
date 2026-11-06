@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
-import { App } from './app';
+import { App, routeFromStartParam } from './app';
 
 @Component({ template: '' })
 class RouteStubComponent {}
@@ -24,6 +24,13 @@ describe('App', () => {
     const fixture = TestBed.createComponent(App);
     const app = fixture.componentInstance;
     expect(app).toBeTruthy();
+  });
+
+  it('routes shared venue links to the selected map place and date', () => {
+    expect(routeFromStartParam('meetup_bourbon-street-astana_20261106'))
+      .toBe('/meetups?venue=bourbon-street-astana&date=2026-11-06');
+    expect(routeFromStartParam('meetup_bourbon-street-astana_20260231')).toBeNull();
+    expect(routeFromStartParam('meetup_bad%2Fvenue_20261106')).toBeNull();
   });
 
   it('should render the brand', async () => {

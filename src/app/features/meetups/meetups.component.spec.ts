@@ -38,7 +38,11 @@ describe('MeetupsComponent privacy defaults', () => {
           load: async () => undefined,
           saveSelection: vi.fn(async () => true),
         } },
-        { provide: TelegramService, useValue: { isInTelegram: true } },
+        { provide: TelegramService, useValue: {
+          isInTelegram: true,
+          miniAppLink: vi.fn((startParam: string) => `https://t.me/tusa_astana_bot?startapp=${startParam}`),
+          openTelegramLink: vi.fn(() => true),
+        } },
       ],
     }).compileComponents();
   });
@@ -110,7 +114,7 @@ describe('MeetupsComponent privacy defaults', () => {
     expect(element.querySelector('.map-selected-card')?.textContent).toContain('1 открыты к знакомствам');
     expect(element.querySelectorAll('.map-social-links a')).toHaveLength(1);
     expect(element.querySelector<HTMLAnchorElement>('.map-social-links a')?.href).toBe(venue.galleryUrl);
-    expect(element.querySelector('.map-selected-card button')?.textContent).toContain('Я иду · анонимно · ~20:30');
+    expect(element.querySelector('.map-quick-join')?.textContent).toContain('Я иду · анонимно · ~20:30');
     expect(element.querySelector('.map-quick-note')?.textContent).toContain('Одно нажатие');
     expect(fixture.componentInstance.instagramUrl('http://instagram.com/22.astana')).toBeNull();
     expect(fixture.componentInstance.instagramUrl('https://example.com/profile')).toBeNull();
@@ -129,6 +133,15 @@ describe('MeetupsComponent privacy defaults', () => {
       openToMeet: false,
     });
     expect(fixture.componentInstance.joiningPlan()).toBeNull();
+    fixture.destroy();
+  });
+
+  it('shares a venue-specific Telegram deep link with the plan date', async () => {
+    const fixture = TestBed.createComponent(MeetupsComponent);
+    const telegram = TestBed.inject(TelegramService);
+    await fixture.componentInstance.share(plan);
+
+    expect(telegram.miniAppLink).toHaveBeenCalledWith('meetup_venue-1_20261106');
     fixture.destroy();
   });
 });

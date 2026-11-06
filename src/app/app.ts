@@ -57,22 +57,10 @@ export class App implements OnInit {
         this.updateNavigationChrome(currentUrl);
       });
 
-    const startRoute = this.routeFromStartParam(this.telegram.startParam);
+    const startRoute = routeFromStartParam(this.telegram.startParam);
     if (startRoute && this.pathOnly(this.router.url) !== startRoute) {
       void this.router.navigateByUrl(startRoute, { replaceUrl: true });
     }
-  }
-
-  private routeFromStartParam(startParam: string): string | null {
-    if (startParam === 'meetups') return '/meetups';
-    if (startParam === 'interests') return '/interests';
-    if (startParam.startsWith('interest_')) {
-      const interestId = startParam.slice('interest_'.length);
-      return /^[a-z\d-]{1,60}$/i.test(interestId) ? `/interests?group=${encodeURIComponent(interestId)}` : null;
-    }
-    if (!startParam.startsWith('event_')) return null;
-    const eventId = startParam.slice('event_'.length);
-    return /^[a-z\d_-]{1,100}$/i.test(eventId) ? `/events/${encodeURIComponent(eventId)}` : null;
   }
 
   private navigateBackInApp(): void {
@@ -155,4 +143,25 @@ export class App implements OnInit {
     const path = url.split(/[?#]/, 1)[0];
     return path || '/';
   }
+}
+
+export function routeFromStartParam(startParam: string): string | null {
+  if (startParam === 'meetups') return '/meetups';
+  if (startParam === 'interests') return '/interests';
+  if (startParam.startsWith('interest_')) {
+    const interestId = startParam.slice('interest_'.length);
+    return /^[a-z\d-]{1,60}$/i.test(interestId) ? `/interests?group=${encodeURIComponent(interestId)}` : null;
+  }
+  if (startParam.startsWith('meetup_')) {
+    const match = /^meetup_([a-z\d-]{1,60})_(\d{8})$/i.exec(startParam);
+    if (!match) return null;
+    const [, venueId, date] = match;
+    const isoDate = `${date.slice(0, 4)}-${date.slice(4, 6)}-${date.slice(6, 8)}`;
+    const parsedDate = new Date(`${isoDate}T00:00:00.000Z`);
+    if (!Number.isFinite(parsedDate.getTime()) || parsedDate.toISOString().slice(0, 10) !== isoDate) return null;
+    return `/meetups?venue=${encodeURIComponent(venueId)}&date=${isoDate}`;
+  }
+  if (!startParam.startsWith('event_')) return null;
+  const eventId = startParam.slice('event_'.length);
+  return /^[a-z\d_-]{1,100}$/i.test(eventId) ? `/events/${encodeURIComponent(eventId)}` : null;
 }

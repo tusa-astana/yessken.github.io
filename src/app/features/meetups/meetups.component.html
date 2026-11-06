@@ -101,7 +101,7 @@
                   <button class="leave-button" type="button" [disabled]="saving()" (click)="leave(plan)" aria-label="Отменить участие">×</button>
                 } @else {
                   <button class="join-button" type="button" (click)="openJoin(plan)"><span aria-hidden="true">＋</span> Я иду</button>
-                  <button class="plan-share" type="button" (click)="share()" [attr.aria-label]="'Поделиться планом: ' + plan.venue">↗</button>
+                  <button class="plan-share" type="button" (click)="share(plan)" [attr.aria-label]="'Поделиться планом: ' + plan.venue">↗</button>
                 }
               </div>
               @if (actionError()) { <p class="inline-error" role="alert">{{ actionError() }}</p> }
@@ -129,10 +129,11 @@
               }
             </div>
             <div class="map-selected-actions">
+              <button class="map-selected-share" type="button" (click)="share(selected)" [attr.aria-label]="'Поделиться планом: ' + selected.venue">↗</button>
               @if (isJoined(selected)) {
                 <button type="button" (click)="openJoin(selected)">Ты идёшь · изменить <span aria-hidden="true">→</span></button>
               } @else {
-                <button type="button" [disabled]="saving()" (click)="quickJoin(selected)">{{ saving() ? 'Сохраняем…' : 'Я иду · анонимно · ~20:30' }} <span aria-hidden="true">→</span></button>
+                <button class="map-quick-join" type="button" [disabled]="saving()" (click)="quickJoin(selected)">{{ saving() ? 'Сохраняем…' : 'Я иду · анонимно · ~20:30' }} <span aria-hidden="true">→</span></button>
                 <small class="map-quick-note">Одно нажатие · анонимно · примерное время 20:30</small>
               }
             </div>

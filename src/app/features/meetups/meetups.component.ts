@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, ElementRef, OnDestroy, OnInit, ViewChild, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { MeetupsApiService } from './meetups-api.service';
 import type { MeetupAttendee, MeetupDay, MeetupPlan, MeetupSelection, VenueType } from './meetup.model';
 import { TelegramService } from '../../core/services/telegram.service';
@@ -15,6 +15,7 @@ import { TelegramService } from '../../core/services/telegram.service';
 export class MeetupsComponent implements OnInit, OnDestroy {
   readonly api = inject(MeetupsApiService);
   protected readonly telegram = inject(TelegramService);
+  private readonly route = inject(ActivatedRoute);
   private mapElement?: ElementRef<HTMLDivElement>;
   private map: import('leaflet').Map | null = null;
   private markers: import('leaflet').LayerGroup | null = null;
@@ -29,6 +30,8 @@ export class MeetupsComponent implements OnInit, OnDestroy {
   }
 
   readonly dayFilter = signal<MeetupDay>('today');
+  readonly sharedDate = signal<string | null>(null);
+  readonly sharedVenueId = signal<string | null>(null);
   readonly venueFilter = signal<VenueType | 'all'>('all');
   readonly searchQuery = signal('');
   readonly view = signal<'list' | 'map'>('list');
@@ -53,13 +56,26 @@ export class MeetupsComponent implements OnInit, OnDestroy {
   });
 
   ngOnInit(): void {
-    void this.api.load(this.selectedDate());
+    const query = this.route.snapshot.queryParamMap;
+    const requestedDate = query.get('date');
+    const requestedVenue = query.get('venue');
+    if (requestedDate && this.isShareableDate(requestedDate)) this.sharedDate.set(requestedDate);
+    if (requestedVenue && /^[a-z\d-]{1,60}$/i.test(requestedVenue)) this.sharedVenueId.set(requestedVenue);
+    void this.api.load(this.selectedDate()).then(() => {
+      const sharedVenue = this.sharedVenueId();
+      if (!sharedVenue) return;
+      const plan = this.api.plans().find((item) => item.id === sharedVenue);
+      if (!plan) return;
+      this.mapSelectedPlan.set(plan);
+      void this.setView('map');
+    });
     this.refreshTimer = setInterval(() => {
       if (!this.api.loading()) void this.api.load(this.selectedDate());
     }, 30_000);
   }
 
   selectedDate(): string {
+    if (this.sharedDate()) return this.sharedDate()!;
     const now = new Date();
     const date = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     if (this.dayFilter() === 'tomorrow') date.setDate(date.getDate() + 1);
@@ -72,6 +88,8 @@ export class MeetupsComponent implements OnInit, OnDestroy {
 
   async chooseDay(day: MeetupDay): Promise<void> {
     this.dayFilter.set(day);
+    this.sharedDate.set(null);
+    this.sharedVenueId.set(null);
     this.mapSelectedPlan.set(null);
     await this.api.load(this.selectedDate());
     this.renderMapPins();
@@ -312,12 +330,18 @@ export class MeetupsComponent implements OnInit, OnDestroy {
     return new Intl.DateTimeFormat('ru-RU', { weekday: 'long', day: 'numeric', month: 'long' }).format(new Date(`${date}T12:00:00`));
   }
 
-  async share(): Promise<void> {
-    const url = this.telegram.miniAppLink('meetups');
-    const text = 'Кто со мной сегодня? Выбирай место и присоединяйся.';
+  async share(plan?: MeetupPlan): Promise<void> {
+    const date = plan?.date ?? this.selectedDate();
+    const startParam = plan && /^[a-z\d-]{1,60}$/i.test(plan.id)
+      ? `meetup_${plan.id}_${date.replaceAll('-', '')}`
+      : 'meetups';
+    const url = this.telegram.miniAppLink(startParam);
+    const text = plan
+      ? `Я собираюсь в ${plan.venue} ${this.formatDate(date)} около 20:30. Кто со мной? Открой место в TUSA.`
+      : 'Кто со мной сегодня? Выбирай место и присоединяйся.';
     if (navigator.share) {
       try {
-        await navigator.share({ title: 'TUSA · Сходки', text, url });
+        await navigator.share({ title: plan ? `План в ${plan.venue}` : 'TUSA · Сходки', text, url });
         return;
       } catch {
         // A dismissed share sheet is not an error; offer the Telegram share fallback.
@@ -325,6 +349,16 @@ export class MeetupsComponent implements OnInit, OnDestroy {
     }
     const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`;
     if (!this.telegram.openTelegramLink(shareUrl)) window.open(shareUrl, '_blank', 'noopener,noreferrer');
+  }
+
+  private isShareableDate(value: string): boolean {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+    const target = new Date(`${value}T00:00:00.000Z`);
+    if (!Number.isFinite(target.getTime()) || target.toISOString().slice(0, 10) !== value) return false;
+    const todayAstana = new Date(Date.now() + 5 * 60 * 60 * 1000).toISOString().slice(0, 10);
+    const today = new Date(`${todayAstana}T00:00:00.000Z`);
+    const daysAhead = (target.getTime() - today.getTime()) / 86_400_000;
+    return daysAhead >= 0 && daysAhead <= 60;
   }
 
   ngOnDestroy(): void {
