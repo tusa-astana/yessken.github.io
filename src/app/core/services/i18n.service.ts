@@ -93,6 +93,8 @@ export type TranslationKey =
   | 'analytics.gatheringSharesNote'
   | 'analytics.gatheringOpens'
   | 'analytics.gatheringOpensNote'
+  | 'analytics.gatheringRsvps'
+  | 'analytics.gatheringRsvpsNote'
   | 'analytics.campaigns'
   | 'analytics.noCampaigns'
   | 'analytics.campaignsNote'
@@ -261,6 +263,8 @@ const translations: Record<Locale, Record<TranslationKey, string>> = {
     'analytics.gatheringSharesNote': 'Нажатия «Поделиться» на реальном плане',
     'analytics.gatheringOpens': 'Открытия встреч участников',
     'analytics.gatheringOpensNote': 'Повторные открытия включены; посещение не подтверждено',
+    'analytics.gatheringRsvps': 'Записи на встречи участников',
+    'analytics.gatheringRsvpsNote': 'Новые RSVP; отмена или посещение отдельно не подтверждены',
     'analytics.campaigns': 'Каналы seed-host пилота',
     'analytics.noCampaigns': 'Пока нет событий с кодом кампании.',
     'analytics.campaignsNote': 'Коды не содержат имён или username; внешний список соответствия host-ам храните отдельно. Повторные открытия считаются отдельно; метрика не показывает уникальных людей, доставку или посещаемость.',
@@ -428,6 +432,8 @@ const translations: Record<Locale, Record<TranslationKey, string>> = {
     'analytics.gatheringSharesNote': 'Нақты жоспардағы бөлісу батырмасын басу',
     'analytics.gatheringOpens': 'Қатысушылар кездесулерін ашу',
     'analytics.gatheringOpensNote': 'Қайта ашулар бар; қатысу расталмайды',
+    'analytics.gatheringRsvps': 'Қатысушылар кездесулеріне RSVP',
+    'analytics.gatheringRsvpsNote': 'Жаңа RSVP; бас тарту не нақты келу бөлек расталмайды',
     'analytics.campaigns': 'Seed-host пилотының арналары',
     'analytics.noCampaigns': 'Әзірге науқан коды бар оқиғалар жоқ.',
     'analytics.campaignsNote': 'Кодтарда есімдер мен username жоқ; host-пен сәйкестік тізімін бөлек сақтаңыз. Қайта ашулар бөлек саналады; метрика бірегей адамдарды, жеткізуді немесе қатысуды көрсетпейді.',
@@ -595,6 +601,8 @@ const translations: Record<Locale, Record<TranslationKey, string>> = {
     'analytics.gatheringSharesNote': 'Share-button actions on real member plans',
     'analytics.gatheringOpens': 'Community meetup opens',
     'analytics.gatheringOpensNote': 'Repeat opens count; attendance is unverified',
+    'analytics.gatheringRsvps': 'Community meetup RSVPs',
+    'analytics.gatheringRsvpsNote': 'New RSVPs only; cancellation and attendance are not verified',
     'analytics.campaigns': 'Seed-host pilot channels',
     'analytics.noCampaigns': 'No campaign-tagged events yet.',
     'analytics.campaignsNote': 'Codes contain no names or usernames; keep any host mapping separately. Repeat opens count separately; these metrics do not show unique people, delivery, or attendance.',

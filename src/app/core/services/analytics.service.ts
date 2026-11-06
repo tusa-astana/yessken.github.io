@@ -11,7 +11,8 @@ export type FunnelEvent =
   | 'meetup_share_intent'
   | 'meetup_invite_open'
   | 'community_gathering_share'
-  | 'community_gathering_open';
+  | 'community_gathering_open'
+  | 'community_gathering_rsvp';
 
 interface StoredFunnelEvent {
   name: FunnelEvent;
@@ -28,6 +29,7 @@ export class AnalyticsService {
 
   track(name: FunnelEvent, eventId?: string, ref?: string, delivery: 'request' | 'beacon' = 'request'): void {
     if (typeof window === 'undefined') return;
+    if (name === 'community_gathering_rsvp') return;
     const events = this.read();
     const currentRef = ref ?? (typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('ref') ?? undefined : undefined);
     events.push({ name, eventId, ref: currentRef, createdAt: new Date().toISOString() });
@@ -58,6 +60,7 @@ export class AnalyticsService {
       meetup_invite_open: 0,
       community_gathering_share: 0,
       community_gathering_open: 0,
+      community_gathering_rsvp: 0,
     } satisfies Record<FunnelEvent, number>;
     for (const event of this.read()) summary[event.name] += 1;
     return summary;

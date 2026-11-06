@@ -53,8 +53,9 @@ TUSA не продаёт офлайн-вход, не принимает опла
 
 - **North Star пилота:** количество планов venue/date за неделю с 2+ RSVP-отметками. Это координационный сигнал, не посещаемость, не уникальные люди и не продажи.
 - открытие deep link -> просмотр выбранного места -> RSVP;
-- `community_gathering_share` -> `community_gathering_open` для встречи участника; `meetup_share_intent` -> `meetup_invite_open` для venue/date намерения. Считай эти воронки отдельно от RSVP и подтверждённой посещаемости;
+- `community_gathering_share` -> `community_gathering_open` -> `community_gathering_rsvp` для встречи участника; `meetup_share_intent` -> `meetup_invite_open` -> venue/date RSVP для намерения встретиться в месте. Считай эти воронки отдельно;
 - share intent — нажатие, а не доказательство доставки; открытия могут повторяться. Gathering share/open не сохраняют Telegram user ID, а счётчики не являются уникальными людьми;
+- `community_gathering_rsvp` записывается API только при первом присоединении конкретного Telegram-аккаунта к плану; повторный вход после выхода может считаться снова. Это успешное сохранение RSVP, не доказательство фактического посещения;
 - возврат пользователя в течение 7 дней и повторный план у того же host;
 - клики по внешним Instagram/Telegram ссылкам отдельно от join и RSVP.
 

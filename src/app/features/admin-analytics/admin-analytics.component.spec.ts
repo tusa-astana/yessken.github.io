@@ -56,14 +56,17 @@ describe('AdminAnalyticsComponent', () => {
     fixture.componentInstance.summary.set([
       { name: 'community_gathering_share', count: 5 },
       { name: 'community_gathering_open', count: 2 },
+      { name: 'community_gathering_rsvp', count: 1 },
     ]);
     fixture.detectChanges();
     const element = fixture.nativeElement as HTMLElement;
 
     expect(element.textContent).toContain('Отправки встреч участников');
     expect(element.textContent).toContain('Открытия встреч участников');
+    expect(element.textContent).toContain('Записи на встречи участников');
     expect(element.textContent).toContain('5');
     expect(element.textContent).toContain('2');
+    expect(element.textContent).toContain('1');
   });
 
   it('shows campaign aliases as aggregate counts without identifying hosts', () => {

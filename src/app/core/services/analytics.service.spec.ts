@@ -87,6 +87,13 @@ describe('AnalyticsService', () => {
     openRequest.flush(null);
   });
 
+  it('does not let the client emit the server-owned community gathering RSVP metric', () => {
+    service.track('community_gathering_rsvp', undefined, 'gathering:0123456789abcdef0123456789abcdef');
+
+    http.expectNone('/api/analytics');
+    expect(service.getSummary().community_gathering_rsvp).toBe(0);
+  });
+
   it('falls back to the regular API request if the browser cannot queue a beacon', () => {
     const sendBeacon = vi.fn().mockReturnValue(false);
     Object.defineProperty(navigator, 'sendBeacon', { configurable: true, value: sendBeacon });
