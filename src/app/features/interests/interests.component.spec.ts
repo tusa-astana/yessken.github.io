@@ -51,7 +51,12 @@ describe('InterestsComponent gathering links', () => {
           provide: ActivatedRoute,
           useValue: { snapshot: { queryParamMap: convertToParamMap({ gathering: gatheringId }) } },
         },
-        { provide: TelegramService, useValue: { isInTelegram: false, startParam: '' } },
+        { provide: TelegramService, useValue: {
+          isInTelegram: false,
+          startParam: '',
+          miniAppLink: vi.fn((startParam: string) => `https://t.me/tusa_astana_bot?startapp=${startParam}`),
+          openTelegramLink: vi.fn(() => true),
+        } },
         { provide: AnalyticsService, useValue: { track: vi.fn() } },
         { provide: InterestsApiService, useValue: { load: vi.fn(async () => [group]) } },
       ],
@@ -75,5 +80,42 @@ describe('InterestsComponent gathering links', () => {
     animationFrameCallback?.(0);
     expect(scrollIntoView).toHaveBeenCalledWith({ behavior: 'smooth', block: 'center' });
     fixture.destroy();
+  });
+
+  it('shares a gathering from its group with exact deep link and privacy-safe analytics ref', async () => {
+    const share = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(navigator, 'share', { configurable: true, value: share });
+    await TestBed.configureTestingModule({
+      imports: [InterestsComponent],
+      providers: [
+        provideRouter([]),
+        { provide: ActivatedRoute, useValue: { snapshot: { queryParamMap: convertToParamMap({}) } } },
+        { provide: TelegramService, useValue: {
+          isInTelegram: false,
+          startParam: '',
+          miniAppLink: vi.fn((startParam: string) => `https://t.me/tusa_astana_bot?startapp=${startParam}`),
+          openTelegramLink: vi.fn(() => true),
+        } },
+        { provide: AnalyticsService, useValue: { track: vi.fn() } },
+        { provide: InterestsApiService, useValue: { load: vi.fn(async () => [group]) } },
+      ],
+    }).compileComponents();
+    const fixture = TestBed.createComponent(InterestsComponent);
+    const telegram = TestBed.inject(TelegramService);
+    const analytics = TestBed.inject(AnalyticsService);
+
+    try {
+      await fixture.componentInstance.shareGathering(group, group.gatherings[0]);
+      expect(telegram.miniAppLink).toHaveBeenCalledWith(`gathering_${gatheringId}`);
+      expect(analytics.track).toHaveBeenCalledWith('community_gathering_share', undefined, `gathering:${gatheringId}`);
+      expect(share).toHaveBeenCalledWith(expect.objectContaining({
+        title: 'Партия для новичков',
+        url: `https://t.me/tusa_astana_bot?startapp=gathering_${gatheringId}`,
+      }));
+      expect(share.mock.calls[0][0].text).toContain('Кофейня в центре');
+    } finally {
+      Reflect.deleteProperty(navigator, 'share');
+      fixture.destroy();
+    }
   });
 });

@@ -75,6 +75,7 @@ import { InterestsApiService } from './interests-api.service';
                         } @else {
                           <button class="primary-action" type="button" [disabled]="!telegram.isInTelegram || !group.isMember || busyId() !== null" (click)="joinGathering(group, gathering)">{{ group.isMember ? 'Я иду' : 'Вступи в группу' }}</button>
                         }
+                        <button class="secondary-action gathering-share" type="button" (click)="shareGathering(group, gathering)" [attr.aria-label]="'Поделиться встречей: ' + gathering.title">↗</button>
                       </div>
                     </article>
                   }
@@ -410,6 +411,24 @@ export class InterestsComponent implements OnInit {
     this.createGroupId.set(null);
     this.announcement.set('Встреча опубликована для участников группы.');
     await this.refresh();
+  }
+
+  async shareGathering(group: InterestGroup, gathering: InterestGathering): Promise<void> {
+    const isShareableId = /^[a-f\d]{32}$/i.test(gathering.id);
+    const startParam = isShareableId ? `gathering_${gathering.id}` : `interest_${group.id}`;
+    const url = this.telegram.miniAppLink(startParam);
+    if (isShareableId) this.analytics.track('community_gathering_share', undefined, `gathering:${gathering.id}`);
+    const text = `${gathering.title} · ${this.gatheringDate(gathering.date)} в ${gathering.time}, ${gathering.place}. План по интересу «${group.name}».`;
+    if (typeof navigator !== 'undefined' && navigator.share) {
+      try {
+        await navigator.share({ title: gathering.title, text, url });
+        return;
+      } catch {
+        // A dismissed share sheet falls back to Telegram's share dialog.
+      }
+    }
+    const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`;
+    if (!this.telegram.openTelegramLink(shareUrl)) window.open(shareUrl, '_blank', 'noopener,noreferrer');
   }
 
   async shareGroup(group: InterestGroup): Promise<void> {
