@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router';
 
 export const routes: Routes = [
-  { path: '', pathMatch: 'full', redirectTo: 'events' },
+  { path: '', pathMatch: 'full', redirectTo: 'meetups' },
   { path: 'calendar', loadComponent: () => import('./features/start/start.component').then((m) => m.StartComponent) },
   { path: 'meetups', loadComponent: () => import('./features/meetups/meetups.component').then((m) => m.MeetupsComponent) },
   { path: 'interests', loadComponent: () => import('./features/interests/interests.component').then((m) => m.InterestsComponent) },

@@ -24,7 +24,7 @@ export class App implements OnInit {
   protected readonly i18n = inject(I18nService);
   protected readonly theme = inject(ThemeService);
   protected readonly breadcrumbs = signal<Breadcrumb[]>([]);
-  protected readonly activeTab = signal<'events' | 'calendar' | 'meetups' | 'profile' | null>('events');
+  protected readonly activeTab = signal<'events' | 'calendar' | 'meetups' | 'profile' | null>('meetups');
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
   private readonly routeHistory: string[] = [];
@@ -83,7 +83,7 @@ export class App implements OnInit {
 
   private updateNavigationChrome(url: string): void {
     this.breadcrumbs.set(this.createBreadcrumbs(url));
-    const section = url.split('/').filter(Boolean)[0] ?? 'events';
+    const section = url.split('/').filter(Boolean)[0] ?? 'meetups';
     const activeTab = section === 'calendar' ? 'calendar'
       : section === 'meetups' || section === 'interests' || section === 'tg-groups' ? 'meetups'
       : ['profile', 'my-tickets', 'organizer', 'create-event', 'admin'].includes(section) ? 'profile'

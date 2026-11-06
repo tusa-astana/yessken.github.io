@@ -11,8 +11,11 @@ describe('App', () => {
     await TestBed.configureTestingModule({
       imports: [App],
       providers: [provideRouter([
-        { path: '', component: RouteStubComponent },
+        { path: '', pathMatch: 'full', redirectTo: 'meetups' },
         { path: 'meetups', component: RouteStubComponent },
+        { path: 'events', component: RouteStubComponent },
+        { path: 'calendar', component: RouteStubComponent },
+        { path: 'profile', component: RouteStubComponent },
         { path: 'tg-groups', component: RouteStubComponent },
         { path: 'my-tickets', component: RouteStubComponent },
         { path: 'events/:id', component: RouteStubComponent },
@@ -31,6 +34,19 @@ describe('App', () => {
       .toBe('/meetups?venue=bourbon-street-astana&date=2026-11-06');
     expect(routeFromStartParam('meetup_bourbon-street-astana_20260231')).toBeNull();
     expect(routeFromStartParam('meetup_bad%2Fvenue_20261106')).toBeNull();
+  });
+
+  it('lands visitors in Together as the primary people-first experience', async () => {
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+    await TestBed.inject(Router).navigateByUrl('/');
+    fixture.detectChanges();
+
+    expect(TestBed.inject(Router).url).toBe('/meetups');
+    const togetherLink = (fixture.nativeElement as HTMLElement).querySelector('.bottom-nav a[href="/meetups"]');
+    expect(togetherLink?.classList.contains('active')).toBe(true);
+    expect(togetherLink?.getAttribute('aria-current')).toBe('page');
+    fixture.destroy();
   });
 
   it('should render the brand', async () => {
