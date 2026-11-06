@@ -7,6 +7,7 @@ import { TelegramService } from '../../core/services/telegram.service';
 import { MeetupsApiService } from './meetups-api.service';
 import type { MeetupPlan } from './meetup.model';
 import { MeetupsComponent } from './meetups.component';
+import { InterestsApiService } from '../interests/interests-api.service';
 
 const plan: MeetupPlan = {
   id: 'venue-1',
@@ -45,6 +46,7 @@ describe('MeetupsComponent privacy defaults', () => {
           openTelegramLink: vi.fn(() => true),
         } },
         { provide: AnalyticsService, useValue: { track: vi.fn() } },
+        { provide: InterestsApiService, useValue: { loadUpcomingGatherings: vi.fn(async () => []) } },
       ],
     }).compileComponents();
   });
@@ -77,6 +79,27 @@ describe('MeetupsComponent privacy defaults', () => {
     const link = (fixture.nativeElement as HTMLElement).querySelector<HTMLAnchorElement>('.groups-shortcut');
     expect(link?.getAttribute('href')).toBe('/tg-groups');
     expect(link?.textContent).toContain('Telegram-сообщества');
+    fixture.destroy();
+  });
+
+  it('shows real community-created plans separately from venue listings', async () => {
+    const gathering = {
+      id: 'public-gathering-1',
+      interestId: 'board-games', interestName: 'Настольные игры', interestEmoji: '♟',
+      title: 'Партия для новичков', date: '2026-11-08', time: '18:30', place: 'Кофейня в центре',
+      details: 'Принесём простые игры', goingCount: 2,
+    };
+    TestBed.inject(InterestsApiService).loadUpcomingGatherings = vi.fn(async () => [gathering]);
+    const fixture = TestBed.createComponent(MeetupsComponent);
+    fixture.detectChanges();
+    await Promise.resolve();
+    fixture.detectChanges();
+
+    const element = fixture.nativeElement as HTMLElement;
+    expect(element.querySelector('.people-plan-card')?.textContent).toContain('Партия для новичков');
+    expect(element.querySelector('.people-plan-card')?.textContent).toContain('2 идут');
+    expect(element.querySelector<HTMLAnchorElement>('.people-plan-footer a')?.getAttribute('href')).toBe('/interests?group=board-games');
+    expect(element.querySelector('.people-plans-disclaimer')?.textContent).toContain('не организованы TUSA');
     fixture.destroy();
   });
 

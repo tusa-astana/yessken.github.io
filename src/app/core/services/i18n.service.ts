@@ -5,6 +5,16 @@ export type Locale = 'ru' | 'kz' | 'en';
 export type TranslationKey =
   | 'nav.events'
   | 'nav.meetups'
+  | 'meetups.peoplePlansKicker'
+  | 'meetups.peoplePlansTitle'
+  | 'meetups.allInterests'
+  | 'meetups.peoplePlansLoading'
+  | 'meetups.peoplePlansUnavailable'
+  | 'meetups.peopleGoing'
+  | 'meetups.openPlan'
+  | 'meetups.peoplePlansDisclaimer'
+  | 'meetups.peoplePlansEmpty'
+  | 'meetups.proposePlan'
   | 'nav.calendar'
   | 'nav.map'
   | 'nav.tickets'
@@ -158,6 +168,16 @@ const translations: Record<Locale, Record<TranslationKey, string>> = {
   ru: {
     'nav.events': 'События',
     'nav.meetups': 'Вместе',
+    'meetups.peoplePlansKicker': 'ОТ УЧАСТНИКОВ',
+    'meetups.peoplePlansTitle': 'Планы и встречи',
+    'meetups.allInterests': 'Все интересы',
+    'meetups.peoplePlansLoading': 'Ищем ближайшие встречи участников…',
+    'meetups.peoplePlansUnavailable': 'Не получилось загрузить встречи участников. Общий список мест остаётся ниже.',
+    'meetups.peopleGoing': 'идут',
+    'meetups.openPlan': 'Открыть по интересу',
+    'meetups.peoplePlansDisclaimer': 'Планы предложены участниками групп интересов, не организованы TUSA. Уточняй детали у автора; отметка не гарантирует присутствие.',
+    'meetups.peoplePlansEmpty': 'Пока нет ближайших встреч от участников. Можно предложить свой план в группе по интересу.',
+    'meetups.proposePlan': 'Найти интерес и предложить встречу',
     'nav.calendar': 'Календарь',
     'nav.map': 'Карта города',
     'nav.tickets': 'Мои билеты',
@@ -310,6 +330,16 @@ const translations: Record<Locale, Record<TranslationKey, string>> = {
   kz: {
     'nav.events': 'Іс-шақтар',
     'nav.meetups': 'Бірге',
+    'meetups.peoplePlansKicker': 'ҚАТЫСУШЫЛАРДАН',
+    'meetups.peoplePlansTitle': 'Жоспарлар мен кездесулер',
+    'meetups.allInterests': 'Барлық қызығушылықтар',
+    'meetups.peoplePlansLoading': 'Қатысушылардың жақын кездесулерін іздеп жатырмыз…',
+    'meetups.peoplePlansUnavailable': 'Қатысушылар кездесулерін жүктеу мүмкін болмады. Орындар тізімі төменде қолжетімді.',
+    'meetups.peopleGoing': 'барады',
+    'meetups.openPlan': 'Қызығушылық тобын ашу',
+    'meetups.peoplePlansDisclaimer': 'Жоспарларды қызығушылық топтарының мүшелері ұсынады, TUSA ұйымдастырмайды. Мәліметтерді автордан нақтылаңыз; белгі қатысуды кепілдемейді.',
+    'meetups.peoplePlansEmpty': 'Әзірге қатысушылар ұсынған жақын кездесулер жоқ. Қызығушылық тобында өз жоспарыңызды ұсыныңыз.',
+    'meetups.proposePlan': 'Қызығушылықты тауып, кездесу ұсыну',
     'nav.calendar': 'Күнтізбе',
     'nav.map': 'Қала картасы',
     'nav.tickets': 'Билеттерім',
@@ -462,6 +492,16 @@ const translations: Record<Locale, Record<TranslationKey, string>> = {
   en: {
     'nav.events': 'Events',
     'nav.meetups': 'Together',
+    'meetups.peoplePlansKicker': 'FROM THE COMMUNITY',
+    'meetups.peoplePlansTitle': 'Plans and meetups',
+    'meetups.allInterests': 'All interests',
+    'meetups.peoplePlansLoading': 'Finding upcoming community meetups…',
+    'meetups.peoplePlansUnavailable': 'Could not load community meetups. The venue list is still available below.',
+    'meetups.peopleGoing': 'going',
+    'meetups.openPlan': 'Open interest group',
+    'meetups.peoplePlansDisclaimer': 'Plans are proposed by interest-group members, not organized by TUSA. Confirm details with the host; an RSVP does not guarantee attendance.',
+    'meetups.peoplePlansEmpty': 'No upcoming member-created meetups yet. Propose a plan in an interest group.',
+    'meetups.proposePlan': 'Find an interest and propose a meetup',
     'nav.calendar': 'Calendar',
     'nav.map': 'City map',
     'nav.tickets': 'My tickets',

@@ -38,6 +38,35 @@ describe('InterestsApiService', () => {
     await expect(loading).resolves.toEqual([{ id: 'board-games', name: 'Настольные игры', description: 'Игры', emoji: '♟', memberCount: 2, isMember: true, gatherings: [] }]);
   });
 
+  it('loads the upcoming public plan feed without private identity headers', async () => {
+    const loading = service.loadUpcomingGatherings();
+    const request = http.expectOne(`${apiBase}/api/interests/gatherings/upcoming`);
+    expect(request.request.method).toBe('GET');
+    expect(request.request.headers.has('X-Telegram-Init-Data')).toBe(false);
+    const item = {
+      id: 'public-gathering-1',
+      interestId: 'board-games', interestName: 'Настольные игры', interestEmoji: '♟',
+      title: 'Партия для новичков', date: '2026-11-08', time: '18:30', place: 'Кофейня в центре',
+      details: '', goingCount: 1,
+    };
+    request.flush([item]);
+    await expect(loading).resolves.toEqual([item]);
+  });
+
+  it('loads public upcoming gathering previews without Telegram identity or attendee records', async () => {
+    const loading = service.loadUpcomingGatherings();
+    const request = http.expectOne(`${apiBase}/api/interests/gatherings/upcoming`);
+    expect(request.request.method).toBe('GET');
+    expect(request.request.headers.has('X-Telegram-Init-Data')).toBe(false);
+    const preview = {
+      interestId: 'board-games', interestName: 'Настольные игры', interestEmoji: '♟',
+      title: 'Партия в настолки', date: '2026-11-08', time: '18:30', place: 'Кофейня в центре',
+      details: 'Игры для новичков', goingCount: 2,
+    };
+    request.flush([preview]);
+    await expect(loading).resolves.toEqual([preview]);
+  });
+
   it('joins a group with its privacy choices', async () => {
     const joining = service.join('board-games', true, false);
     const request = http.expectOne(`${apiBase}/api/interests/board-games/membership`);

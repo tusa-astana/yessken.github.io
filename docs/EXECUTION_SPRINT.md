@@ -39,7 +39,7 @@ Output:
 
 Goal: make discovery-to-invite-to-RSVP fast on a phone, including inside Telegram.
 
-Implemented: map/list discovery, anonymous-by-default venue/date RSVP, interest groups and group gatherings, venue Instagram outbound links, and shareable plan deep links. Offline ticket sales are not part of the current product model.
+Implemented: Together opens with upcoming member-created interest-group meetups when they exist, followed by map/list venue discovery and anonymous-by-default venue/date RSVP. Interest groups, venue Instagram outbound links, shareable deep links, and the host campaign-link builder support the pilot. User-created plans are clearly distinguished from TUSA venue/date intentions; offline ticket sales are not part of the current product model.
 
 Current limitations (do not describe these as complete):
 1. The API is deployed at `https://backend-l0ux.onrender.com` with PostgreSQL, but the current free Render services are a pilot setup: the web service can sleep after inactivity and the free database expires after 30 days. Always-on production reliability, backups, and a tested restore are not yet established.

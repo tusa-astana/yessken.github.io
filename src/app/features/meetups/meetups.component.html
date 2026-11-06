@@ -3,7 +3,7 @@
     <div class="hero-copy">
       <p class="eyebrow"><span class="pulse-dot" aria-hidden="true"></span> TUSA SOCIAL · ASTANA</p>
       <h1>Город ближе,<br /><em>когда вы вместе.</em></h1>
-      <p class="hero-description">Выбирай реальное место, отмечай примерное время и смотри, кто ещё собирается.</p>
+      <p class="hero-description">Смотри, куда уже собираются люди. Если подходящего плана нет — выбери место и позови друзей.</p>
       <div class="hero-actions">
         <button class="share-button" type="button" (click)="share()"><span aria-hidden="true">↗</span> Скинуть в группу</button>
         <a class="interests-shortcut" routerLink="/interests">Тусы по интересам <span aria-hidden="true">→</span></a>
@@ -14,7 +14,7 @@
     </div>
     <div class="hero-scene" aria-hidden="true">
       <div class="scene-orbit orbit-one"></div><div class="scene-orbit orbit-two"></div>
-      <div class="scene-card"><span class="scene-label">АСТАНА · СЕГОДНЯ</span><strong>Твой вечер</strong><span class="scene-avatars"><i>⌖</i><i>✳</i><i>↗</i></span><span class="scene-caption">заведения города</span></div>
+      <div class="scene-card"><span class="scene-label">АСТАНА · СЕГОДНЯ</span><strong>Твой вечер</strong><span class="scene-avatars"><i>⌖</i><i>✳</i><i>↗</i></span><span class="scene-caption">планы от людей</span></div>
       <span class="scene-spark spark-one">✳</span><span class="scene-spark spark-two">✦</span>
     </div>
   </section>
@@ -23,6 +23,36 @@
     <span class="notice-icon" aria-hidden="true">⌖</span>
     <span><strong>Реальные места, общий список.</strong> Каталог вручную сверён с публичными карточками 2GIS {{ api.sourceUpdatedAt() ? '· проверен ' + (api.sourceUpdatedAt() | date:'d MMM y') : '' }}. Отметки участников видны другим. Часы работы уточняй у заведения. @if (!telegram.isInTelegram) { <span class="auth-inline-note">Для общей отметки открой TUSA в Telegram.</span> }</span>
   </div>
+
+  <section class="people-plans" aria-labelledby="people-plans-heading">
+    <div class="people-plans-heading">
+      <div><p class="eyebrow">{{ i18n.t('meetups.peoplePlansKicker') }}</p><h2 id="people-plans-heading">{{ i18n.t('meetups.peoplePlansTitle') }}</h2></div>
+      <a routerLink="/interests">{{ i18n.t('meetups.allInterests') }} <span aria-hidden="true">→</span></a>
+    </div>
+    @if (upcomingGatheringsLoading()) {
+      <p class="people-plans-state" role="status">{{ i18n.t('meetups.peoplePlansLoading') }}</p>
+    } @else if (upcomingGatheringsError()) {
+      <p class="people-plans-state" role="status">{{ i18n.t('meetups.peoplePlansUnavailable') }}</p>
+    } @else if (upcomingGatherings().length) {
+      <div class="people-plans-grid">
+        @for (gathering of upcomingGatherings(); track gathering.id) {
+          <article class="people-plan-card">
+            <div class="people-plan-meta"><span>{{ gathering.interestEmoji }} {{ gathering.interestName }}</span><time [attr.datetime]="gathering.date + 'T' + gathering.time">{{ formatDate(gathering.date) }} · {{ gathering.time }}</time></div>
+            <h3>{{ gathering.title }}</h3>
+            <p class="people-plan-place">{{ gathering.place }}</p>
+            @if (gathering.details) { <p class="people-plan-details">{{ gathering.details }}</p> }
+            <div class="people-plan-footer"><span>{{ gathering.goingCount }} {{ i18n.t('meetups.peopleGoing') }}</span><a routerLink="/interests" [queryParams]="{ group: gathering.interestId }">{{ i18n.t('meetups.openPlan') }} <span aria-hidden="true">→</span></a></div>
+          </article>
+        }
+      </div>
+      <p class="people-plans-disclaimer">{{ i18n.t('meetups.peoplePlansDisclaimer') }}</p>
+    } @else {
+      <div class="people-plans-empty">
+        <p>{{ i18n.t('meetups.peoplePlansEmpty') }}</p>
+        <a routerLink="/interests">{{ i18n.t('meetups.proposePlan') }} <span aria-hidden="true">→</span></a>
+      </div>
+    }
+  </section>
 
   <section class="plans-section" aria-labelledby="plans-heading">
     <div class="section-heading">

@@ -5,6 +5,9 @@ import { MeetupsApiService } from './meetups-api.service';
 import type { MeetupAttendee, MeetupDay, MeetupPlan, MeetupSelection, VenueType } from './meetup.model';
 import { TelegramService } from '../../core/services/telegram.service';
 import { AnalyticsService } from '../../core/services/analytics.service';
+import { InterestsApiService } from '../interests/interests-api.service';
+import type { InterestGatheringPreview } from '../interests/interest.model';
+import { I18nService } from '../../core/services/i18n.service';
 
 @Component({
   selector: 'app-meetups',
@@ -16,7 +19,9 @@ import { AnalyticsService } from '../../core/services/analytics.service';
 export class MeetupsComponent implements OnInit, OnDestroy {
   readonly api = inject(MeetupsApiService);
   protected readonly telegram = inject(TelegramService);
+  protected readonly i18n = inject(I18nService);
   private readonly analytics = inject(AnalyticsService);
+  private readonly interestsApi = inject(InterestsApiService);
   private readonly route = inject(ActivatedRoute);
   private mapElement?: ElementRef<HTMLDivElement>;
   private map: import('leaflet').Map | null = null;
@@ -50,6 +55,9 @@ export class MeetupsComponent implements OnInit, OnDestroy {
   readonly saving = signal(false);
   readonly actionError = signal('');
   readonly savedMessage = signal('');
+  readonly upcomingGatherings = signal<InterestGatheringPreview[]>([]);
+  readonly upcomingGatheringsLoading = signal(true);
+  readonly upcomingGatheringsError = signal(false);
   readonly visiblePlans = computed(() => {
     const query = this.searchQuery().trim().toLocaleLowerCase('ru');
     return this.api.plans().filter((plan) =>
@@ -59,6 +67,7 @@ export class MeetupsComponent implements OnInit, OnDestroy {
   });
 
   ngOnInit(): void {
+    void this.loadUpcomingGatherings();
     const query = this.route.snapshot.queryParamMap;
     const requestedDate = query.get('date');
     const requestedVenue = query.get('venue');
@@ -80,6 +89,13 @@ export class MeetupsComponent implements OnInit, OnDestroy {
     this.refreshTimer = setInterval(() => {
       if (!this.api.loading()) void this.api.load(this.selectedDate());
     }, 30_000);
+  }
+
+  private async loadUpcomingGatherings(): Promise<void> {
+    const gatherings = await this.interestsApi.loadUpcomingGatherings();
+    this.upcomingGatherings.set(gatherings ?? []);
+    this.upcomingGatheringsError.set(gatherings === null);
+    this.upcomingGatheringsLoading.set(false);
   }
 
   selectedDate(): string {

@@ -3,7 +3,7 @@ import { Injectable, inject } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { TelegramService } from '../../core/services/telegram.service';
-import type { InterestGathering, InterestGroup, InterestMember, InterestReport, InterestReportReason } from './interest.model';
+import type { InterestGathering, InterestGatheringPreview, InterestGroup, InterestMember, InterestReport, InterestReportReason } from './interest.model';
 
 @Injectable({ providedIn: 'root' })
 export class InterestsApiService {
@@ -16,6 +16,14 @@ export class InterestsApiService {
       return await firstValueFrom(this.http.get<InterestGroup[]>(`${this.base}/api/interests`, { headers: this.headers() }));
     } catch {
       return [];
+    }
+  }
+
+  async loadUpcomingGatherings(): Promise<InterestGatheringPreview[] | null> {
+    try {
+      return await firstValueFrom(this.http.get<InterestGatheringPreview[]>(`${this.base}/api/interests/gatherings/upcoming`));
+    } catch {
+      return null;
     }
   }
 

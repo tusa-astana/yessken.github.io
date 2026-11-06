@@ -22,6 +22,19 @@ export interface InterestGathering {
   isHost: boolean;
 }
 
+export interface InterestGatheringPreview {
+  id: string;
+  interestId: string;
+  interestName: string;
+  interestEmoji: string;
+  title: string;
+  date: string;
+  time: string;
+  place: string;
+  details: string;
+  goingCount: number;
+}
+
 export interface InterestMember {
   telegramUserId: number | null;
   name: string;
