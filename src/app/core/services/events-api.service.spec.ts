@@ -46,4 +46,13 @@ describe('EventsApiService', () => {
     request.flush([{ name: 'community_open', count: 4 }]);
     await expect(result).resolves.toEqual([{ name: 'community_open', count: 4 }]);
   });
+
+  it('loads only public venue options without sending Telegram identity', async () => {
+    const result = firstValueFrom(service.getMeetupVenueOptions());
+    const request = http.expectOne('/api/meetups/venues');
+    expect(request.request.method).toBe('GET');
+    expect(request.request.headers.has('X-Telegram-Init-Data')).toBe(false);
+    request.flush([{ id: 'bourbon-street-astana', name: 'Bourbon Street Bar' }]);
+    await expect(result).resolves.toEqual([{ id: 'bourbon-street-astana', name: 'Bourbon Street Bar' }]);
+  });
 });

@@ -82,6 +82,11 @@ export interface MeetupCampaignSummaryRow {
   count: number;
 }
 
+export interface MeetupVenueOption {
+  id: string;
+  name: string;
+}
+
 export interface OrganizerOrderRow {
   ticketId: string;
   eventId: string;

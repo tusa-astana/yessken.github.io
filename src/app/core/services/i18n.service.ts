@@ -81,6 +81,17 @@ export type TranslationKey =
   | 'analytics.campaigns'
   | 'analytics.noCampaigns'
   | 'analytics.campaignsNote'
+  | 'analytics.linkBuilder'
+  | 'analytics.venuesLoading'
+  | 'analytics.venuesUnavailable'
+  | 'analytics.venueLabel'
+  | 'analytics.dateLabel'
+  | 'analytics.channelLabel'
+  | 'analytics.openGeneratedLink'
+  | 'analytics.copyLink'
+  | 'analytics.linkCopied'
+  | 'analytics.linkCopyFailed'
+  | 'analytics.linkBuilderNote'
   | 'analytics.caveat'
   | 'analytics.backToProfile'
   | 'events.searchPlaceholder'
@@ -223,6 +234,17 @@ const translations: Record<Locale, Record<TranslationKey, string>> = {
     'analytics.campaigns': 'Каналы seed-host пилота',
     'analytics.noCampaigns': 'Пока нет событий с кодом кампании.',
     'analytics.campaignsNote': 'Коды не содержат имён или username; внешний список соответствия host-ам храните отдельно. Повторные открытия считаются отдельно; метрика не показывает уникальных людей, доставку или посещаемость.',
+    'analytics.linkBuilder': 'Собрать ссылку для host-а',
+    'analytics.venuesLoading': 'Загружаем публичный каталог мест…',
+    'analytics.venuesUnavailable': 'Каталог мест пока недоступен. Попробуй обновить страницу.',
+    'analytics.venueLabel': 'Место',
+    'analytics.dateLabel': 'Дата плана',
+    'analytics.channelLabel': 'Код канала',
+    'analytics.openGeneratedLink': 'Открыть ссылку ↗',
+    'analytics.copyLink': 'Скопировать ссылку',
+    'analytics.linkCopied': 'Ссылка скопирована.',
+    'analytics.linkCopyFailed': 'Не удалось скопировать. Открой ссылку или скопируй её вручную.',
+    'analytics.linkBuilderNote': 'Код назначай только после согласия host-а. Ссылка не подтверждает план, бронь или присутствие.',
     'analytics.caveat': '«Переходы в сообщества» — нажатия на внешние Telegram-ссылки, не число вступивших участников. RSVP — отметка интереса, не билет.',
     'analytics.backToProfile': '← В профиль',
     'events.searchPlaceholder': 'Название, место или описание',
@@ -364,6 +386,17 @@ const translations: Record<Locale, Record<TranslationKey, string>> = {
     'analytics.campaigns': 'Seed-host пилотының арналары',
     'analytics.noCampaigns': 'Әзірге науқан коды бар оқиғалар жоқ.',
     'analytics.campaignsNote': 'Кодтарда есімдер мен username жоқ; host-пен сәйкестік тізімін бөлек сақтаңыз. Қайта ашулар бөлек саналады; метрика бірегей адамдарды, жеткізуді немесе қатысуды көрсетпейді.',
+    'analytics.linkBuilder': 'Host үшін сілтеме жасау',
+    'analytics.venuesLoading': 'Ашық орындар каталогы жүктелуде…',
+    'analytics.venuesUnavailable': 'Орындар каталогы әзірге қолжетімсіз. Бетті жаңартып көріңіз.',
+    'analytics.venueLabel': 'Орын',
+    'analytics.dateLabel': 'Жоспар күні',
+    'analytics.channelLabel': 'Арна коды',
+    'analytics.openGeneratedLink': 'Сілтемені ашу ↗',
+    'analytics.copyLink': 'Сілтемені көшіру',
+    'analytics.linkCopied': 'Сілтеме көшірілді.',
+    'analytics.linkCopyFailed': 'Көшіру мүмкін болмады. Сілтемені ашыңыз немесе қолмен көшіріңіз.',
+    'analytics.linkBuilderNote': 'Кодты тек host келісім бергеннен кейін тағайындаңыз. Сілтеме жоспарды, броньды немесе қатысуды растамайды.',
     'analytics.caveat': '«Қауымдастықтарға өту» — Telegram-сілтемесін басу саны, қосылған адамдар саны емес. RSVP — қызығушылық белгісі, билет емес.',
     'analytics.backToProfile': '← Профильге',
     'events.searchPlaceholder': 'Атауы, орын немесе сипаттама',
@@ -505,6 +538,17 @@ const translations: Record<Locale, Record<TranslationKey, string>> = {
     'analytics.campaigns': 'Seed-host pilot channels',
     'analytics.noCampaigns': 'No campaign-tagged events yet.',
     'analytics.campaignsNote': 'Codes contain no names or usernames; keep any host mapping separately. Repeat opens count separately; these metrics do not show unique people, delivery, or attendance.',
+    'analytics.linkBuilder': 'Build a host link',
+    'analytics.venuesLoading': 'Loading the public venue catalog…',
+    'analytics.venuesUnavailable': 'The venue catalog is unavailable. Try refreshing the page.',
+    'analytics.venueLabel': 'Venue',
+    'analytics.dateLabel': 'Plan date',
+    'analytics.channelLabel': 'Channel code',
+    'analytics.openGeneratedLink': 'Open link ↗',
+    'analytics.copyLink': 'Copy link',
+    'analytics.linkCopied': 'Link copied.',
+    'analytics.linkCopyFailed': 'Could not copy. Open the link or copy it manually.',
+    'analytics.linkBuilderNote': 'Assign a code only after the host agrees. A link does not confirm a plan, reservation, or attendance.',
     'analytics.caveat': '“Community link clicks” counts clicks on external Telegram links, not group joins. RSVP expresses interest; it is not a ticket.',
     'analytics.backToProfile': '← Back to profile',
     'events.searchPlaceholder': 'Event name, venue, or description',

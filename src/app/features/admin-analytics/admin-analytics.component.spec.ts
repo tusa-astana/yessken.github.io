@@ -3,6 +3,7 @@ import { provideRouter } from '@angular/router';
 import { of } from 'rxjs';
 import { EventsApiService } from '../../core/services/events-api.service';
 import { I18nService } from '../../core/services/i18n.service';
+import { TelegramService } from '../../core/services/telegram.service';
 import { AdminAnalyticsComponent } from './admin-analytics.component';
 
 describe('AdminAnalyticsComponent', () => {
@@ -16,6 +17,10 @@ describe('AdminAnalyticsComponent', () => {
         { provide: EventsApiService, useValue: {
           getAdminFunnelSummary: () => of([{ name: 'community_open', count: 4 }]),
           getAdminMeetupCampaignSummary: () => of([]),
+          getMeetupVenueOptions: () => of([{ id: 'bourbon-street-astana', name: 'Bourbon Street Bar' }]),
+        } },
+        { provide: TelegramService, useValue: {
+          miniAppLink: (startParam: string) => `https://t.me/tusa_astana_bot?startapp=${startParam}`,
         } },
       ],
     }).compileComponents();
@@ -59,6 +64,21 @@ describe('AdminAnalyticsComponent', () => {
     expect(element.textContent).toContain('bourbon-street-astana');
     expect(element.textContent).toContain('3');
     expect(element.textContent).toContain('не показывает уникальных людей');
+  });
+
+  it('builds a date-specific host link from a public venue and allowlisted alias', () => {
+    const component = fixture.componentInstance;
+    const venueSelect = fixture.nativeElement.querySelector('#campaign-venue') as HTMLSelectElement;
+    expect(venueSelect.options).toHaveLength(1);
+    expect(venueSelect.options[0].value).toBe('bourbon-street-astana');
+
+    const date = component.campaignDate();
+    expect(component.campaignLink()).toBe(
+      `https://t.me/tusa_astana_bot?startapp=meetup_bourbon-street-astana_${date.replaceAll('-', '')}_c_host-a`,
+    );
+
+    component.campaignDate.set('2026-02-31');
+    expect(component.campaignLink()).toBeNull();
   });
 
   it('translates pilot analytics when the global locale changes', () => {
