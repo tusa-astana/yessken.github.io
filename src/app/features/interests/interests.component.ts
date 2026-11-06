@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { TelegramService } from '../../core/services/telegram.service';
 import type { InterestGathering, InterestGroup, InterestMember, InterestReportReason } from './interest.model';
 import { InterestsApiService } from './interests-api.service';
@@ -58,7 +58,7 @@ import { InterestsApiService } from './interests-api.service';
                 <div class="gathering-list">
                   <div class="gathering-list-heading"><strong>Ближайшие встречи</strong><span>{{ group.gatherings.length }}</span></div>
                   @for (gathering of group.gatherings; track gathering.id) {
-                    <article class="gathering-card">
+                    <article class="gathering-card" [class.highlighted-gathering]="highlightedGatheringId() === gathering.id" [id]="'gathering-' + gathering.id">
                       <div class="gathering-copy">
                         <strong>{{ gathering.title }}</strong>
                         <span>{{ gatheringDate(gathering.date) }} · {{ gathering.time }}</span>
@@ -180,6 +180,7 @@ import { InterestsApiService } from './interests-api.service';
     .gathering-list-heading { display: flex; align-items: center; gap: .4rem; color: var(--tg-muted); font-size: .65rem; }
     .gathering-list-heading span { display: grid; min-width: 1.2rem; height: 1.2rem; place-items: center; border-radius: 999px; background: rgba(66,108,71,.1); color: var(--tg-button); font-size: .56rem; }
     .gathering-card { display: flex; justify-content: space-between; align-items: center; gap: .6rem; padding: .65rem; border: 1px solid var(--tg-line); border-radius: 8px; background: rgba(127,127,127,.045); }
+    .gathering-card.highlighted-gathering { border-color: var(--tg-button); box-shadow: 0 0 0 2px color-mix(in srgb, var(--tg-button) 20%, transparent); }
     .gathering-copy { display: grid; min-width: 0; gap: .18rem; }
     .gathering-copy > strong { color: var(--tg-text); font-size: .72rem; }
     .gathering-copy > span, .gathering-copy > small { color: var(--tg-muted); font-size: .62rem; line-height: 1.4; }
@@ -231,6 +232,7 @@ import { InterestsApiService } from './interests-api.service';
 })
 export class InterestsComponent implements OnInit {
   protected readonly telegram = inject(TelegramService);
+  private readonly route = inject(ActivatedRoute);
   private readonly api = inject(InterestsApiService);
   readonly groups = signal<InterestGroup[]>([]);
   readonly loading = signal(true);
@@ -249,6 +251,7 @@ export class InterestsComponent implements OnInit {
   readonly announcement = signal('');
   readonly actionError = signal('');
   readonly highlightedInterestId = signal<string | null>(null);
+  readonly highlightedGatheringId = signal<string | null>(null);
   readonly createGroupId = signal<string | null>(null);
   readonly draftTitle = signal('');
   readonly draftDate = signal(this.defaultGatheringDate());
@@ -257,9 +260,16 @@ export class InterestsComponent implements OnInit {
   readonly draftDetails = signal('');
 
   ngOnInit(): void {
+    const gatheringQuery = this.route.snapshot.queryParamMap.get('gathering');
+    if (gatheringQuery && /^[a-f\d]{32}$/i.test(gatheringQuery)) {
+      this.highlightedGatheringId.set(gatheringQuery);
+    }
     if (typeof window !== 'undefined') {
       const startParam = this.telegram.startParam;
-      if (startParam.startsWith('interest_')) {
+      if (startParam.startsWith('gathering_')) {
+        const gatheringId = startParam.slice('gathering_'.length);
+        if (/^[a-f\d]{32}$/i.test(gatheringId)) this.highlightedGatheringId.set(gatheringId);
+      } else if (startParam.startsWith('interest_')) {
         this.highlightedInterestId.set(startParam.slice('interest_'.length));
       } else {
         this.highlightedInterestId.set(new URLSearchParams(window.location.search).get('group'));
@@ -275,6 +285,18 @@ export class InterestsComponent implements OnInit {
     this.groups.set(groups);
     this.loadError.set(groups.length === 0);
     this.loading.set(false);
+    const targetGathering = this.highlightedGatheringId();
+    if (targetGathering) {
+      const containingGroup = groups.find((group) => group.gatherings.some((item) => item.id === targetGathering));
+      if (containingGroup) {
+        this.highlightedInterestId.set(containingGroup.id);
+        if (typeof window !== 'undefined') {
+          window.requestAnimationFrame(() => {
+            document.getElementById(`gathering-${targetGathering}`)?.scrollIntoView?.({ behavior: 'smooth', block: 'center' });
+          });
+        }
+      }
+    }
   }
 
   async join(group: InterestGroup): Promise<void> {

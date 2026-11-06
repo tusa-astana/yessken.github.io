@@ -109,16 +109,16 @@ describe('MeetupsComponent privacy defaults', () => {
     const fixture = TestBed.createComponent(MeetupsComponent);
     const telegram = TestBed.inject(TelegramService);
     const gathering = {
-      id: 'public-gathering-1', interestId: 'board-games', interestName: 'Настольные игры', interestEmoji: '♟',
+      id: '0123456789abcdef0123456789abcdef', interestId: 'board-games', interestName: 'Настольные игры', interestEmoji: '♟',
       title: 'Партия для новичков', date: '2026-11-08', time: '18:30', place: 'Кофейня в центре', details: '', goingCount: 1,
     };
 
     try {
       await fixture.componentInstance.shareGathering(gathering);
-      expect(telegram.miniAppLink).toHaveBeenCalledWith('interest_board-games');
+      expect(telegram.miniAppLink).toHaveBeenCalledWith('gathering_0123456789abcdef0123456789abcdef');
       expect(share).toHaveBeenCalledWith(expect.objectContaining({
         title: 'Партия для новичков',
-        url: 'https://t.me/tusa_astana_bot?startapp=interest_board-games',
+        url: 'https://t.me/tusa_astana_bot?startapp=gathering_0123456789abcdef0123456789abcdef',
       }));
       expect(share.mock.calls[0][0].text).toContain('Кофейня в центре');
     } finally {

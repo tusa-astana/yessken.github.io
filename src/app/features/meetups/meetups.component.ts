@@ -99,7 +99,10 @@ export class MeetupsComponent implements OnInit, OnDestroy {
   }
 
   async shareGathering(gathering: InterestGatheringPreview): Promise<void> {
-    const url = this.telegram.miniAppLink(`interest_${gathering.interestId}`);
+    const startParam = /^[a-f\d]{32}$/i.test(gathering.id)
+      ? `gathering_${gathering.id}`
+      : `interest_${gathering.interestId}`;
+    const url = this.telegram.miniAppLink(startParam);
     const title = gathering.title;
     const text = `${gathering.title} · ${this.formatDate(gathering.date)} в ${gathering.time}, ${gathering.place}. План по интересу «${gathering.interestName}».`;
     if (navigator.share) {

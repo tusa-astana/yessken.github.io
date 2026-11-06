@@ -152,6 +152,10 @@ export function routeFromStartParam(startParam: string): string | null {
     const interestId = startParam.slice('interest_'.length);
     return /^[a-z\d-]{1,60}$/i.test(interestId) ? `/interests?group=${encodeURIComponent(interestId)}` : null;
   }
+  if (startParam.startsWith('gathering_')) {
+    const gatheringId = startParam.slice('gathering_'.length);
+    return /^[a-f\d]{32}$/i.test(gatheringId) ? `/interests?gathering=${encodeURIComponent(gatheringId)}` : null;
+  }
   if (startParam.startsWith('meetup_')) {
     const match = /^meetup_([a-z\d-]{1,60})_(\d{8})(?:_c_([a-z\d-]{1,24}))?$/i.exec(startParam);
     if (!match) return null;

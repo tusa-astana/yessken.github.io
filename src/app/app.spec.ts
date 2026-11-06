@@ -43,6 +43,12 @@ describe('App', () => {
     expect(routeFromStartParam('meetup_bourbon-street-astana_20261106_c_unknown-host')).toBeNull();
   });
 
+  it('routes a validated community gathering deep link to its exact plan', () => {
+    expect(routeFromStartParam('gathering_0123456789abcdef0123456789abcdef'))
+      .toBe('/interests?gathering=0123456789abcdef0123456789abcdef');
+    expect(routeFromStartParam('gathering_unsafe%2Fid')).toBeNull();
+  });
+
   it('lands visitors in Together as the primary people-first experience', async () => {
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
