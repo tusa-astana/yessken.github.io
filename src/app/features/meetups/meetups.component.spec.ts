@@ -1,6 +1,7 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { vi } from 'vitest';
 import { TelegramService } from '../../core/services/telegram.service';
 import { MeetupsApiService } from './meetups-api.service';
 import type { MeetupPlan } from './meetup.model';
@@ -35,6 +36,7 @@ describe('MeetupsComponent privacy defaults', () => {
           error: signal(false),
           sourceUpdatedAt: signal(null),
           load: async () => undefined,
+          saveSelection: vi.fn(async () => true),
         } },
         { provide: TelegramService, useValue: { isInTelegram: true } },
       ],
@@ -69,6 +71,64 @@ describe('MeetupsComponent privacy defaults', () => {
     const link = (fixture.nativeElement as HTMLElement).querySelector<HTMLAnchorElement>('.groups-shortcut');
     expect(link?.getAttribute('href')).toBe('/tg-groups');
     expect(link?.textContent).toContain('Telegram-сообщества');
+    fixture.destroy();
+  });
+
+  it('shows curated Instagram profile and post links on a venue card', () => {
+    const venue = {
+      ...plan,
+      galleryUrl: 'https://www.instagram.com/22.astana/',
+      previewPostUrl: 'https://www.instagram.com/reel/DdCF13PuQ2_/',
+    };
+    const fixture = TestBed.createComponent(MeetupsComponent);
+    fixture.componentInstance.api.plans.set([venue]);
+    fixture.detectChanges();
+
+    const links = (fixture.nativeElement as HTMLElement).querySelectorAll<HTMLAnchorElement>('.venue-social-links a');
+    expect(links).toHaveLength(2);
+    expect(links[0].href).toBe(venue.galleryUrl);
+    expect(links[1].href).toBe(venue.previewPostUrl);
+    expect(links[0].rel).toContain('noopener');
+    fixture.destroy();
+  });
+
+  it('shows social links in the selected map pin card and limits them to Instagram HTTPS URLs', () => {
+    const venue = {
+      ...plan,
+      goingCount: 3,
+      openToMeetCount: 1,
+      galleryUrl: 'https://www.instagram.com/22.astana/',
+      previewPostUrl: 'https://example.com/post',
+    };
+    const fixture = TestBed.createComponent(MeetupsComponent);
+    fixture.componentInstance.api.plans.set([venue]);
+    fixture.componentInstance.view.set('map');
+    fixture.componentInstance.mapSelectedPlan.set(venue);
+    fixture.detectChanges();
+
+    const element = fixture.nativeElement as HTMLElement;
+    expect(element.querySelector('.map-selected-card')?.textContent).toContain('1 открыты к знакомствам');
+    expect(element.querySelectorAll('.map-social-links a')).toHaveLength(1);
+    expect(element.querySelector<HTMLAnchorElement>('.map-social-links a')?.href).toBe(venue.galleryUrl);
+    expect(element.querySelector('.map-selected-card button')?.textContent).toContain('Я иду · анонимно · ~20:30');
+    expect(element.querySelector('.map-quick-note')?.textContent).toContain('Одно нажатие');
+    expect(fixture.componentInstance.instagramUrl('http://instagram.com/22.astana')).toBeNull();
+    expect(fixture.componentInstance.instagramUrl('https://example.com/profile')).toBeNull();
+    fixture.destroy();
+  });
+
+  it('saves a one-tap map RSVP anonymously at the clearly labeled approximate time', async () => {
+    const fixture = TestBed.createComponent(MeetupsComponent);
+    const saveSelection = fixture.componentInstance.api.saveSelection as ReturnType<typeof vi.fn>;
+    fixture.componentInstance.quickJoin(plan);
+
+    expect(saveSelection).toHaveBeenCalledWith(plan.id, {
+      date: fixture.componentInstance.selectedDate(),
+      time: '20:30',
+      anonymous: true,
+      openToMeet: false,
+    });
+    expect(fixture.componentInstance.joiningPlan()).toBeNull();
     fixture.destroy();
   });
 });

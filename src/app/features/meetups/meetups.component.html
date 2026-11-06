@@ -72,6 +72,12 @@
               </div>
               @if (plan.openingHours) { <p class="hours-line"><span aria-hidden="true">◷</span> Часы по карте: {{ plan.openingHours }}</p> }
               @if (plan.website) { <a class="website-link" [href]="plan.website" target="_blank" rel="noopener noreferrer">Сайт заведения ↗</a> }
+              @if (instagramUrl(plan.galleryUrl); as instagram) {
+                <div class="venue-social-links">
+                  <a [href]="instagram" target="_blank" rel="noopener noreferrer">Instagram ↗</a>
+                  @if (instagramUrl(plan.previewPostUrl); as preview) { <a [href]="preview" target="_blank" rel="noopener noreferrer">Пост ↗</a> }
+                </div>
+              }
               <div class="attendee-row">
                 @if (attendeesFor(plan).length) {
                   <div class="avatar-stack" aria-label="Участники">
@@ -111,7 +117,27 @@
           <div class="map-load-warning" role="status"><span>Карта временно не загрузилась.</span><button type="button" (click)="setView('list')">Показать места списком</button></div>
         }
         @if (mapSelectedPlan(); as selected) {
-          <div class="map-selected-card"><div><strong>{{ selected.venue }}</strong><span>{{ selected.address }} · {{ selected.goingCount }} идут</span></div><button type="button" (click)="openJoin(selected)">{{ isJoined(selected) ? 'Изменить' : 'Присоединиться' }} <span aria-hidden="true">→</span></button></div>
+          <div class="map-selected-card">
+            <div class="map-selected-details">
+              <strong>{{ selected.venue }}</strong>
+              <span>{{ selected.address }} · {{ selected.goingCount }} идут@if (openMeetCount(selected)) { · {{ openMeetCount(selected) }} открыты к знакомствам }</span>
+              @if (instagramUrl(selected.galleryUrl); as instagram) {
+                <div class="map-social-links">
+                  <a [href]="instagram" target="_blank" rel="noopener noreferrer">Instagram ↗</a>
+                  @if (instagramUrl(selected.previewPostUrl); as preview) { <a [href]="preview" target="_blank" rel="noopener noreferrer">Пост ↗</a> }
+                </div>
+              }
+            </div>
+            <div class="map-selected-actions">
+              @if (isJoined(selected)) {
+                <button type="button" (click)="openJoin(selected)">Ты идёшь · изменить <span aria-hidden="true">→</span></button>
+              } @else {
+                <button type="button" [disabled]="saving()" (click)="quickJoin(selected)">{{ saving() ? 'Сохраняем…' : 'Я иду · анонимно · ~20:30' }} <span aria-hidden="true">→</span></button>
+                <small class="map-quick-note">Одно нажатие · анонимно · примерное время 20:30</small>
+              }
+            </div>
+          </div>
+          @if (actionError()) { <p class="map-action-error" role="alert">{{ actionError() }}</p> }
         }
         @if (mapClusterPlans().length) {
           <div class="map-cluster-card" aria-label="Места рядом">

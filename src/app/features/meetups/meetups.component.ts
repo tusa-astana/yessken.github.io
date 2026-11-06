@@ -200,21 +200,34 @@ export class MeetupsComponent implements OnInit, OnDestroy {
     this.joiningPlan.set(plan);
   }
 
+  async quickJoin(plan: MeetupPlan): Promise<void> {
+    this.actionError.set('');
+    await this.submitSelection(plan, {
+      date: this.selectedDate(),
+      time: '20:30',
+      anonymous: true,
+      openToMeet: false,
+    });
+  }
+
   async saveJoin(): Promise<void> {
     const plan = this.joiningPlan();
     if (!plan) return;
+    await this.submitSelection(plan, {
+      date: this.selectedDate(),
+      time: this.draftTime() || '20:30',
+      anonymous: this.draftAnonymous(),
+      openToMeet: this.draftOpenToMeet(),
+    });
+  }
+
+  private async submitSelection(plan: MeetupPlan, selection: MeetupSelection): Promise<void> {
     if (!this.telegram.isInTelegram) {
       this.actionError.set('Чтобы отметиться, открой TUSA внутри Telegram — так мы безопасно проверим аккаунт.');
       return;
     }
     this.saving.set(true);
     this.actionError.set('');
-    const selection: MeetupSelection = {
-      date: this.selectedDate(),
-      time: this.draftTime() || '20:30',
-      anonymous: this.draftAnonymous(),
-      openToMeet: this.draftOpenToMeet(),
-    };
     const saved = await this.api.saveSelection(plan.id, selection);
     this.saving.set(false);
     if (!saved) {
@@ -222,6 +235,10 @@ export class MeetupsComponent implements OnInit, OnDestroy {
       return;
     }
     this.joiningPlan.set(null);
+    if (this.mapSelectedPlan()?.id === plan.id) {
+      const refreshedPlan = this.api.plans().find((item) => item.id === plan.id);
+      if (refreshedPlan) this.mapSelectedPlan.set(refreshedPlan);
+    }
     this.savedMessage.set('Отметка сохранена и видна другим участникам.');
     this.renderMapPins();
   }
@@ -268,6 +285,19 @@ export class MeetupsComponent implements OnInit, OnDestroy {
 
   openMeetCount(plan: MeetupPlan): number {
     return plan.openToMeetCount;
+  }
+
+  instagramUrl(value: string | null | undefined): string | null {
+    if (!value) return null;
+    try {
+      const url = new URL(value);
+      return url.protocol === 'https:' &&
+        (url.hostname === 'instagram.com' || url.hostname.endsWith('.instagram.com'))
+        ? url.href
+        : null;
+    } catch {
+      return null;
+    }
   }
 
   attendeeCountLabel(count: number): string {
