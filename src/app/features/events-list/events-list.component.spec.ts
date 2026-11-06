@@ -10,6 +10,7 @@ describe('EventsListComponent', () => {
   let fixture: ComponentFixture<EventsListComponent>;
 
   beforeEach(async () => {
+    window.localStorage.removeItem('tusa-locale-preference-v1');
     await TestBed.configureTestingModule({
       imports: [EventsListComponent],
       providers: [

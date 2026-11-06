@@ -8,6 +8,7 @@ class RouteStubComponent {}
 
 describe('App', () => {
   beforeEach(async () => {
+    window.localStorage.removeItem('tusa-locale-preference-v1');
     await TestBed.configureTestingModule({
       imports: [App],
       providers: [provideRouter([
