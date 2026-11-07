@@ -18,7 +18,6 @@ const group: InterestGroup = {
   gatherings: [{
     id: gatheringId,
     interestId: 'board-games',
-    hostTelegramUserId: 123,
     title: 'Партия для новичков',
     date: '2026-11-08',
     time: '18:30',

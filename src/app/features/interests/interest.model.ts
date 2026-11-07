@@ -11,7 +11,6 @@ export interface InterestGroup {
 export interface InterestGathering {
   id: string;
   interestId: string;
-  hostTelegramUserId: number;
   title: string;
   date: string;
   time: string;
