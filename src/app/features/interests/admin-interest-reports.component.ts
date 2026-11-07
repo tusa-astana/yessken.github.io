@@ -36,7 +36,7 @@ import { InterestsApiService } from './interests-api.service';
                 <button class="dismiss" type="button" [disabled]="busyId() !== null" (click)="review(report, 'dismiss')">Отклонить жалобу</button>
                 @if (confirmingId() === report.id) {
                   <div class="confirm" role="group" aria-label="Подтверждение ограничения аккаунта">
-                    <span>Исключить из интерес-групп?</span>
+                    <span>Ограничить аккаунт? Он будет исключён из интерес-групп, его активные встречи отменятся, а RSVP удалятся.</span>
                     <button class="suspend" type="button" [disabled]="busyId() !== null" (click)="review(report, 'suspend')">Подтвердить</button>
                     <button type="button" [disabled]="busyId() !== null" (click)="confirmingId.set(null)">Отмена</button>
                   </div>
@@ -114,7 +114,7 @@ export class AdminInterestReportsComponent implements OnInit {
     }
     this.reports.update((current) => current?.filter((item) => item.id !== report.id) ?? null);
     this.announcement.set(action === 'suspend'
-      ? `Аккаунт ${report.targetName} ограничен и удалён из интерес-групп.`
+      ? `Аккаунт ${report.targetName} ограничен и удалён из интерес-групп; его активные встречи отменены, RSVP удалены.`
       : 'Жалоба закрыта без ограничения аккаунта.');
   }
 
