@@ -118,4 +118,34 @@ describe('InterestsComponent gathering links', () => {
       fixture.destroy();
     }
   });
+
+  it('requires a host to cancel their upcoming gathering before leaving the group', async () => {
+    const leave = vi.fn(async () => true);
+    const hostedGroup: InterestGroup = {
+      ...group,
+      isMember: true,
+      gatherings: group.gatherings.map((gathering) => ({ ...gathering, isHost: true })),
+    };
+    await TestBed.configureTestingModule({
+      imports: [InterestsComponent],
+      providers: [
+        provideRouter([]),
+        { provide: ActivatedRoute, useValue: { snapshot: { queryParamMap: convertToParamMap({}) } } },
+        { provide: TelegramService, useValue: { isInTelegram: true, startParam: '', miniAppLink: vi.fn(), openTelegramLink: vi.fn() } },
+        { provide: AnalyticsService, useValue: { track: vi.fn() } },
+        { provide: InterestsApiService, useValue: { load: vi.fn(async () => [hostedGroup]), leave } },
+      ],
+    }).compileComponents();
+    const fixture = TestBed.createComponent(InterestsComponent);
+    await fixture.whenStable();
+
+    await fixture.componentInstance.leave(hostedGroup);
+    fixture.detectChanges();
+
+    expect(leave).not.toHaveBeenCalled();
+    expect(fixture.componentInstance.actionError()).toContain('Сначала отмени свои будущие встречи');
+    expect((fixture.nativeElement as HTMLElement).querySelector('[role="alert"]')?.textContent)
+      .toContain('Сначала отмени свои будущие встречи');
+    fixture.destroy();
+  });
 });

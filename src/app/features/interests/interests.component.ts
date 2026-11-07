@@ -322,6 +322,10 @@ export class InterestsComponent implements OnInit {
   }
 
   async leave(group: InterestGroup): Promise<void> {
+    if (group.gatherings.some((gathering) => gathering.isHost)) {
+      this.actionError.set('Сначала отмени свои будущие встречи, затем выйди из группы.');
+      return;
+    }
     this.busyId.set(group.id);
     this.actionError.set('');
     const saved = await this.api.leave(group.id);
