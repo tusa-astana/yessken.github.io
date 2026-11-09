@@ -70,7 +70,7 @@ import type { EventItem } from '../../core/types/event.model';
                 @if (event.isDemo) { <span class="demo-badge">{{ i18n.t('events.demo') }}</span> }
                 @if (isIllustrativeImage(event.imageUrl)) { <span class="illustration-badge">{{ i18n.t('events.illustrative') }}</span> }
               </div>
-                @if (event.featured) { <span class="featured-badge">ПРОМО</span> }
+                @if (event.featured) { <span class="featured-badge">РЕКЛАМА</span> }
             </div>
             <div class="card-body">
               <h3>{{ event.title }}</h3>

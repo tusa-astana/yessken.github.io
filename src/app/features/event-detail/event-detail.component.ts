@@ -21,7 +21,7 @@ import QRCode from 'qrcode';
           <div class="hero-content">
             <div class="heading-row">
               <span class="category">{{ ev.category }}</span>
-              @if (ev.featured) { <span class="featured-badge">ПРОМО</span> }
+              @if (ev.featured) { <span class="featured-badge">РЕКЛАМА</span> }
             </div>
             <h1>{{ ev.title }}</h1>
             <p class="hero-meta"><span>{{ formatEventDate(ev.date) }}</span><span>{{ ev.time }}</span></p>
@@ -58,7 +58,7 @@ import QRCode from 'qrcode';
           @if (promotionOffer()?.eligible || promotionOffer()?.status) {
             <section class="promotion-card" aria-labelledby="promotion-title">
               <h2 id="promotion-title">Продвинуть событие</h2>
-              <p>Помеченное промо-размещение до даты события · {{ promotionOffer()?.stars }} ⭐. Билеты продаёт {{ ev.ticketSellerName || 'указанный внешний дистрибьютор' }}.</p>
+              <p>Рекламное размещение до даты события · {{ promotionOffer()?.stars }} ⭐. Билеты продаёт {{ ev.ticketSellerName || 'указанный внешний дистрибьютор' }}.</p>
               @if (promotionOffer()?.status === 'paid') {
                 <p class="promotion-message" role="status">Промо оплачено и активно до {{ promotionOffer()?.expiresAt | date:'d MMM y' }}. ID кампании: {{ promotionOffer()?.campaignId }}.</p>
               } @else if (promotionOffer()?.status === 'pending') {

@@ -59,4 +59,27 @@ describe('EventsListComponent', () => {
     expect(fixture.componentInstance.filteredEvents().map((item) => item.id))
       .toEqual(['earlier-title', 'later-title', 'description']);
   });
+
+  it('labels paid event promotion as advertising in the discovery card', () => {
+    fixture.componentInstance.events.set([{
+      id: 'sponsored-event',
+      title: 'Sponsored event',
+      description: '',
+      date: '2026-12-01',
+      time: '19:00',
+      place: 'Astana venue',
+      address: 'Astana',
+      lat: 51.1694,
+      lng: 71.4494,
+      category: 'concert',
+      price: null,
+      imageUrl: '',
+      organizerName: 'Organizer',
+      featured: true,
+    }]);
+    fixture.detectChanges();
+
+    expect((fixture.nativeElement as HTMLElement).querySelector('.featured-badge')?.textContent?.trim())
+      .toBe('РЕКЛАМА');
+  });
 });

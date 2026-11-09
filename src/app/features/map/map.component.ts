@@ -184,7 +184,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       const title = document.createElement('strong');
       title.textContent = ev.title;
       popup.append(title, document.createElement('br'));
-      if (featured) popup.append('Промо-акция', document.createElement('br'));
+      if (featured) popup.append('Реклама', document.createElement('br'));
       popup.append(document.createTextNode(ev.place), document.createElement('br'));
       const link = document.createElement('a');
       link.href = `/events/${encodeURIComponent(ev.id)}${typeof window !== 'undefined' ? window.location.search : ''}`;
