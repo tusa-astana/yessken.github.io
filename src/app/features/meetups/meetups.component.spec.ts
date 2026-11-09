@@ -188,6 +188,33 @@ describe('MeetupsComponent privacy defaults', () => {
     fixture.destroy();
   });
 
+  it('shows the joined RSVP button state only after the save succeeds', async () => {
+    const fixture = TestBed.createComponent(MeetupsComponent);
+    const api = fixture.componentInstance.api;
+    const joinedPlan: MeetupPlan = {
+      ...plan,
+      userGoing: true,
+      goingCount: 1,
+      attendees: [{ id: 'you', name: 'You', time: '20:30', anonymous: true, openToMeet: false, isYou: true }],
+    };
+    api.plans.set([plan]);
+    api.saveSelection = vi.fn(async () => {
+      api.plans.set([joinedPlan]);
+      return true;
+    });
+    fixture.detectChanges();
+    const element = fixture.nativeElement as HTMLElement;
+    expect(element.querySelector('.join-button.joined')).toBeNull();
+
+    fixture.componentInstance.openJoin(plan);
+    await fixture.componentInstance.saveJoin();
+    fixture.detectChanges();
+
+    const joinedButton = element.querySelector('.join-button.joined');
+    expect(joinedButton?.textContent).toContain('Ты идёшь');
+    fixture.destroy();
+  });
+
   it('shares a venue-specific Telegram deep link with the plan date', async () => {
     const fixture = TestBed.createComponent(MeetupsComponent);
     const telegram = TestBed.inject(TelegramService);
