@@ -27,7 +27,6 @@ export class MockDataService {
       price: 3500,
       imageUrl: 'https://images.unsplash.com/photo-1501386761578-eac5c94b800a?auto=format&fit=crop&w=1200&q=85',
       organizerName: 'Астана Events',
-      featured: true,
       isDemo: true,
       ticketCategories: [
         { id: '1-standard', eventId: '1', name: 'Стандарт', description: 'Обычный вход', price: 3500, capacity: 300, sold: 46, isActive: true },
@@ -48,7 +47,6 @@ export class MockDataService {
       price: 0,
       imageUrl: 'https://images.unsplash.com/photo-1511192336575-5a79af67a629?auto=format&fit=crop&w=1200&q=85',
       organizerName: 'Jazz Astana',
-      featured: true,
       isDemo: true,
       ticketCategories: [{ id: '2-entry', eventId: '2', name: 'Вход', description: 'Свободная регистрация', price: 0, capacity: 500, sold: 120, isActive: true }],
     },
@@ -103,7 +101,6 @@ export class MockDataService {
       price: 1200,
       imageUrl: 'https://images.unsplash.com/photo-1528605248644-14dd04022da1?auto=format&fit=crop&w=1200&q=85',
       organizerName: 'City Makers',
-      featured: true,
       isDemo: true,
       ticketCategories: [
         { id: '5-entry', eventId: '5', name: 'Вход', description: 'Доступ ко всем зонам', price: 1200, capacity: 220, sold: 64, isActive: true },

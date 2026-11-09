@@ -26,6 +26,7 @@ export class DataService {
 
   getEvents(category?: string): Observable<EventItem[]> {
     if (this.useApi) return this.api.getEvents(category).pipe(switchMap((list) => {
+      if (environment.production) return of(list);
       const today = new Date().toISOString().slice(0, 10);
       if (this.api.eventsError() || !list.some((event) => event.date >= today)) {
         const samples = this.mock.getEvents().filter((event) => event.date >= today);
@@ -39,7 +40,8 @@ export class DataService {
   }
 
   getEventById(id: string): Observable<EventItem | null> {
-    if (this.useApi) return this.api.getEventById(id).pipe(switchMap((event) => of(event ?? this.mock.getEventById(id) ?? null)));
+    if (this.useApi) return this.api.getEventById(id).pipe(switchMap((event) =>
+      of(event ?? (environment.production ? null : this.mock.getEventById(id) ?? null))));
     return of(this.mock.getEventById(id) ?? null);
   }
 
