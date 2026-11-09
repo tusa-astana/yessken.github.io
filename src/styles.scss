@@ -2,6 +2,21 @@
 @use './app/features/meetups/meetups.component';
 @import 'leaflet/dist/leaflet.css';
 
+.interests-page {
+  .new-gathering-notices { display: grid; gap: .4rem; margin: .9rem 0; padding: .8rem .9rem; border: 1px solid color-mix(in srgb, var(--tg-button) 55%, var(--tg-line)); border-radius: 9px; background: color-mix(in srgb, var(--tg-button) 8%, var(--tg-surface)); }
+  .new-gathering-notices strong { color: var(--tg-text); font-size: .74rem; }
+  .new-gathering-notices a { color: var(--tg-button); font-size: .69rem; font-weight: 750; text-decoration: none; }
+  .new-gathering-notices a:hover { text-decoration: underline; }
+  .new-gathering-notices small { color: var(--tg-muted); font-size: .6rem; }
+  .new-gathering-label { color: var(--tg-button) !important; font-size: .53rem !important; font-weight: 850; letter-spacing: .05em; }
+  .open-gathering-setting { display: flex !important; align-items: flex-start; gap: .5rem !important; padding: .55rem; border: 1px solid var(--tg-line); border-radius: 6px; background: var(--tg-surface); }
+  .open-gathering-setting input, .notification-setting input { width: 16px; height: 16px; flex: 0 0 auto; margin: .1rem 0 0; accent-color: var(--tg-button); }
+  .open-gathering-setting span { display: grid; gap: .2rem; }
+  .open-gathering-setting strong { color: var(--tg-text); font-size: .67rem; }
+  .open-gathering-setting small { color: var(--tg-muted); font-size: .6rem; font-weight: 400; line-height: 1.4; }
+  .notification-setting { display: flex !important; grid-column: 1 / -1; align-items: center; gap: .45rem !important; color: var(--tg-muted) !important; font-size: .61rem !important; font-weight: 500 !important; }
+}
+
 .shell::before {
   position: fixed;
   z-index: -1;
@@ -109,6 +124,8 @@ html, body {
 
 html[data-theme='dark'], html[data-theme='dark'] body { background: #080a10; color: #f4f0e5; color-scheme: dark; }
 html[data-theme='light'], html[data-theme='light'] body { background: #fffaf1; color: #25372f; color-scheme: light; }
+.shell.dark-theme .interests-page .primary-action { border-color: var(--tg-button) !important; background: var(--tg-button) !important; color: var(--tg-button-text) !important; }
+.shell.dark-theme .interests-page .primary-action:hover { background: color-mix(in srgb, var(--tg-button) 86%, white) !important; }
 
 .tusa-marker {
   width: 22px !important;

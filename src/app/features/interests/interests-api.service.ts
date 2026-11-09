@@ -50,6 +50,31 @@ export class InterestsApiService {
     }
   }
 
+  async setGatheringNotifications(interestId: string, enabled: boolean): Promise<boolean> {
+    if (!this.telegram.initData) return false;
+    try {
+      await firstValueFrom(this.http.put<void>(`${this.base}/api/interests/${encodeURIComponent(interestId)}/notifications`, {
+        enabled,
+      }, { headers: this.headers() }));
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  async markGatheringNotificationRead(interestId: string, gatheringId: string): Promise<boolean> {
+    if (!this.telegram.initData) return false;
+    try {
+      await firstValueFrom(this.http.put<void>(
+        `${this.base}/api/interests/${encodeURIComponent(interestId)}/gatherings/${encodeURIComponent(gatheringId)}/notification/read`,
+        {}, { headers: this.headers() },
+      ));
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
   async members(interestId: string): Promise<InterestMember[] | null> {
     if (!this.telegram.initData) return null;
     try {
@@ -73,7 +98,7 @@ export class InterestsApiService {
     }
   }
 
-  async createGathering(interestId: string, request: Pick<InterestGathering, 'title' | 'date' | 'time' | 'place' | 'details'>): Promise<boolean> {
+  async createGathering(interestId: string, request: Pick<InterestGathering, 'title' | 'date' | 'time' | 'place' | 'details' | 'isOpen'>): Promise<boolean> {
     if (!this.telegram.initData) return false;
     try {
       await firstValueFrom(this.http.post<void>(`${this.base}/api/interests/${encodeURIComponent(interestId)}/gatherings`, request, { headers: this.headers() }));

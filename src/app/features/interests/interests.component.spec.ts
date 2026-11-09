@@ -15,6 +15,7 @@ const group: InterestGroup = {
   emoji: '♟',
   memberCount: 2,
   isMember: false,
+  notifyNewGatherings: false,
   gatherings: [{
     id: gatheringId,
     interestId: 'board-games',
@@ -26,6 +27,8 @@ const group: InterestGroup = {
     goingCount: 2,
     userGoing: false,
     isHost: false,
+    isOpen: true,
+    isNew: false,
   }],
 };
 
@@ -123,6 +126,7 @@ describe('InterestsComponent gathering links', () => {
     const hostedGroup: InterestGroup = {
       ...group,
       isMember: true,
+      notifyNewGatherings: false,
       gatherings: group.gatherings.map((gathering) => ({ ...gathering, isHost: true })),
     };
     await TestBed.configureTestingModule({
@@ -145,6 +149,89 @@ describe('InterestsComponent gathering links', () => {
     expect(fixture.componentInstance.actionError()).toContain('Сначала отмени свои будущие встречи');
     expect((fixture.nativeElement as HTMLElement).querySelector('[role="alert"]')?.textContent)
       .toContain('Сначала отмени свои будущие встречи');
+    fixture.destroy();
+  });
+
+  it('shows a new open gathering notice only to group members and shows its open label', async () => {
+    const newGathering: InterestGroup = {
+      ...group,
+      isMember: true,
+      gatherings: [{ ...group.gatherings[0], isNew: true }],
+    };
+    await TestBed.configureTestingModule({
+      imports: [InterestsComponent],
+      providers: [
+        provideRouter([]),
+        { provide: ActivatedRoute, useValue: { snapshot: { queryParamMap: convertToParamMap({}) } } },
+        { provide: TelegramService, useValue: { isInTelegram: true, startParam: '', miniAppLink: vi.fn(), openTelegramLink: vi.fn() } },
+        { provide: AnalyticsService, useValue: { track: vi.fn() } },
+        { provide: InterestsApiService, useValue: { load: vi.fn(async () => [newGathering]) } },
+      ],
+    }).compileComponents();
+    const fixture = TestBed.createComponent(InterestsComponent);
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const element = fixture.nativeElement as HTMLElement;
+    expect(element.querySelector('.new-gathering-notices')?.textContent).toContain('Партия для новичков');
+    expect(element.querySelector('.new-gathering-label')?.textContent).toContain('НОВАЯ ОТКРЫТАЯ ВСТРЕЧА');
+    expect(element.querySelector('.notification-setting input')).not.toBeNull();
+    fixture.destroy();
+  });
+
+  it('allows a member to opt in to Telegram notifications for open gatherings', async () => {
+    const memberGroup: InterestGroup = { ...group, isMember: true };
+    const setNotifications = vi.fn(async () => true);
+    await TestBed.configureTestingModule({
+      imports: [InterestsComponent],
+      providers: [
+        provideRouter([]),
+        { provide: ActivatedRoute, useValue: { snapshot: { queryParamMap: convertToParamMap({}) } } },
+        { provide: TelegramService, useValue: { isInTelegram: true, startParam: '', miniAppLink: vi.fn(), openTelegramLink: vi.fn() } },
+        { provide: AnalyticsService, useValue: { track: vi.fn() } },
+        { provide: InterestsApiService, useValue: { load: vi.fn(async () => [memberGroup]), setGatheringNotifications: setNotifications } },
+      ],
+    }).compileComponents();
+    const fixture = TestBed.createComponent(InterestsComponent);
+
+    await fixture.componentInstance.setGatheringNotifications(memberGroup, true);
+
+    expect(setNotifications).toHaveBeenCalledWith('board-games', true);
+    expect(fixture.componentInstance.announcement()).toContain('включены');
+    fixture.destroy();
+  });
+
+  it('marks an in-app new-gathering notice read and highlights its plan', async () => {
+    const newGathering: InterestGroup = {
+      ...group,
+      isMember: true,
+      gatherings: [{ ...group.gatherings[0], isNew: true }],
+    };
+    const load = vi.fn(async () => [newGathering]);
+    const markRead = vi.fn(async () => true);
+    await TestBed.configureTestingModule({
+      imports: [InterestsComponent],
+      providers: [
+        provideRouter([]),
+        { provide: ActivatedRoute, useValue: { snapshot: { queryParamMap: convertToParamMap({}) } } },
+        { provide: TelegramService, useValue: { isInTelegram: true, startParam: '', miniAppLink: vi.fn(), openTelegramLink: vi.fn() } },
+        { provide: AnalyticsService, useValue: { track: vi.fn() } },
+        { provide: InterestsApiService, useValue: { load, markGatheringNotificationRead: markRead } },
+      ],
+    }).compileComponents();
+    const fixture = TestBed.createComponent(InterestsComponent);
+    await fixture.whenStable();
+    fixture.detectChanges();
+    const link = (fixture.nativeElement as HTMLElement).querySelector<HTMLAnchorElement>('.new-gathering-notices a');
+    await fixture.componentInstance.openGatheringNotice(newGathering, newGathering.gatherings[0]);
+    fixture.detectChanges();
+
+    expect(link?.getAttribute('href')).toBe(`#gathering-${gatheringId}`);
+    expect(markRead).toHaveBeenCalledWith('board-games', gatheringId);
+    expect(load).toHaveBeenCalledTimes(1);
+    expect(fixture.componentInstance.newGatherings()).toHaveLength(1);
+    expect(fixture.componentInstance.highlightedGatheringId()).toBe(gatheringId);
+    expect(link?.hidden).toBe(true);
     fixture.destroy();
   });
 });

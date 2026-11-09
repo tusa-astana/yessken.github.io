@@ -5,6 +5,7 @@ export interface InterestGroup {
   emoji: string;
   memberCount: number;
   isMember: boolean;
+  notifyNewGatherings: boolean;
   gatherings: InterestGathering[];
 }
 
@@ -19,6 +20,8 @@ export interface InterestGathering {
   goingCount: number;
   userGoing: boolean;
   isHost: boolean;
+  isOpen: boolean;
+  isNew: boolean;
 }
 
 export interface InterestGatheringPreview {

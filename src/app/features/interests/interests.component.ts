@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { TelegramService } from '../../core/services/telegram.service';
@@ -30,6 +30,16 @@ import { InterestsApiService } from './interests-api.service';
         <span>Настройки применяются к новым вступлениям.</span>
       </section>
 
+      @if (newGatherings().length) {
+        <section class="new-gathering-notices" aria-label="Новые открытые встречи" role="status" [hidden]="newGatherings().every(notice => isGatheringNoticeRead(notice.gathering.id))">
+          <strong>Новые встречи по твоим интересам</strong>
+          @for (notice of newGatherings(); track notice.gathering.id) {
+            <a [hidden]="isGatheringNoticeRead(notice.gathering.id)" [href]="'#gathering-' + notice.gathering.id" (click)="openGatheringNotice(notice.group, notice.gathering)">{{ notice.group.name }} · {{ notice.gathering.title }} · {{ gatheringDate(notice.gathering.date) }}</a>
+          }
+          <small>Уведомления сохраняются здесь, пока ты их не откроешь или не запишешься.</small>
+        </section>
+      }
+
       @if (!telegram.isInTelegram) {
         <p class="telegram-hint" role="status">Открой TUSA в Telegram, чтобы вступать в группы и видеть их участников.</p>
       }
@@ -50,6 +60,7 @@ import { InterestsApiService } from './interests-api.service';
                 @if (group.isMember) {
                   <button class="primary-action" type="button" [disabled]="busyId() !== null" (click)="leave(group)">{{ busyId() === group.id ? 'Сохраняем…' : 'Ты в группе · выйти' }}</button>
                   <button class="secondary-action" type="button" [disabled]="membersLoading()" (click)="toggleMembers(group)">{{ membersGroupId() === group.id ? 'Скрыть участников' : 'Участники' }}</button>
+                  <label class="notification-setting"><input type="checkbox" [checked]="group.notifyNewGatherings" [disabled]="!telegram.isInTelegram || busyId() !== null" (change)="setGatheringNotifications(group, $any($event.target).checked)" /> Получать Telegram-уведомления об открытых встречах</label>
                 } @else {
                   <button class="primary-action" type="button" [disabled]="!telegram.isInTelegram || busyId() !== null" (click)="join(group)">{{ busyId() === group.id ? 'Добавляем…' : 'Присоединиться' }}</button>
                 }
@@ -62,6 +73,7 @@ import { InterestsApiService } from './interests-api.service';
                     <article class="gathering-card" [class.highlighted-gathering]="highlightedGatheringId() === gathering.id" [id]="'gathering-' + gathering.id">
                       <div class="gathering-copy">
                         <strong>{{ gathering.title }}</strong>
+                        @if (gathering.isNew && group.isMember && !gathering.isHost) { <span class="new-gathering-label">НОВАЯ ОТКРЫТАЯ ВСТРЕЧА</span> }
                         <span>{{ gatheringDate(gathering.date) }} · {{ gathering.time }}</span>
                         <span>{{ gathering.place }}</span>
                         @if (gathering.details) { <small>{{ gathering.details }}</small> }
@@ -93,6 +105,7 @@ import { InterestsApiService } from './interests-api.service';
                       </div>
                       <label>Общественное место в Астане<input required minlength="3" maxlength="140" [value]="draftPlace()" (input)="draftPlace.set($any($event.target).value)" placeholder="Кафе, парк, заведение…" /></label>
                       <label>Детали <span>Необязательно, до 500 символов</span><textarea maxlength="500" rows="3" [value]="draftDetails()" (input)="draftDetails.set($any($event.target).value)" placeholder="Что планируете делать?"></textarea></label>
+                      <label class="open-gathering-setting"><input type="checkbox" [checked]="draftIsOpen()" (change)="draftIsOpen.set($any($event.target).checked)" /><span><strong>Открытая для участников группы</strong><small>Появится в TUSA; участники с включёнными Telegram-уведомлениями получат сообщение.</small></span></label>
                       <p class="public-place-note">Не указывай домашний адрес или личные контакты. Встречайтесь в общественном месте.</p>
                       <button class="primary-action" type="submit" [disabled]="busyId() !== null">{{ busyId() === group.id ? 'Создаём…' : 'Опубликовать встречу' }}</button>
                     </form>
@@ -232,7 +245,7 @@ import { InterestsApiService } from './interests-api.service';
     @media (max-width: 650px) { .group-grid { grid-template-columns: 1fr; } .interests-page { padding: .8rem .8rem 5.2rem; } .interest-card { padding: .85rem; } }
   `],
 })
-export class InterestsComponent implements OnInit {
+export class InterestsComponent implements OnInit, OnDestroy {
   protected readonly telegram = inject(TelegramService);
   private readonly analytics = inject(AnalyticsService);
   private readonly route = inject(ActivatedRoute);
@@ -262,6 +275,15 @@ export class InterestsComponent implements OnInit {
   readonly draftTime = signal('18:30');
   readonly draftPlace = signal('');
   readonly draftDetails = signal('');
+  readonly draftIsOpen = signal(true);
+  readonly newGatherings = computed(() => this.groups().flatMap((group) => group.isMember
+    ? group.gatherings.filter((gathering) => gathering.isNew && !gathering.isHost).map((gathering) => ({ group, gathering }))
+    : []).slice(0, 6));
+  readonly openedGatheringNoticeIds = signal<ReadonlySet<string>>(new Set());
+  private readonly onWindowFocus = (): void => { void this.refresh(true); };
+  private readonly onVisibilityChange = (): void => {
+    if (document.visibilityState === 'visible') void this.refresh(true);
+  };
 
   ngOnInit(): void {
     const gatheringQuery = this.route.snapshot.queryParamMap.get('gathering');
@@ -280,15 +302,26 @@ export class InterestsComponent implements OnInit {
       }
     }
     void this.refresh();
+    window.addEventListener('focus', this.onWindowFocus);
+    document.addEventListener('visibilitychange', this.onVisibilityChange);
   }
 
-  async refresh(): Promise<void> {
-    this.loading.set(true);
-    this.loadError.set(false);
+  ngOnDestroy(): void {
+    window.removeEventListener('focus', this.onWindowFocus);
+    document.removeEventListener('visibilitychange', this.onVisibilityChange);
+  }
+
+  async refresh(silent = false): Promise<void> {
+    if (!silent) {
+      this.loading.set(true);
+      this.loadError.set(false);
+    }
     const groups = await this.api.load();
-    this.groups.set(groups);
-    this.loadError.set(groups.length === 0);
-    this.loading.set(false);
+    if (!silent || groups.length > 0) {
+      this.groups.set(groups);
+      this.loadError.set(groups.length === 0);
+    }
+    if (!silent) this.loading.set(false);
     const targetGathering = this.highlightedGatheringId();
     if (targetGathering) {
       const containingGroup = groups.find((group) => group.gatherings.some((item) => item.id === targetGathering));
@@ -337,6 +370,37 @@ export class InterestsComponent implements OnInit {
     this.membersGroupId.set(null);
     this.announcement.set(`Ты вышел(вышла) из группы «${group.name}».`);
     await this.refresh();
+  }
+
+  async setGatheringNotifications(group: InterestGroup, enabled: boolean): Promise<void> {
+    this.busyId.set(group.id);
+    this.actionError.set('');
+    const saved = await this.api.setGatheringNotifications(group.id, enabled);
+    this.busyId.set(null);
+    if (!saved) {
+      this.actionError.set('Не удалось изменить настройку Telegram-уведомлений. Попробуй ещё раз.');
+      await this.refresh(true);
+      return;
+    }
+    this.announcement.set(enabled
+      ? `Telegram-уведомления о новых встречах группы «${group.name}» включены.`
+      : `Telegram-уведомления о новых встречах группы «${group.name}» выключены.`);
+    await this.refresh(true);
+  }
+
+  async openGatheringNotice(group: InterestGroup, gathering: InterestGathering): Promise<void> {
+    const markedRead = await this.api.markGatheringNotificationRead(group.id, gathering.id);
+    this.highlightedInterestId.set(group.id);
+    this.highlightedGatheringId.set(gathering.id);
+    if (markedRead) {
+      this.openedGatheringNoticeIds.update((ids) => new Set([...ids, gathering.id]));
+    } else {
+      this.actionError.set('Не удалось отметить уведомление прочитанным. Встречу всё равно можно открыть.');
+    }
+  }
+
+  isGatheringNoticeRead(gatheringId: string): boolean {
+    return this.openedGatheringNoticeIds().has(gatheringId);
   }
 
   async toggleMembers(group: InterestGroup): Promise<void> {
@@ -393,11 +457,13 @@ export class InterestsComponent implements OnInit {
     this.draftTime.set('18:30');
     this.draftPlace.set('');
     this.draftDetails.set('');
+    this.draftIsOpen.set(true);
     this.actionError.set('');
   }
 
   async submitGathering(group: InterestGroup): Promise<void> {
     if (!this.telegram.isInTelegram) return;
+    const isOpen = this.draftIsOpen();
     this.busyId.set(group.id);
     this.actionError.set('');
     const saved = await this.api.createGathering(group.id, {
@@ -406,6 +472,7 @@ export class InterestsComponent implements OnInit {
       time: this.draftTime(),
       place: this.draftPlace(),
       details: this.draftDetails(),
+      isOpen,
     });
     this.busyId.set(null);
     if (!saved) {
@@ -413,7 +480,7 @@ export class InterestsComponent implements OnInit {
       return;
     }
     this.createGroupId.set(null);
-    this.announcement.set('Встреча опубликована для участников группы.');
+    this.announcement.set(isOpen ? 'Открытая встреча опубликована; участники увидят её в TUSA.' : 'Закрытая встреча сохранена и видна только тебе.');
     await this.refresh();
   }
 
