@@ -34,4 +34,21 @@ describe('CreateEventComponent', () => {
     expect(compiled.querySelector('#place-error')?.textContent).toContain('площадку');
     expect(compiled.querySelector('[aria-invalid="true"]')).not.toBeNull();
   });
+
+  it('accepts an optional HTTPS ticket distributor URL and rejects non-HTTPS links', () => {
+    const fixture = TestBed.createComponent(CreateEventComponent);
+    const form = fixture.componentInstance.form;
+
+    expect(form.get('ticketUrl')?.valid).toBe(true);
+    form.get('ticketUrl')?.setValue('http://tickets.example.com/event');
+    expect(form.get('ticketUrl')?.valid).toBe(false);
+    form.get('ticketUrl')?.setValue('https://tickets.example.com/event');
+    expect(form.get('ticketUrl')?.valid).toBe(true);
+    expect(form.hasError('ticketSellerLinkPairRequired')).toBe(true);
+    form.get('ticketSellerName')?.setValue('Official distributor');
+    expect(form.hasError('ticketSellerLinkPairRequired')).toBe(false);
+    form.get('ticketUrl')?.setValue('');
+    expect(form.hasError('ticketSellerLinkPairRequired')).toBe(true);
+    fixture.destroy();
+  });
 });

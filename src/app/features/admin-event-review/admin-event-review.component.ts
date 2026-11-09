@@ -40,6 +40,7 @@ import type { EventItem } from '../../core/types/event.model';
                 <h2>{{ event.title }}</h2>
                 <p class="event-meta">{{ formatEventDate(event.date) }}<span aria-hidden="true"> · </span>{{ event.time || 'время уточняется' }}<span aria-hidden="true"> · </span>{{ event.place }}</p>
                 @if (event.address) { <p class="address">{{ event.address }}</p> }
+                @if (event.ticketUrl) { <p>Дистрибьютор: {{ event.ticketSellerName }} · <a [href]="event.ticketUrl" target="_blank" rel="noopener noreferrer">Проверить ссылку ↗</a></p> }
                 @if (event.description) { <p class="description">{{ event.description }}</p> }
                 <div class="price">{{ event.price === null || event.price === 0 ? 'Бесплатно' : (event.price | number) + ' ₸' }}</div>
 

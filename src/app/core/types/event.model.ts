@@ -11,6 +11,8 @@ export interface EventItem {
   category: string;
   price: number | null;
   imageUrl: string;
+  ticketUrl?: string;
+  ticketSellerName?: string;
   organizerName: string;
   organizerEmail?: string;
   organizerPhone?: string;
@@ -73,6 +75,42 @@ export interface TelegramGroupItem {
 export interface FunnelSummaryRow {
   name: string;
   count: number;
+}
+
+export interface DailyFunnelMetricRow {
+  date: string;
+  name: string;
+  count: number;
+}
+
+export interface DailyFunnelSummary {
+  fromDate: string;
+  throughDate: string;
+  rows: DailyFunnelMetricRow[];
+}
+
+export interface AnalyticsCountRow {
+  name: string;
+  count: number;
+}
+
+export interface PromotionAnalyticsSummary {
+  offerViews: number;
+  invoiceStarts: number;
+  preCheckout: number;
+  cancelledOrClosed: number;
+  ticketSellerClicks: number;
+  paid: number;
+  refunded: number;
+}
+
+export interface AnalyticsInsightsSummary {
+  fromDate: string;
+  throughDate: string;
+  daily: DailyFunnelMetricRow[];
+  topSearchTerms: AnalyticsCountRow[];
+  popularCategories: AnalyticsCountRow[];
+  promotionFunnel: PromotionAnalyticsSummary;
 }
 
 export interface MeetupCampaignSummaryRow {
@@ -142,6 +180,23 @@ export interface OrganizerSubscriptionOffer {
   stars: number;
   durationDays: number;
   features: string[];
+}
+
+export interface EventPromotionOffer {
+  eligible: boolean;
+  available: boolean;
+  stars: number;
+  expiresAtEventDate: boolean;
+  ticketUrl: string;
+  campaignId?: string | null;
+  status?: string | null;
+  expiresAt?: string | null;
+}
+
+export interface EventPromotionInvoice {
+  campaignId: string;
+  stars: number;
+  invoiceUrl: string;
 }
 
 export interface AdminSalesSummary {

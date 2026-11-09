@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable, of, switchMap } from 'rxjs';
 import { MockDataService } from './mock-data.service';
 import { EventsApiService } from './events-api.service';
-import type { AdminEventReport, AdminSalesSummary, EventItem, OrganizerEngagementRow, OrganizerOrderRow, OrganizerSubscriptionOffer, OrganizerSubscriptionStatus, Ticket, TelegramGroupItem } from '../types/event.model';
+import type { AdminEventReport, AdminSalesSummary, EventItem, EventPromotionInvoice, EventPromotionOffer, OrganizerEngagementRow, OrganizerOrderRow, OrganizerSubscriptionOffer, OrganizerSubscriptionStatus, Ticket, TelegramGroupItem } from '../types/event.model';
 import { environment } from '../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
@@ -77,6 +77,18 @@ export class DataService {
   getOrganizerSubscriptionOffer(): Observable<OrganizerSubscriptionOffer | null> {
     if (this.useApi) return this.api.getOrganizerSubscriptionOffer();
     return of({ available: false, stars: 0, durationDays: 30, features: [] });
+  }
+
+  getEventPromotionOffer(eventId: string): Observable<EventPromotionOffer | null> {
+    return this.useApi ? this.api.getEventPromotionOffer(eventId) : of(null);
+  }
+
+  createEventPromotionInvoice(eventId: string, termsVersion: string): Observable<EventPromotionInvoice | null> {
+    return this.useApi ? this.api.createEventPromotionInvoice(eventId, termsVersion) : of(null);
+  }
+
+  cancelEventPromotionInvoice(eventId: string): Observable<boolean> {
+    return this.useApi ? this.api.cancelEventPromotionInvoice(eventId) : of(false);
   }
 
   getAdminSalesSummary(): Observable<AdminSalesSummary | null> {

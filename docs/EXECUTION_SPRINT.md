@@ -108,4 +108,25 @@ We prioritize growth only if real people repeatedly create and join plans. Any f
 4. Review support, privacy and safety feedback before widening geography or collecting any new profile attributes.
 5. Revisit Organizer Pro only after repeated visitor use and a validated organizer problem; keep it disabled until the Stars release gates pass.
 
+## Future discovery roadmap (not part of the current sprint)
+
+Do not begin worldwide city coverage, artist profiles, tour pages, or personalized recommendations until the current Astana pilot produces enough usable evidence. Use the sequence: **instrument → observe → state a falsifiable hypothesis → validate manually or with a small prototype → decide → then build the smallest feature**.
+
+### Research and measurement prerequisites
+
+- **Implemented for the current event catalog:** date-range analysis (7/30/90 days), daily trend charts, category ranking by event opens, letters-only search-word aggregates shown only at 3+ occurrences, and ticket-distributor click counts. These are aggregate actions, not unique reach, completed contact, or ticket sales.
+- **Implemented, operations-dependent, opt-in:** a daily Telegram admin report at 20:00 Astana, deduplicated by report date in the database, with a dashboard deep link. Delivery requires explicit `Analytics:DailyReportEnabled=true`, `Telegram:BotToken`, and `Telegram:AdminUserIds`; notifications default to disabled and the dashboard works without them. The current free host may sleep, so it cannot guarantee timely delivery until moved to always-on hosting.
+- Before adding explicit contact requests, collect only after clear consent and disclose who receives a message; keep visitor identity hidden by default. Search terms are stored as individual letter-only words without Telegram ID, and low-frequency terms are suppressed in admin views.
+- Use these data with interviews to test separately: (1) city selector demand, (2) city-specific artist tour schedules, (3) artist profile usefulness, (4) recommendation usefulness, and (5) organizer/artist contact intent. Don't infer a product decision from raw click totals alone.
+
+### Future delivery phases, gated by evidence
+
+1. **Multi-city foundation:** event records include country/city, local time zone, coordinates, language, and an accountable source/moderator. Pilot one additional city only after a local supply owner and enough verified events exist; global availability is not a launch claim.
+2. **Artist profile MVP:** manually curated artist identity, verified official links, permitted bio/image, genres and data provenance; avoid automatic merging of same-name artists and unlicensed scraping.
+3. **Tour pages:** group confirmed event stops for the same artist/tour by city and local date; each stop links to its organizer and named official ticket seller. Track announced/postponed/cancelled/past states and last verification date. External seller owns ticket stock, payment, refunds and admission.
+4. **Recommendations:** start with transparent city/date/genre rules and a clear “why recommended” explanation. Personalized suggestions require opt-in and a way to edit/disable interests; sponsored placements stay visibly labeled and separate from organic ranking.
+5. **Contact demand:** count an explicit “request contact”/“contact organizer” action as intent only. If contact details are shared, ask explicit consent, disclose recipient and purpose, and never expose attendee identity by default. Report aggregate demand separately from completed contact and sales.
+
+Each phase needs a written hypothesis, small test, owner/source of truth, privacy/content-rights review, success and stop thresholds, and a decision record before engineering begins. If the test fails, revise or drop the hypothesis rather than expanding the data model speculatively.
+
 This sprint is designed to produce the first real product signal: people find and share a specific local plan, another person joins, and the behavior repeats. Stars revenue remains a separate future business signal.

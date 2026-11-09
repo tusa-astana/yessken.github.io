@@ -70,12 +70,46 @@ export type TranslationKey =
   | 'communities.openTelegram'
   | 'communities.boardGamesDescription'
   | 'analytics.heading'
+  | 'analytics.tabsLabel'
+  | 'analytics.statsTab'
+  | 'analytics.boardTab'
+  | 'analytics.boardHeading'
+  | 'analytics.boardDescription'
+  | 'analytics.boardLoading'
+  | 'analytics.boardUnavailable'
+  | 'analytics.boardEmpty'
+  | 'analytics.boardSource'
   | 'analytics.description'
   | 'analytics.summary'
   | 'analytics.refresh'
   | 'analytics.loading'
   | 'analytics.loadError'
   | 'analytics.adminRequired'
+  | 'analytics.openInTelegram'
+  | 'analytics.dailyHeading'
+  | 'analytics.dailyDescription'
+  | 'analytics.dailyLoading'
+  | 'analytics.dailyUnavailable'
+  | 'analytics.dailyNote'
+  | 'analytics.insightsHeading'
+  | 'analytics.period'
+  | 'analytics.days7'
+  | 'analytics.days30'
+  | 'analytics.days90'
+  | 'analytics.timezoneAstana'
+  | 'analytics.topSearchTerms'
+  | 'analytics.noSearchTerms'
+  | 'analytics.popularCategories'
+  | 'analytics.noCategories'
+  | 'analytics.promotionFunnel'
+  | 'analytics.offerViews'
+  | 'analytics.invoiceStarts'
+  | 'analytics.preCheckout'
+  | 'analytics.cancelled'
+  | 'analytics.ticketSellerClicks'
+  | 'analytics.paid'
+  | 'analytics.refunded'
+  | 'analytics.insightsCaveat'
   | 'analytics.retry'
   | 'analytics.catalogViews'
   | 'analytics.repeatedViewsNote'
@@ -247,12 +281,46 @@ const translations: Record<Locale, Record<TranslationKey, string>> = {
     'communities.openTelegram': 'Открыть Telegram',
     'communities.boardGamesDescription': 'Клуб настольных игр в Астане.',
     'analytics.heading': 'Аналитика пилота',
+    'analytics.tabsLabel': 'Разделы аналитики',
+    'analytics.statsTab': 'Статистика',
+    'analytics.boardTab': 'Доска задач',
+    'analytics.boardHeading': 'Доска задач TUSA',
+    'analytics.boardDescription': 'Текущие блоки, статусы, зависимости и критерии готовности команды.',
+    'analytics.boardLoading': 'Проверяем доступ и загружаем доску…',
+    'analytics.boardUnavailable': 'Не удалось загрузить доску задач. Попробуйте позже.',
+    'analytics.boardEmpty': 'В доске пока нет записей для отображения.',
+    'analytics.boardSource': 'Источник — актуальный файл WORK_BOARD.md из репозитория.',
     'analytics.description': 'Считаем действия в приложении. Повторные открытия возможны; переход в Telegram не означает вступление, RSVP или продажу.',
     'analytics.summary': 'Сводные события воронки',
     'analytics.refresh': 'Обновить',
     'analytics.loading': 'Загружаем сводку…',
     'analytics.loadError': 'Не удалось загрузить аналитику',
     'analytics.adminRequired': 'Нужен доступ администратора TUSA из Telegram и соединение с API.',
+    'analytics.openInTelegram': 'Открыть админ-статистику в Telegram',
+    'analytics.dailyHeading': 'Действия по дням · последние 7 дней',
+    'analytics.dailyDescription': 'Даты по времени Астаны:',
+    'analytics.dailyLoading': 'Загружаем дневные показатели…',
+    'analytics.dailyUnavailable': 'Дневные показатели временно недоступны.',
+    'analytics.dailyNote': 'Это действия, а не уникальные пользователи. Повторные открытия включены; RSVP не подтверждает посещение. Web и Telegram учитываются вместе.',
+    'analytics.insightsHeading': 'Интерес и конверсия',
+    'analytics.period': 'Период',
+    'analytics.days7': '7 дней',
+    'analytics.days30': '30 дней',
+    'analytics.days90': '90 дней',
+    'analytics.timezoneAstana': 'Даты по времени Астаны',
+    'analytics.topSearchTerms': 'Популярные слова поиска',
+    'analytics.noSearchTerms': 'Пока нет слов, достигших порога отчёта.',
+    'analytics.popularCategories': 'Категории по открытиям событий',
+    'analytics.noCategories': 'Пока нет данных по категориям.',
+    'analytics.promotionFunnel': 'Продвижение события · воронка',
+    'analytics.offerViews': 'Просмотры предложения',
+    'analytics.invoiceStarts': 'Созданные счета Stars',
+    'analytics.preCheckout': 'Подтверждения перед оплатой',
+    'analytics.cancelled': 'Закрыто/отменено в Telegram',
+    'analytics.ticketSellerClicks': 'Переходы к билетному продавцу',
+    'analytics.paid': 'Оплаченные промо',
+    'analytics.refunded': 'Возвраты промо',
+    'analytics.insightsCaveat': 'Счётчики показывают действия, не уникальных людей. Поисковые слова выдаются только при 3+ совпадениях; переход к продавцу не подтверждает покупку. Отмена оплаты — статус клиентского приложения Telegram.',
     'analytics.retry': 'Повторить',
     'analytics.catalogViews': 'Открытия афиши',
     'analytics.repeatedViewsNote': 'Повторные открытия включены',
@@ -423,12 +491,46 @@ const translations: Record<Locale, Record<TranslationKey, string>> = {
     'communities.openTelegram': 'Telegram-ды ашу',
     'communities.boardGamesDescription': 'Астанадағы үстел ойындары клубы.',
     'analytics.heading': 'Пилот аналитикасы',
+    'analytics.tabsLabel': 'Аналитика бөлімдері',
+    'analytics.statsTab': 'Статистика',
+    'analytics.boardTab': 'Тапсырмалар тақтасы',
+    'analytics.boardHeading': 'TUSA тапсырмалар тақтасы',
+    'analytics.boardDescription': 'Команданың ағымдағы блоктары, күйлері, тәуелділіктері және дайындық өлшемдері.',
+    'analytics.boardLoading': 'Қолжетімділік тексеріліп, тақта жүктелуде…',
+    'analytics.boardUnavailable': 'Тапсырмалар тақтасын жүктеу мүмкін болмады. Кейінірек қайталаңыз.',
+    'analytics.boardEmpty': 'Көрсететін тапсырмалар әзірше жоқ.',
+    'analytics.boardSource': 'Дереккөз — репозиторийдегі WORK_BOARD.md файлы.',
     'analytics.description': 'Қолданбадағы әрекеттер есептеледі. Қайта ашулар болуы мүмкін; Telegram-ға өту топқа қосылуды, RSVP-ті не сатылымды білдірмейді.',
     'analytics.summary': 'Воронка оқиғаларының жиынтығы',
     'analytics.refresh': 'Жаңарту',
     'analytics.loading': 'Жиынтық жүктелуде…',
     'analytics.loadError': 'Аналитиканы жүктеу мүмкін болмады',
     'analytics.adminRequired': 'Telegram арқылы TUSA әкімшісі ретінде кіру және API қосылымы қажет.',
+    'analytics.openInTelegram': 'Әкімші статистикасын Telegram-да ашу',
+    'analytics.dailyHeading': 'Күндер бойынша әрекеттер · соңғы 7 күн',
+    'analytics.dailyDescription': 'Астана уақыты бойынша күндер:',
+    'analytics.dailyLoading': 'Күндік көрсеткіштер жүктелуде…',
+    'analytics.dailyUnavailable': 'Күндік көрсеткіштер уақытша қолжетімсіз.',
+    'analytics.dailyNote': 'Бұл — әрекеттер саны, бірегей пайдаланушылар емес. Қайта ашулар есептеледі; RSVP келуді растамайды. Web пен Telegram бірге есептеледі.',
+    'analytics.insightsHeading': 'Қызығушылық пен конверсия',
+    'analytics.period': 'Кезең',
+    'analytics.days7': '7 күн',
+    'analytics.days30': '30 күн',
+    'analytics.days90': '90 күн',
+    'analytics.timezoneAstana': 'Астана уақыты бойынша',
+    'analytics.topSearchTerms': 'Танымал іздеу сөздері',
+    'analytics.noSearchTerms': 'Есеп шегіне жеткен сөздер әзірше жоқ.',
+    'analytics.popularCategories': 'Іс-шақ ашылуы бойынша санаттар',
+    'analytics.noCategories': 'Санаттар бойынша дерек жоқ.',
+    'analytics.promotionFunnel': 'Іс-шақты ілгерілету · воронка',
+    'analytics.offerViews': 'Ұсынысты көру',
+    'analytics.invoiceStarts': 'Жасалған Stars шоттары',
+    'analytics.preCheckout': 'Төлем алдындағы растаулар',
+    'analytics.cancelled': 'Telegram ішінде жабылды/бас тартылды',
+    'analytics.ticketSellerClicks': 'Билет сатушысына өту',
+    'analytics.paid': 'Төленген промо',
+    'analytics.refunded': 'Промо қайтарымдары',
+    'analytics.insightsCaveat': 'Сандар — әрекеттер, бірегей адамдар емес. Іздеу сөздері тек 3+ рет кездескенде көрсетіледі; сатушыға өту сатып алуды растамайды. Төлемнен бас тарту — Telegram клиенті хабарлаған күй.',
     'analytics.retry': 'Қайталау',
     'analytics.catalogViews': 'Афишаны ашу',
     'analytics.repeatedViewsNote': 'Қайта ашулар есептеледі',
@@ -599,12 +701,46 @@ const translations: Record<Locale, Record<TranslationKey, string>> = {
     'communities.openTelegram': 'Open Telegram',
     'communities.boardGamesDescription': 'Board-game club in Astana.',
     'analytics.heading': 'Pilot analytics',
+    'analytics.tabsLabel': 'Analytics sections',
+    'analytics.statsTab': 'Statistics',
+    'analytics.boardTab': 'Task board',
+    'analytics.boardHeading': 'TUSA task board',
+    'analytics.boardDescription': 'Current work blocks, statuses, dependencies, and team completion criteria.',
+    'analytics.boardLoading': 'Checking access and loading the task board…',
+    'analytics.boardUnavailable': 'Could not load the task board. Try again later.',
+    'analytics.boardEmpty': 'There are no task entries to display yet.',
+    'analytics.boardSource': 'Source: the current WORK_BOARD.md file in the repository.',
     'analytics.description': 'We count actions in the app. Repeat opens are possible; opening Telegram does not mean joining a group, RSVPing, or making a purchase.',
     'analytics.summary': 'Funnel event totals',
     'analytics.refresh': 'Refresh',
     'analytics.loading': 'Loading summary…',
     'analytics.loadError': 'Could not load analytics',
     'analytics.adminRequired': 'Open TUSA in Telegram as an administrator and check the API connection.',
+    'analytics.openInTelegram': 'Open admin analytics in Telegram',
+    'analytics.dailyHeading': 'Daily actions · last 7 days',
+    'analytics.dailyDescription': 'Dates in Astana time:',
+    'analytics.dailyLoading': 'Loading daily metrics…',
+    'analytics.dailyUnavailable': 'Daily metrics are temporarily unavailable.',
+    'analytics.dailyNote': 'These are actions, not unique users. Repeat opens count; RSVP does not confirm attendance. Web and Telegram are combined.',
+    'analytics.insightsHeading': 'Interest and conversion',
+    'analytics.period': 'Period',
+    'analytics.days7': '7 days',
+    'analytics.days30': '30 days',
+    'analytics.days90': '90 days',
+    'analytics.timezoneAstana': 'Dates in Astana time',
+    'analytics.topSearchTerms': 'Top search terms',
+    'analytics.noSearchTerms': 'No terms have reached the reporting threshold yet.',
+    'analytics.popularCategories': 'Categories by event opens',
+    'analytics.noCategories': 'No category data yet.',
+    'analytics.promotionFunnel': 'Event promotion · funnel',
+    'analytics.offerViews': 'Offer views',
+    'analytics.invoiceStarts': 'Stars invoices created',
+    'analytics.preCheckout': 'Pre-checkout confirmations',
+    'analytics.cancelled': 'Cancelled/closed in Telegram',
+    'analytics.ticketSellerClicks': 'External ticket seller clicks',
+    'analytics.paid': 'Promotions paid',
+    'analytics.refunded': 'Promotion refunds',
+    'analytics.insightsCaveat': 'Counts are actions, not unique people. Search terms appear only at 3+ occurrences; seller clicks do not confirm purchases. Cancellation is a status reported by the Telegram client.',
     'analytics.retry': 'Retry',
     'analytics.catalogViews': 'Event catalog opens',
     'analytics.repeatedViewsNote': 'Repeat opens are included',

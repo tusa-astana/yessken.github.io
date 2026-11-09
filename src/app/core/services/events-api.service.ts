@@ -1,8 +1,8 @@
 import { Injectable, signal } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
-import { Observable, catchError, of, timeout } from 'rxjs';
+import { Observable, catchError, map, of, timeout } from 'rxjs';
 import { TelegramService } from './telegram.service';
-import type { AdminEventReport, AdminSalesSummary, BotMessageLogRow, EventItem, FunnelSummaryRow, MeetupCampaignSummaryRow, MeetupDensitySummary, MeetupVenueOption, OrganizerEngagementRow, OrganizerOrderRow, OrganizerSubscriptionOffer, OrganizerSubscriptionStatus, Ticket, TelegramGroupItem } from '../types/event.model';
+import type { AdminEventReport, AdminSalesSummary, AnalyticsInsightsSummary, BotMessageLogRow, DailyFunnelSummary, EventItem, EventPromotionInvoice, EventPromotionOffer, FunnelSummaryRow, MeetupCampaignSummaryRow, MeetupDensitySummary, MeetupVenueOption, OrganizerEngagementRow, OrganizerOrderRow, OrganizerSubscriptionOffer, OrganizerSubscriptionStatus, Ticket, TelegramGroupItem } from '../types/event.model';
 import { environment } from '../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
@@ -104,6 +104,26 @@ export class EventsApiService {
       .pipe(catchError(() => of(null)));
   }
 
+  getAdminWorkBoard(): Observable<string | null> {
+    if (this.apiDisabled) return of(null);
+    return this.http.get(`${this.base}/api/admin/work-board`, { headers: this.headers(), responseType: 'text' })
+      .pipe(catchError(() => of(null)));
+  }
+
+  getAdminDailyFunnelSummary(): Observable<DailyFunnelSummary | null> {
+    if (this.apiDisabled) return of(null);
+    return this.http.get<DailyFunnelSummary>(`${this.base}/api/analytics/summary/daily`, { headers: this.headers() })
+      .pipe(catchError(() => of(null)));
+  }
+
+  getAdminAnalyticsInsights(days: 7 | 30 | 90): Observable<AnalyticsInsightsSummary | null> {
+    if (this.apiDisabled) return of(null);
+    return this.http.get<AnalyticsInsightsSummary>(`${this.base}/api/analytics/summary/insights`, {
+      params: { days },
+      headers: this.headers(),
+    }).pipe(catchError(() => of(null)));
+  }
+
   getAdminMeetupDensitySummary(): Observable<MeetupDensitySummary | null> {
     if (this.apiDisabled) return of(null);
     return this.http.get<MeetupDensitySummary>(`${this.base}/api/analytics/summary/meetup-density`, { headers: this.headers() })
@@ -140,6 +160,24 @@ export class EventsApiService {
     return this.http.get<OrganizerSubscriptionOffer>(`${this.base}/api/organizer/subscription/offer`).pipe(catchError(() => of(null)));
   }
 
+  getEventPromotionOffer(eventId: string): Observable<EventPromotionOffer | null> {
+    if (this.apiDisabled || !this.telegram.initData) return of(null);
+    return this.http.get<EventPromotionOffer>(`${this.base}/api/events/${encodeURIComponent(eventId)}/promotion/offer`, { headers: this.headers() })
+      .pipe(catchError(() => of(null)));
+  }
+
+  createEventPromotionInvoice(eventId: string, termsVersion: string): Observable<EventPromotionInvoice | null> {
+    if (this.apiDisabled || !this.telegram.initData) return of(null);
+    return this.http.post<EventPromotionInvoice>(`${this.base}/api/events/${encodeURIComponent(eventId)}/promotion/invoice`,
+      { termsAccepted: true, termsVersion }, { headers: this.headers() }).pipe(catchError(() => of(null)));
+  }
+
+  cancelEventPromotionInvoice(eventId: string): Observable<boolean> {
+    if (this.apiDisabled || !this.telegram.initData) return of(false);
+    return this.http.post<void>(`${this.base}/api/events/${encodeURIComponent(eventId)}/promotion/cancel`, {}, { headers: this.headers() })
+      .pipe(map(() => true), catchError(() => of(false)));
+  }
+
   createEvent(event: Omit<EventItem, 'id'>): Observable<EventItem | null> {
     if (this.apiDisabled) return of(null);
     this.eventSubmissionRateLimited.set(false);
@@ -155,6 +193,8 @@ export class EventsApiService {
       category: event.category,
       price: event.price,
       imageUrl: event.imageUrl,
+      ticketUrl: event.ticketUrl,
+      ticketSellerName: event.ticketSellerName,
       organizerName: event.organizerName,
       organizerEmail: event.organizerEmail,
       organizerPhone: event.organizerPhone,

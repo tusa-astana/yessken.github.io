@@ -1,17 +1,18 @@
 import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { DataService } from '../../core/services/data.service';
 import { AnalyticsService } from '../../core/services/analytics.service';
 import { TelegramService } from '../../core/services/telegram.service';
 import { I18nService } from '../../core/services/i18n.service';
-import type { EventItem } from '../../core/types/event.model';
+import type { EventItem, EventPromotionOffer } from '../../core/types/event.model';
 import QRCode from 'qrcode';
 
 @Component({
   selector: 'app-event-detail',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   template: `
     @if (event(); as ev) {
       <div class="event-detail">
@@ -20,7 +21,7 @@ import QRCode from 'qrcode';
           <div class="hero-content">
             <div class="heading-row">
               <span class="category">{{ ev.category }}</span>
-              @if (ev.featured) { <span class="featured-badge">{{ i18n.t('events.promo') }}</span> }
+              @if (ev.featured) { <span class="featured-badge">ПРОМО</span> }
             </div>
             <h1>{{ ev.title }}</h1>
             <p class="hero-meta"><span>{{ formatEventDate(ev.date) }}</span><span>{{ ev.time }}</span></p>
@@ -33,6 +34,9 @@ import QRCode from 'qrcode';
             <div class="detail-line"><span class="detail-icon" aria-hidden="true">⌖</span><div><small>{{ i18n.t('events.details.place') }}</small><strong>{{ ev.place }}</strong>@if (ev.address) { <span>{{ ev.address }}</span> }</div></div>
             <div class="detail-line"><span class="detail-icon" aria-hidden="true">₸</span><div><small>{{ i18n.t('events.details.price') }}</small><strong>{{ priceLabel(ev) }}</strong><span>{{ i18n.t('events.details.organizerInfo') }}</span></div></div>
           </section>
+          @if (ev.ticketUrl) {
+            <a class="external-ticket-link" [href]="ev.ticketUrl" target="_blank" rel="noopener noreferrer" (click)="trackTicketSellerClick(ev)">Билеты у {{ ev.ticketSellerName || 'внешнего дистрибьютора' }} ↗</a>
+          }
           <p class="description">{{ ev.description }}</p>
           <p class="ticket-policy" role="note">{{ i18n.t('events.details.rsvpPolicy') }}</p>
           <div class="going-row">
@@ -51,6 +55,27 @@ import QRCode from 'qrcode';
             @if (goingError()) { <p class="going-error" role="alert">{{ i18n.t('events.details.rsvpError') }}</p> }
           </div>
           <button type="button" class="btn-share" (click)="share(ev)">{{ shareLabel() || i18n.t('events.details.share') }}</button>
+          @if (promotionOffer()?.eligible || promotionOffer()?.status) {
+            <section class="promotion-card" aria-labelledby="promotion-title">
+              <h2 id="promotion-title">Продвинуть событие</h2>
+              <p>Помеченное промо-размещение до даты события · {{ promotionOffer()?.stars }} ⭐. Билеты продаёт {{ ev.ticketSellerName || 'указанный внешний дистрибьютор' }}.</p>
+              @if (promotionOffer()?.status === 'paid') {
+                <p class="promotion-message" role="status">Промо оплачено и активно до {{ promotionOffer()?.expiresAt | date:'d MMM y' }}. ID кампании: {{ promotionOffer()?.campaignId }}.</p>
+              } @else if (promotionOffer()?.status === 'pending') {
+                <p class="promotion-message" role="status">Счёт Stars уже создавался. ID кампании: {{ promotionOffer()?.campaignId }}. Если окно было закрыто, можно открыть оплату повторно.</p>
+              } @else if (promotionOffer()?.status === 'refunded' || promotionOffer()?.status === 'refund_requested') {
+                <p class="promotion-message" role="status">По этой кампании оформлен возврат или запрос на возврат.</p>
+              }
+              @if (promotionOffer()?.available && promotionOffer()?.status !== 'paid' && promotionOffer()?.status !== 'refunded' && promotionOffer()?.status !== 'refund_requested') {
+                <label><input type="checkbox" [checked]="promotionTermsAccepted()" (change)="promotionTermsAccepted.set($any($event.target).checked)" /> Я принимаю <a routerLink="/terms">условия цифрового продвижения</a>.</label>
+                <button type="button" class="promotion-button" [disabled]="promotionLoading() || !promotionTermsAccepted()" (click)="startPromotion(ev)">{{ promotionLoading() ? 'Создаём счёт…' : (promotionOffer()?.status === 'pending' ? 'Открыть оплату' : 'Оплатить ' + promotionOffer()?.stars + ' ⭐') }}</button>
+              } @else if (promotionOffer()?.eligible) {
+                <p class="promotion-message" role="status">Покупка пока не включена. Оплата не списывается.</p>
+              }
+              @if (promotionMessage()) { <p class="promotion-message" role="status">{{ promotionMessage() }}</p> }
+              @if (promotionError()) { <p class="promotion-error" role="alert">{{ promotionError() }}</p> }
+            </section>
+          }
           <button type="button" class="btn-tools" (click)="toolsVisible.update((visible) => !visible)">{{ i18n.t('events.details.shareMaterials') }}</button>
           @if (toolsVisible()) {
             <div class="share-tools">
@@ -115,6 +140,18 @@ import QRCode from 'qrcode';
       }
       .btn-going:disabled { opacity: 0.6; cursor: not-allowed; }
       .ticket-policy { margin: 1rem 0; padding: .8rem .9rem; border: 1px solid var(--tg-line); border-radius: 10px; color: var(--tg-muted); background: var(--tg-surface); font-size: .76rem; line-height: 1.5; }
+      .external-ticket-link { display: inline-flex; min-height: 42px; align-items: center; margin: .25rem 0; color: var(--tg-button); font-size: .8rem; font-weight: 750; }
+      .promotion-card { display: grid; gap: .55rem; margin: 1rem 0; padding: .9rem; border: 1px solid var(--tg-line); border-radius: 10px; background: var(--tg-surface); }
+      .promotion-card h2, .promotion-card p { margin: 0; }
+      .promotion-card h2 { font-size: 1rem; }
+      .promotion-card p, .promotion-card label { color: var(--tg-muted); font-size: .76rem; line-height: 1.5; }
+      .promotion-card label { display: flex; align-items: flex-start; gap: .45rem; }
+      .promotion-card input { margin-top: .15rem; }
+      .promotion-card a { color: var(--tg-button); }
+      .promotion-button { width: fit-content; min-height: 44px; padding: .6rem .8rem; border: 0; border-radius: 7px; background: var(--tg-button); color: var(--tg-button-text, #fff); font: inherit; font-weight: 750; }
+      .promotion-button:disabled { opacity: .55; }
+      .promotion-message { color: var(--tg-button) !important; }
+      .promotion-error { color: #b3483d !important; }
       .btn-share { display: inline-flex; align-items: center; min-height: 2.65rem; margin: .3rem .4rem .3rem 0; padding: 0 .9rem; border: 1px solid var(--tg-line); border-radius: 999px; background: var(--tg-surface); color: var(--tg-text); cursor: pointer; font-size: .78rem; font-weight: 650; }
       .btn-tools, .copy-text { display: inline-flex; align-items: center; min-height: 2.65rem; margin: .3rem 0; padding: 0 .9rem; border: 1px solid var(--tg-line); border-radius: 999px; background: var(--tg-surface); color: var(--tg-text); cursor: pointer; font-size: .78rem; }
       .share-tools { padding: .9rem; margin: .6rem 0 1rem; background: var(--tg-surface); border: 1px solid var(--tg-line); border-radius: 12px; }
@@ -128,6 +165,11 @@ import QRCode from 'qrcode';
 export class EventDetailComponent implements OnInit {
   protected readonly i18n = inject(I18nService);
   event = signal<EventItem | null>(null);
+  promotionOffer = signal<EventPromotionOffer | null>(null);
+  promotionTermsAccepted = signal(false);
+  promotionLoading = signal(false);
+  promotionMessage = signal('');
+  promotionError = signal('');
   goingLoading = signal(false);
   goingError = signal(false);
   shareLabel = signal('');
@@ -149,6 +191,9 @@ export class EventDetailComponent implements OnInit {
       this.data.getEventById(id).subscribe((ev) => {
         this.event.set(ev ?? null);
         if (ev) this.generateQr(ev);
+        if (ev && this.telegram.isInTelegram) {
+          this.data.getEventPromotionOffer(id).subscribe((offer) => this.promotionOffer.set(offer));
+        }
       });
       this.data.getEventGoing(id).subscribe((going) => {
         if (going) this.event.update((current) => current ? { ...current, ...going } : current);
@@ -179,6 +224,39 @@ export class EventDetailComponent implements OnInit {
       if (res) {
         this.event.update((e) => (e ? { ...e, goingCount: res.goingCount, userGoing: res.userGoing } : e));
       } else this.goingError.set(true);
+    });
+  }
+
+  trackTicketSellerClick(ev: EventItem): void {
+    this.analytics.track('ticket_seller_click', ev.id);
+  }
+
+  startPromotion(ev: EventItem): void {
+    if (this.promotionLoading() || !this.promotionTermsAccepted() || !this.promotionOffer()?.available) return;
+    this.promotionLoading.set(true);
+    this.promotionError.set('');
+    this.data.createEventPromotionInvoice(ev.id, '2026-11-09').subscribe((invoice) => {
+      this.promotionLoading.set(false);
+      if (!invoice) {
+        this.promotionError.set('Не удалось создать счёт. Оплата не списана; попробуйте позже.');
+        return;
+      }
+      this.promotionMessage.set(`Счёт создан. ID кампании: ${invoice.campaignId}. Сохраните ID для обращения в /paysupport.`);
+      if (!this.telegram.openInvoice(invoice.invoiceUrl, (status) => {
+        if (status === 'paid') {
+          this.promotionMessage.set('Telegram подтвердил платёж. Обновляем статус промо…');
+          this.data.getEventPromotionOffer(ev.id).subscribe((offer) => this.promotionOffer.set(offer));
+        }
+        else if (status === 'cancelled') {
+          this.data.cancelEventPromotionInvoice(ev.id).subscribe((cancelled) => {
+            if (cancelled) {
+              this.promotionMessage.set('Оплата отменена; списания нет. Можно открыть счёт повторно.');
+              this.data.getEventPromotionOffer(ev.id).subscribe((offer) => this.promotionOffer.set(offer));
+            }
+          });
+        }
+        else if (status === 'failed') this.promotionError.set('Telegram не завершил оплату. Повторите попытку.');
+      })) this.promotionError.set('Откройте событие внутри Telegram, чтобы оплатить Stars.');
     });
   }
 

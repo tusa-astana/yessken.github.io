@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { DataService } from '../../core/services/data.service';
@@ -36,9 +36,9 @@ import type { EventItem } from '../../core/types/event.model';
         <div class="filters" aria-label="Фильтры событий">
         <label class="search-label">
           <span class="visually-hidden">Поиск событий</span>
-          <input type="search" [placeholder]="i18n.t('events.searchPlaceholder')" [value]="searchQuery" (input)="searchQuery = $any($event.target).value" />
+          <input type="search" [placeholder]="i18n.t('events.searchPlaceholder')" [value]="searchQuery" (input)="onSearchInput($any($event.target).value)" />
         </label>
-        <select aria-label="Категория события" (change)="category = $any($event.target).value">
+        <select aria-label="Категория события" (change)="onCategoryChange($any($event.target).value)">
           <option value="">{{ i18n.t('events.filters.all') }}</option>
           <option value="концерт">Концерт</option>
           <option value="вечеринка">Вечеринка</option>
@@ -70,7 +70,7 @@ import type { EventItem } from '../../core/types/event.model';
                 @if (event.isDemo) { <span class="demo-badge">{{ i18n.t('events.demo') }}</span> }
                 @if (isIllustrativeImage(event.imageUrl)) { <span class="illustration-badge">{{ i18n.t('events.illustrative') }}</span> }
               </div>
-              @if (event.featured) { <span class="featured-badge">{{ i18n.t('events.promo') }}</span> }
+                @if (event.featured) { <span class="featured-badge">ПРОМО</span> }
             </div>
             <div class="card-body">
               <h3>{{ event.title }}</h3>
@@ -144,7 +144,7 @@ import type { EventItem } from '../../core/types/event.model';
     `,
   ],
 })
-export class EventsListComponent implements OnInit {
+export class EventsListComponent implements OnInit, OnDestroy {
   searchQuery = '';
   category = '';
   dateFilter = '';
@@ -153,12 +153,31 @@ export class EventsListComponent implements OnInit {
   events = signal<EventItem[]>([]);
 
   protected readonly i18n = inject(I18nService);
+  private searchAnalyticsTimer: ReturnType<typeof setTimeout> | null = null;
 
   constructor(protected data: DataService, protected analytics: AnalyticsService) {}
 
   ngOnInit(): void {
     this.analytics.track('catalog_view');
     this.data.getEvents().subscribe((list) => { this.events.set(list); this.loading.set(false); });
+  }
+
+  onSearchInput(value: string): void {
+    this.searchQuery = value;
+    if (this.searchAnalyticsTimer) clearTimeout(this.searchAnalyticsTimer);
+    this.searchAnalyticsTimer = setTimeout(() => {
+      const terms = [...new Set(value.toLocaleLowerCase('ru').match(/\p{L}{3,24}/gu) ?? [])].slice(0, 5);
+      for (const term of terms) this.analytics.track('search_term', undefined, term);
+    }, 700);
+  }
+
+  onCategoryChange(value: string): void {
+    this.category = value;
+    if (value) this.analytics.track('category_filter', undefined, value);
+  }
+
+  ngOnDestroy(): void {
+    if (this.searchAnalyticsTimer) clearTimeout(this.searchAnalyticsTimer);
   }
 
   filteredEvents = () => {
@@ -175,7 +194,9 @@ export class EventsListComponent implements OnInit {
       .filter((event) => !this.category || event.category === this.category)
       .filter((event) => !this.dateFilter || this.matchesDateFilter(event.date, today, weekendStart, weekendEnd))
       .filter((event) => !this.priceFilter || (this.priceFilter === 'free' ? event.price === 0 || event.price === null : (event.price ?? 0) <= 5000))
-      .sort((a, b) => Number(b.featured) - Number(a.featured) || a.date.localeCompare(b.date));
+      .sort((a, b) => this.searchRelevance(b, query) - this.searchRelevance(a, query)
+        || Number(b.featured) - Number(a.featured)
+        || a.date.localeCompare(b.date));
   };
 
   resetFilters(): void { this.searchQuery = ''; this.category = ''; this.dateFilter = ''; this.priceFilter = ''; }
@@ -189,6 +210,17 @@ export class EventsListComponent implements OnInit {
     const value = new Date(`${date}T12:00:00`);
     if (this.dateFilter === 'today') return value.toDateString() === today.toDateString();
     return value >= weekendStart && value <= weekendEnd;
+  }
+
+  private searchRelevance(event: EventItem, query: string): number {
+    if (!query) return 0;
+    const title = event.title.toLocaleLowerCase('ru');
+    if (title === query) return 5;
+    if (title.startsWith(query)) return 4;
+    if (title.includes(query)) return 3;
+    if (event.category.toLocaleLowerCase('ru').includes(query)) return 2;
+    if ([event.place, event.address].some((value) => value.toLocaleLowerCase('ru').includes(query))) return 1;
+    return 0;
   }
 
   formatDate(date: string): string {

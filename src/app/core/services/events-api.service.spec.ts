@@ -47,6 +47,16 @@ describe('EventsApiService', () => {
     await expect(result).resolves.toEqual([{ name: 'community_open', count: 4 }]);
   });
 
+  it('loads the admin work board only through the protected API with verified initData', async () => {
+    const result = firstValueFrom(service.getAdminWorkBoard());
+    const request = http.expectOne('/api/admin/work-board');
+    expect(request.request.method).toBe('GET');
+    expect(request.request.responseType).toBe('text');
+    expect(request.request.headers.get('X-Telegram-Init-Data')).toBe('verified-telegram-init-data');
+    request.flush('## Active blocks\n');
+    await expect(result).resolves.toBe('## Active blocks\n');
+  });
+
   it('loads the admin weekly venue RSVP density with verified initData', async () => {
     const result = firstValueFrom(service.getAdminMeetupDensitySummary());
     const request = http.expectOne('/api/analytics/summary/meetup-density');

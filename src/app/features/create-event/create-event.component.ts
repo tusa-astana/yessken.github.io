@@ -10,6 +10,12 @@ function contactMethodValidator(control: AbstractControl): ValidationErrors | nu
   return email || phone ? null : { contactMethodRequired: true };
 }
 
+function ticketSellerLinkValidator(control: AbstractControl): ValidationErrors | null {
+  const sellerName = String(control.get('ticketSellerName')?.value ?? '').trim();
+  const ticketUrl = String(control.get('ticketUrl')?.value ?? '').trim();
+  return Boolean(sellerName) === Boolean(ticketUrl) ? null : { ticketSellerLinkPairRequired: true };
+}
+
 @Component({
   selector: 'app-create-event',
   standalone: true,
@@ -45,6 +51,9 @@ function contactMethodValidator(control: AbstractControl): ValidationErrors | nu
             <label>Время <input formControlName="time" type="time" /></label>
             <label>Категория <select formControlName="category"><option value="концерт">Концерт</option><option value="вечеринка">Вечеринка</option><option value="развлечения">Развлечения</option></select></label>
             <label>Цена от организатора, ₸<input formControlName="price" type="number" min="0" placeholder="0 — бесплатно по данным организатора" /><small class="field-hint">TUSA не продаёт билеты и не принимает оплату за вход. Уточните у организатора, где получить билет.</small></label>
+            <label>Название билетного дистрибьютора<input formControlName="ticketSellerName" type="text" maxlength="100" placeholder="Например, официальный билетный сервис" /></label>
+            <label>Ссылка на страницу события у дистрибьютора<input formControlName="ticketUrl" type="url" inputmode="url" placeholder="https://…" /><small class="field-hint">Необязательно для бесплатной публикации. TUSA не оформляет и не продаёт билеты; оба поля проверит модератор.</small></label>
+            @if (ticketSellerErrorVisible()) { <p class="field-error wide" role="alert">Укажите и название билетного дистрибьютора, и его HTTPS-ссылку — либо оставьте оба поля пустыми.</p> }
           </div>
         </section>
         <section class="form-section">
@@ -215,16 +224,22 @@ export class CreateEventComponent {
       category: ['концерт'],
       price: [0],
       imageUrl: [''],
+      ticketUrl: ['', Validators.pattern(/^$|^https:\/\/.+/i)],
+      ticketSellerName: ['', Validators.maxLength(100)],
       organizerName: [this.savedContact('organizerName')],
       organizerEmail: [this.savedContact('organizerEmail'), Validators.email],
       organizerPhone: [this.savedContact('organizerPhone')],
-    }, { validators: [contactMethodValidator] });
+    }, { validators: [contactMethodValidator, ticketSellerLinkValidator] });
   }
 
   contactErrorVisible(): boolean {
     return this.form.hasError('contactMethodRequired') && (
       this.submitAttempted() || !!this.form.get('organizerEmail')?.touched || !!this.form.get('organizerPhone')?.touched
     );
+  }
+
+  ticketSellerErrorVisible(): boolean {
+    return this.form.hasError('ticketSellerLinkPairRequired') && this.submitAttempted();
   }
 
   fieldErrorVisible(field: 'title' | 'date' | 'place' | 'organizerEmail'): boolean {
@@ -312,6 +327,8 @@ export class CreateEventComponent {
       category: v.category,
       price: v.price ? Number(v.price) : null,
       imageUrl: v.imageUrl || this.defaultCover(v.category),
+      ticketUrl: v.ticketUrl || '',
+      ticketSellerName: v.ticketSellerName || '',
       organizerName: v.organizerName,
       organizerEmail: v.organizerEmail,
       organizerPhone: v.organizerPhone,

@@ -4,6 +4,7 @@ import { provideRouter } from '@angular/router';
 import { of } from 'rxjs';
 import { AnalyticsService } from '../../core/services/analytics.service';
 import { DataService } from '../../core/services/data.service';
+import type { EventItem } from '../../core/types/event.model';
 import { EventsListComponent } from './events-list.component';
 
 describe('EventsListComponent', () => {
@@ -29,5 +30,33 @@ describe('EventsListComponent', () => {
 
     expect(link?.getAttribute('href')).toBe('/interests?group=board-games');
     expect(link?.textContent).toContain('Хобби и клубы');
+  });
+
+  it('ranks title matches ahead of description-only matches, then by event date', () => {
+    const event = (id: string, title: string, description: string, date: string): EventItem => ({
+      id,
+      title,
+      description,
+      date,
+      time: '19:00',
+      place: 'Astana venue',
+      address: 'Astana',
+      lat: 51.1694,
+      lng: 71.4494,
+      category: 'concert',
+      price: null,
+      imageUrl: '',
+      organizerName: 'Organizer',
+    });
+
+    fixture.componentInstance.events.set([
+      event('description', 'Evening plan', 'Jazz meetup', '2026-12-01'),
+      event('later-title', 'Jazz evening', '', '2026-12-10'),
+      event('earlier-title', 'Jazz workshop', '', '2026-12-05'),
+    ]);
+    fixture.componentInstance.searchQuery = 'jazz';
+
+    expect(fixture.componentInstance.filteredEvents().map((item) => item.id))
+      .toEqual(['earlier-title', 'later-title', 'description']);
   });
 });

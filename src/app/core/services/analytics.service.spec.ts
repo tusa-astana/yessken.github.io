@@ -94,6 +94,24 @@ describe('AnalyticsService', () => {
     expect(service.getSummary().community_gathering_rsvp).toBe(0);
   });
 
+  it('sends search terms for server aggregation without storing them in browser localStorage', () => {
+    service.track('search_term', undefined, 'jazz');
+
+    const request = http.expectOne('/api/analytics');
+    expect(request.request.body).toEqual({ name: 'search_term', eventId: undefined, ref: 'jazz' });
+    expect(window.localStorage.getItem('tusa-funnel-events')).toBeNull();
+    request.flush(null);
+  });
+
+  it('tracks external ticket seller clicks without storing the browsing event locally', () => {
+    service.track('ticket_seller_click', 'approved-event-id');
+
+    const request = http.expectOne('/api/analytics');
+    expect(request.request.body).toEqual({ name: 'ticket_seller_click', eventId: 'approved-event-id', ref: undefined });
+    expect(window.localStorage.getItem('tusa-funnel-events')).toBeNull();
+    request.flush(null);
+  });
+
   it('falls back to the regular API request if the browser cannot queue a beacon', () => {
     const sendBeacon = vi.fn().mockReturnValue(false);
     Object.defineProperty(navigator, 'sendBeacon', { configurable: true, value: sendBeacon });

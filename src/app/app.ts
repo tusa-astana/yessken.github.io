@@ -146,6 +146,7 @@ export class App implements OnInit {
 }
 
 export function routeFromStartParam(startParam: string): string | null {
+  if (startParam === 'admin_analytics') return '/admin/analytics';
   if (startParam === 'meetups') return '/meetups';
   if (startParam === 'interests') return '/interests';
   if (startParam.startsWith('interest_')) {

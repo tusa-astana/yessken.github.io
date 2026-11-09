@@ -12,7 +12,11 @@ export type FunnelEvent =
   | 'meetup_invite_open'
   | 'community_gathering_share'
   | 'community_gathering_open'
-  | 'community_gathering_rsvp';
+  | 'community_gathering_rsvp'
+  | 'search_term'
+  | 'category_filter'
+  | 'promotion_invoice_cancelled'
+  | 'ticket_seller_click';
 
 interface StoredFunnelEvent {
   name: FunnelEvent;
@@ -30,10 +34,13 @@ export class AnalyticsService {
   track(name: FunnelEvent, eventId?: string, ref?: string, delivery: 'request' | 'beacon' = 'request'): void {
     if (typeof window === 'undefined') return;
     if (name === 'community_gathering_rsvp') return;
-    const events = this.read();
-    const currentRef = ref ?? (typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('ref') ?? undefined : undefined);
-    events.push({ name, eventId, ref: currentRef, createdAt: new Date().toISOString() });
-    window.localStorage.setItem(this.storageKey, JSON.stringify(events.slice(-500)));
+    const privacyMinimized = name === 'search_term' || name === 'category_filter' || name === 'promotion_invoice_cancelled' || name === 'ticket_seller_click';
+    const events = privacyMinimized ? [] : this.read();
+    const currentRef = ref ?? (!privacyMinimized ? new URLSearchParams(window.location.search).get('ref') ?? undefined : undefined);
+    if (!privacyMinimized) {
+      events.push({ name, eventId, ref: currentRef, createdAt: new Date().toISOString() });
+      window.localStorage.setItem(this.storageKey, JSON.stringify(events.slice(-500)));
+    }
 
     const apiBase = environment.apiUrl?.replace(/\/$/, '');
     const sameOriginApiEnabled = !environment.production || new URLSearchParams(window.location.search).get('api') === '1';
@@ -61,6 +68,10 @@ export class AnalyticsService {
       community_gathering_share: 0,
       community_gathering_open: 0,
       community_gathering_rsvp: 0,
+      search_term: 0,
+      category_filter: 0,
+      promotion_invoice_cancelled: 0,
+      ticket_seller_click: 0,
     } satisfies Record<FunnelEvent, number>;
     for (const event of this.read()) summary[event.name] += 1;
     return summary;

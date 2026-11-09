@@ -30,6 +30,10 @@ describe('App', () => {
     expect(app).toBeTruthy();
   });
 
+  it('routes the admin analytics deep link to the dashboard', () => {
+    expect(routeFromStartParam('admin_analytics')).toBe('/admin/analytics');
+  });
+
   it('routes shared venue links to the selected map place and date', () => {
     expect(routeFromStartParam('meetup_bourbon-street-astana_20261106'))
       .toBe('/meetups?venue=bourbon-street-astana&date=2026-11-06');
