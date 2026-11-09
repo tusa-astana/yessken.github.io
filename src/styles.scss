@@ -41,6 +41,7 @@
 .shell.dark-theme .interests-shortcut:not(.groups-shortcut) { animation: holiday-interest-pulse 4.2s ease-in-out infinite; }
 .shell.dark-theme .plan-card.featured-card { animation: holiday-featured-breathe 4s ease-in-out infinite; }
 .shell.dark-theme .interest-card.highlighted, .shell.dark-theme .gathering-card.highlighted-gathering { animation: holiday-selection-pulse 1.3s ease-in-out 3; }
+.join-button.joined { animation: holiday-rsvp-flash 1.2s ease-out; }
 @keyframes holiday-dot-pulse {
   0%, 100% { transform: scale(.92); box-shadow: 0 0 0 3px color-mix(in srgb, var(--holiday-red) 14%, transparent); }
   50% { transform: scale(1.18); box-shadow: 0 0 0 7px color-mix(in srgb, var(--holiday-red) 22%, transparent), 0 0 18px color-mix(in srgb, var(--holiday-gold) 40%, transparent); }
@@ -48,6 +49,11 @@
 @keyframes holiday-twinkle {
   0%, 100% { opacity: .58; transform: scale(.86) rotate(-8deg); }
   50% { opacity: 1; transform: scale(1.16) rotate(8deg); }
+}
+@keyframes holiday-rsvp-flash {
+  0% { background: var(--holiday-gold); color: #142017; box-shadow: 0 0 0 0 color-mix(in srgb, var(--holiday-gold) 55%, transparent); }
+  38% { background: var(--holiday-red); color: #fff; box-shadow: 0 0 0 7px color-mix(in srgb, var(--holiday-red) 24%, transparent), 0 0 30px color-mix(in srgb, var(--holiday-gold) 72%, transparent); }
+  100% { background: color-mix(in srgb, var(--tg-button) 14%, transparent); color: var(--tg-button); box-shadow: none; }
 }
 @keyframes holiday-interest-pulse {
   0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--holiday-cyan) 0%, transparent); }
@@ -83,7 +89,8 @@
   .shell.dark-theme .interests-shortcut:not(.groups-shortcut),
   .shell.dark-theme .plan-card.featured-card,
   .shell.dark-theme .interest-card.highlighted,
-  .shell.dark-theme .gathering-card.highlighted-gathering { animation: none; }
+  .shell.dark-theme .gathering-card.highlighted-gathering,
+  .join-button.joined { animation: none; }
   .garland-bulb { animation: none; }
   .garland-bulb:nth-child(4n + 1) { background: #ef5c61; }
   .garland-bulb:nth-child(4n + 2) { background: #f2c550; }
