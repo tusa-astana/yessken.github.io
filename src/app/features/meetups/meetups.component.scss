@@ -9,10 +9,10 @@ app-meetups { display: block; min-height: 100%; }
 .shell.dark-theme .meetup-map-marker > span small { color: rgba(23,26,18,.75); }
 
 .meetups-page { max-width: 1240px; margin: 0 auto; padding: 1.15rem clamp(1rem, 3vw, 2.4rem) 5rem; color: var(--tg-text); }
-.meetup-hero { position: relative; display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(270px, .85fr); align-items: center; min-height: 310px; padding: clamp(1.5rem, 4vw, 3.2rem); overflow: hidden; border: 1px solid rgba(38,55,43,.1); border-radius: 20px; background: radial-gradient(circle at 81% 35%, rgba(233,196,129,.2), transparent 25%), linear-gradient(125deg,#e8eee1 0%,#f3efe3 52%,#e8e4d7 100%); }
+.meetup-hero { position: relative; display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(270px, .85fr); align-items: center; min-height: 310px; padding: clamp(1.5rem, 4vw, 3.2rem); overflow: hidden; border: 1px solid color-mix(in srgb, var(--holiday-red) 16%, transparent); border-radius: 20px; background: radial-gradient(circle at 81% 35%, color-mix(in srgb, var(--holiday-gold) 23%, transparent), transparent 25%), radial-gradient(circle at 9% 92%, color-mix(in srgb, var(--holiday-red) 8%, transparent), transparent 30%), linear-gradient(125deg,#e8eee1 0%,#fffaf1 52%,#f0e7d8 100%); }
 .hero-copy { position: relative; z-index: 2; max-width: 620px; }
 .eyebrow { display: flex; align-items: center; gap: .45rem; margin: 0 0 .85rem; color: #78836d; font-size: .64rem; font-weight: 850; letter-spacing: .18em; }
-.pulse-dot { width: .43rem; height: .43rem; border-radius: 50%; background: #70864f; box-shadow: 0 0 0 4px rgba(112,134,79,.12); }
+.pulse-dot { width: .43rem; height: .43rem; border-radius: 50%; background: var(--holiday-red); box-shadow: 0 0 0 4px color-mix(in srgb, var(--holiday-red) 13%, transparent); }
 .meetup-hero h1 { margin: 0; color: #26372b; font-family: Georgia, 'Times New Roman', serif; font-size: clamp(2.5rem, 6vw, 5rem); font-weight: 500; letter-spacing: -.055em; line-height: .96; }
 .meetup-hero h1 em { color: #75864f; font-weight: 400; }
 .hero-description { max-width: 430px; margin: 1rem 0 1.2rem; color: #566456; font-size: .94rem; line-height: 1.6; }

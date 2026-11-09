@@ -73,6 +73,16 @@ describe('App', () => {
     expect(compiled.querySelector('.brand strong')?.textContent).toContain('TUSA');
   });
 
+  it('renders the decorative New Year garland without exposing it to assistive technology', async () => {
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const garland = (fixture.nativeElement as HTMLElement).querySelector('.holiday-garland');
+    expect(garland?.getAttribute('aria-hidden')).toBe('true');
+    expect(garland?.querySelectorAll('.garland-bulb').length).toBe(14);
+  });
+
   it('exposes the selected interface language accessibly', async () => {
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();

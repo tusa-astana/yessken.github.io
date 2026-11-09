@@ -2,9 +2,34 @@
 @use './app/features/meetups/meetups.component';
 @import 'leaflet/dist/leaflet.css';
 
+.holiday-garland { position: absolute; inset: 0 0 auto; z-index: 0; height: 25px; overflow: hidden; pointer-events: none; }
+.garland-wire { position: absolute; inset: 0; width: 100%; height: 24px; overflow: visible; }
+.garland-wire path { fill: none; stroke: color-mix(in srgb, var(--tg-button) 68%, var(--holiday-gold)); stroke-width: 1.5; vector-effect: non-scaling-stroke; }
+.garland-lights { position: absolute; inset: 0 0 auto; display: flex; justify-content: space-around; height: 22px; }
+.garland-bulb { position: relative; display: block; width: 8px; height: 9px; flex: 0 0 auto; margin-top: 5px; border: 1px solid rgba(255,255,255,.68); border-radius: 45% 45% 55% 55%; background: #d54b4b; box-shadow: 0 0 7px currentColor; animation: festive-lights 8s ease-in-out infinite; }
+.garland-bulb::before { position: absolute; bottom: 100%; left: 50%; height: 5px; border-left: 1px solid color-mix(in srgb, var(--tg-button) 70%, var(--holiday-gold)); content: ''; }
+.garland-bulb:nth-child(4n + 1) { margin-top: 2px; animation-delay: -1.6s; }
+.garland-bulb:nth-child(4n + 2) { margin-top: 8px; animation-delay: -3.2s; }
+.garland-bulb:nth-child(4n + 3) { margin-top: 11px; animation-delay: -4.8s; }
+.garland-bulb:nth-child(4n) { margin-top: 7px; animation-delay: -6.4s; }
+@keyframes festive-lights {
+  0%, 100% { color: #ef5c61; background: #ef5c61; box-shadow: 0 0 7px rgba(239,92,97,.75); }
+  25% { color: #f2c550; background: #f2c550; box-shadow: 0 0 8px rgba(242,197,80,.8); }
+  50% { color: #63ba82; background: #63ba82; box-shadow: 0 0 8px rgba(99,186,130,.8); }
+  75% { color: #75c4e8; background: #75c4e8; box-shadow: 0 0 8px rgba(117,196,232,.8); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .garland-bulb { animation: none; }
+  .garland-bulb:nth-child(4n + 1) { background: #ef5c61; }
+  .garland-bulb:nth-child(4n + 2) { background: #f2c550; }
+  .garland-bulb:nth-child(4n + 3) { background: #63ba82; }
+  .garland-bulb:nth-child(4n) { background: #75c4e8; }
+}
+.topbar > *:not(.holiday-garland) { position: relative; z-index: 1; }
+
 html, body {
-  background: #f5f6f0;
-  color: #26372b;
+  background: #fffaf1;
+  color: #25372f;
   margin: 0;
   color-scheme: light;
   overscroll-behavior-y: none;

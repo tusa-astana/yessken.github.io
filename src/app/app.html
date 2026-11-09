@@ -1,5 +1,15 @@
 <div class="shell" [class.dark-theme]="theme.isDark()">
   <header class="topbar">
+    <div class="holiday-garland" aria-hidden="true">
+      <svg class="garland-wire" viewBox="0 0 1200 24" preserveAspectRatio="none" focusable="false">
+        <path d="M0 2 C180 24 300 24 480 7 S770 1 960 20 S1110 21 1200 2" />
+      </svg>
+      <div class="garland-lights">
+        @for (bulb of garlandBulbs; track bulb) {
+          <span class="garland-bulb"></span>
+        }
+      </div>
+    </div>
     <a routerLink="/events" class="brand" queryParamsHandling="preserve"><strong>TUSA</strong><span>{{ i18n.brandCity() }}</span></a>
     <nav class="desktop-nav" [attr.aria-label]="i18n.t('nav.mainAria')">
       <a routerLink="/meetups" [class.active]="activeTab() === 'meetups'" [attr.aria-current]="activeTab() === 'meetups' ? 'page' : null" queryParamsHandling="preserve">{{ i18n.t('nav.meetups') }}</a>

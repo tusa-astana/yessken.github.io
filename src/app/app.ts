@@ -25,6 +25,7 @@ export class App implements OnInit {
   protected readonly theme = inject(ThemeService);
   protected readonly breadcrumbs = signal<Breadcrumb[]>([]);
   protected readonly activeTab = signal<'events' | 'calendar' | 'meetups' | 'profile' | null>('meetups');
+  protected readonly garlandBulbs = Array.from({ length: 14 }, (_, index) => index);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
   private readonly routeHistory: string[] = [];
