@@ -23,10 +23,41 @@ html[data-theme='light'], html[data-theme='light'] body {
 
 .shell.dark-theme .interests-page .hero {
   border-color: color-mix(in srgb, var(--holiday-cyan) 22%, var(--tg-line));
+  box-shadow: 0 18px 48px rgba(0, 0, 0, .2), inset 0 1px 0 color-mix(in srgb, var(--tg-text) 6%, transparent);
   background:
     radial-gradient(circle at 90% 15%, color-mix(in srgb, var(--holiday-gold) 18%, transparent), transparent 34%),
     linear-gradient(125deg, color-mix(in srgb, var(--holiday-mint) 13%, var(--tg-surface)), color-mix(in srgb, var(--holiday-violet) 9%, var(--tg-surface)));
 }
+
+.shell.dark-theme .interests-page .group-grid { gap: .9rem; }
+
+.shell.dark-theme .interests-page .interest-card {
+  position: relative;
+  overflow: hidden;
+  border-color: color-mix(in srgb, var(--tg-line) 82%, var(--holiday-cyan));
+  border-radius: 14px;
+  background: linear-gradient(145deg, color-mix(in srgb, var(--tg-surface) 92%, var(--holiday-cyan) 8%), var(--tg-surface));
+  box-shadow: 0 10px 28px rgba(0, 0, 0, .2), inset 0 1px 0 color-mix(in srgb, var(--tg-text) 5%, transparent);
+  transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+}
+
+.shell.dark-theme .interests-page .interest-card::before {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 2px;
+  background: linear-gradient(180deg, var(--holiday-cyan), color-mix(in srgb, var(--holiday-violet) 70%, transparent));
+  content: '';
+  opacity: .7;
+}
+
+.shell.dark-theme .interests-page .interest-card:hover,
+.shell.dark-theme .interests-page .interest-card:focus-within {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--holiday-cyan) 58%, var(--tg-line));
+  box-shadow: 0 14px 34px rgba(0, 0, 0, .26), 0 0 24px color-mix(in srgb, var(--holiday-cyan) 12%, transparent);
+}
+
+.shell.dark-theme .interests-page .interest-card.joined { border-color: color-mix(in srgb, var(--holiday-mint) 54%, var(--tg-line)); }
 
 .shell.dark-theme .interests-page .safety-note {
   border-color: color-mix(in srgb, var(--holiday-gold) 24%, var(--tg-line));
@@ -46,6 +77,18 @@ html[data-theme='light'], html[data-theme='light'] body {
 .shell.dark-theme .interests-page .group-icon {
   background: color-mix(in srgb, var(--holiday-mint) 14%, var(--tg-surface));
   color: var(--holiday-mint);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--holiday-mint) 18%, transparent), 0 0 18px color-mix(in srgb, var(--holiday-mint) 9%, transparent);
+}
+
+.shell.dark-theme .interests-page .interest-card:nth-child(4n + 2) .group-icon { background: color-mix(in srgb, var(--holiday-cyan) 14%, var(--tg-surface)); color: var(--holiday-cyan); }
+.shell.dark-theme .interests-page .interest-card:nth-child(4n + 3) .group-icon { background: color-mix(in srgb, var(--holiday-violet) 16%, var(--tg-surface)); color: var(--holiday-violet); }
+.shell.dark-theme .interests-page .interest-card:nth-child(4n) .group-icon { background: color-mix(in srgb, var(--holiday-red) 14%, var(--tg-surface)); color: var(--holiday-red); }
+
+.shell.dark-theme .interests-page .member-count {
+  padding: .24rem .42rem;
+  border: 1px solid color-mix(in srgb, var(--tg-line) 72%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--tg-surface) 70%, transparent);
 }
 
 .shell.dark-theme .interests-page .primary-action {
@@ -56,4 +99,24 @@ html[data-theme='light'], html[data-theme='light'] body {
 
 .shell.dark-theme .interests-page .primary-action:hover {
   background: color-mix(in srgb, var(--tg-button) 86%, white) !important;
+}
+
+.shell.dark-theme .interests-page .primary-action:disabled {
+  opacity: .68;
+  filter: saturate(.72);
+}
+
+.shell.dark-theme .interests-page .secondary-action {
+  border-color: color-mix(in srgb, var(--holiday-cyan) 30%, var(--tg-line));
+  color: var(--holiday-cyan);
+}
+
+.shell.dark-theme .interests-page .secondary-action:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--holiday-cyan) 9%, var(--tg-surface));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shell.dark-theme .interests-page .interest-card { transition: none; }
+  .shell.dark-theme .interests-page .interest-card:hover,
+  .shell.dark-theme .interests-page .interest-card:focus-within { transform: none; }
 }
