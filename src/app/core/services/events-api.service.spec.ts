@@ -47,6 +47,44 @@ describe('EventsApiService', () => {
     await expect(result).resolves.toEqual([{ name: 'community_open', count: 4 }]);
   });
 
+  it('loads an owner event promotion offer with verified Telegram initData', async () => {
+    const result = firstValueFrom(service.getEventPromotionOffer('event-7'));
+    const request = http.expectOne('/api/events/event-7/promotion/offer');
+    expect(request.request.method).toBe('GET');
+    expect(request.request.headers.get('X-Telegram-Init-Data')).toBe('verified-telegram-init-data');
+    const offer = {
+      eligible: true,
+      available: false,
+      stars: 500,
+      expiresAtEventDate: true,
+      ticketUrl: 'https://tickets.example.com/event-7',
+      campaignId: null,
+      status: null,
+      expiresAt: null,
+    };
+    request.flush(offer);
+    await expect(result).resolves.toEqual(offer);
+  });
+
+  it('creates a promotion invoice only with the explicit terms version and verified initData', async () => {
+    const result = firstValueFrom(service.createEventPromotionInvoice('event-7', '2026-11-09'));
+    const request = http.expectOne('/api/events/event-7/promotion/invoice');
+    expect(request.request.method).toBe('POST');
+    expect(request.request.headers.get('X-Telegram-Init-Data')).toBe('verified-telegram-init-data');
+    expect(request.request.body).toEqual({ termsAccepted: true, termsVersion: '2026-11-09' });
+    request.flush({ campaignId: 'campaign-1', stars: 500, invoiceUrl: 'https://t.me/$invoice' });
+    await expect(result).resolves.toEqual({ campaignId: 'campaign-1', stars: 500, invoiceUrl: 'https://t.me/$invoice' });
+  });
+
+  it('cancels a pending promotion invoice through an authenticated owner request', async () => {
+    const result = firstValueFrom(service.cancelEventPromotionInvoice('event-7'));
+    const request = http.expectOne('/api/events/event-7/promotion/cancel');
+    expect(request.request.method).toBe('POST');
+    expect(request.request.headers.get('X-Telegram-Init-Data')).toBe('verified-telegram-init-data');
+    request.flush(null);
+    await expect(result).resolves.toBe(true);
+  });
+
   it('loads the admin work board only through the protected API with verified initData', async () => {
     const result = firstValueFrom(service.getAdminWorkBoard());
     const request = http.expectOne('/api/admin/work-board');

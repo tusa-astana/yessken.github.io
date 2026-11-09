@@ -255,7 +255,12 @@ export class EventDetailComponent implements OnInit {
             }
           });
         }
-        else if (status === 'failed') this.promotionError.set('Telegram не завершил оплату. Повторите попытку.');
+        else if (status === 'failed') {
+          this.promotionError.set('Telegram не завершил оплату. Повторите попытку.');
+          this.data.cancelEventPromotionInvoice(ev.id).subscribe((cancelled) => {
+            if (cancelled) this.data.getEventPromotionOffer(ev.id).subscribe((offer) => this.promotionOffer.set(offer));
+          });
+        }
       })) this.promotionError.set('Откройте событие внутри Telegram, чтобы оплатить Stars.');
     });
   }
