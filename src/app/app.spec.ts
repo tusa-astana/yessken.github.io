@@ -9,6 +9,7 @@ class RouteStubComponent {}
 describe('App', () => {
   beforeEach(async () => {
     window.localStorage.removeItem('tusa-locale-preference-v1');
+    window.localStorage.removeItem('tusa-theme-preference-v1');
     await TestBed.configureTestingModule({
       imports: [App],
       providers: [provideRouter([
@@ -81,6 +82,24 @@ describe('App', () => {
     const garland = (fixture.nativeElement as HTMLElement).querySelector('.holiday-garland');
     expect(garland?.getAttribute('aria-hidden')).toBe('true');
     expect(garland?.querySelectorAll('.garland-bulb').length).toBe(14);
+  });
+
+  it('switches the festive palette between light and dark themes accessibly', async () => {
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    const compiled = fixture.nativeElement as HTMLElement;
+    const toggle = compiled.querySelector<HTMLButtonElement>('.theme-toggle');
+
+    toggle?.click();
+    fixture.detectChanges();
+    expect(compiled.querySelector('.shell')?.classList.contains('dark-theme')).toBe(true);
+    expect(toggle?.getAttribute('aria-label')).toBe('Включить светлую тему');
+
+    toggle?.click();
+    fixture.detectChanges();
+    expect(compiled.querySelector('.shell')?.classList.contains('dark-theme')).toBe(false);
+    fixture.destroy();
   });
 
   it('exposes the selected interface language accessibly', async () => {
