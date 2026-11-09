@@ -39,6 +39,10 @@ export class DataService {
     );
   }
 
+  getPastEvents(): Observable<EventItem[]> {
+    return this.useApi ? this.api.getPastEvents() : of([]);
+  }
+
   getEventById(id: string): Observable<EventItem | null> {
     if (this.useApi) return this.api.getEventById(id).pipe(switchMap((event) =>
       of(event ?? (environment.production ? null : this.mock.getEventById(id) ?? null))));

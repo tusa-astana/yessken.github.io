@@ -11,6 +11,8 @@ export interface EventItem {
   category: string;
   price: number | null;
   imageUrl: string;
+  isPublicEvent?: boolean;
+  telegramSourceUrl?: string;
   ticketUrl?: string;
   ticketSellerName?: string;
   organizerName: string;

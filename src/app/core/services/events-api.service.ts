@@ -39,6 +39,15 @@ export class EventsApiService {
     );
   }
 
+  getPastEvents(): Observable<EventItem[]> {
+    if (this.apiDisabled) return of([]);
+    this.eventsError.set(false);
+    return this.http.get<EventItem[]>(`${this.base}/api/events/history`, { headers: this.headers() }).pipe(
+      timeout({ first: 5000 }),
+      catchError(() => { this.eventsError.set(true); return of([]); })
+    );
+  }
+
   getPendingEvents(): Observable<EventItem[] | null> {
     if (this.apiDisabled) return of(null);
     return this.http.get<EventItem[]>(`${this.base}/api/events/pending`, { headers: this.headers() })
@@ -193,6 +202,8 @@ export class EventsApiService {
       category: event.category,
       price: event.price,
       imageUrl: event.imageUrl,
+      isPublicEvent: event.isPublicEvent,
+      telegramSourceUrl: event.telegramSourceUrl,
       ticketUrl: event.ticketUrl,
       ticketSellerName: event.ticketSellerName,
       organizerName: event.organizerName,

@@ -63,6 +63,9 @@ export type TranslationKey =
   | 'events.subtitle'
   | 'events.organizer'
   | 'events.hobbies'
+  | 'events.archive'
+  | 'events.upcoming'
+  | 'events.archiveEmpty'
   | 'communities.heading'
   | 'communities.subtitle'
   | 'communities.disclaimer'
@@ -274,6 +277,9 @@ const translations: Record<Locale, Record<TranslationKey, string>> = {
     'events.subtitle': 'События Астаны на ближайшие дни. Смотри детали, делись планом и отмечай интерес.',
     'events.organizer': 'Организаторам: разместить событие бесплатно',
     'events.hobbies': 'Хобби и клубы',
+    'events.archive': 'Прошедшие события',
+    'events.upcoming': 'Предстоящие',
+    'events.archiveEmpty': 'В архиве пока нет опубликованных событий.',
     'communities.heading': 'Сообщества',
     'communities.subtitle': 'Городские сообщества и каналы, где появляются новые события.',
     'communities.disclaimer': 'Это независимые сообщества — правила и условия уточняйте у их администраторов.',
@@ -484,6 +490,9 @@ const translations: Record<Locale, Record<TranslationKey, string>> = {
     'events.subtitle': 'Астанадағы жақын күндердің іс-шақтары. Ақпаратты қарап, жоспармен бөлісіп, қызығушылығыңызды белгілеңіз.',
     'events.organizer': 'Ұйымдастырушылар: іс-шақты тегін орналастырыңыз',
     'events.hobbies': 'Хобби мен клубтар',
+    'events.archive': 'Өткен іс-шақтар',
+    'events.upcoming': 'Алдағы іс-шақтар',
+    'events.archiveEmpty': 'Мұрағатта әзірге жарияланған іс-шақ жоқ.',
     'communities.heading': 'Қауымдастықтар',
     'communities.subtitle': 'Қаладағы жаңа іс-шақтар жарияланатын қауымдастықтар мен арналар.',
     'communities.disclaimer': 'Бұл — тәуелсіз қауымдастықтар. Ережелері мен шарттарын әкімшілерінен нақтылаңыз.',
@@ -694,6 +703,9 @@ const translations: Record<Locale, Record<TranslationKey, string>> = {
     'events.subtitle': 'Astana events for the next few days. See the details, share a plan, and RSVP for free.',
     'events.organizer': 'For organizers: publish an event for free',
     'events.hobbies': 'Hobbies & clubs',
+    'events.archive': 'Past events',
+    'events.upcoming': 'Upcoming',
+    'events.archiveEmpty': 'No published events are in the archive yet.',
     'communities.heading': 'Communities',
     'communities.subtitle': 'Local communities and channels where new events are shared.',
     'communities.disclaimer': 'These are independent communities; check their rules and terms with their admins.',

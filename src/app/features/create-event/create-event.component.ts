@@ -16,6 +16,23 @@ function ticketSellerLinkValidator(control: AbstractControl): ValidationErrors |
   return Boolean(sellerName) === Boolean(ticketUrl) ? null : { ticketSellerLinkPairRequired: true };
 }
 
+function telegramSourceUrlValidator(control: AbstractControl): ValidationErrors | null {
+  const value = String(control.value ?? '').trim();
+  if (!value) return null;
+  try {
+    const url = new URL(value);
+    const [channel, postId, ...extra] = url.pathname.split('/').filter(Boolean);
+    const channelIsValid = !!channel && /^[A-Za-z][A-Za-z0-9_]{4,31}$/.test(channel);
+    const postIsValid = !!postId && /^[1-9]\d*$/.test(postId);
+    return url.protocol === 'https:' && url.hostname.toLowerCase() === 't.me' && !url.username && !url.password && !url.port &&
+      !url.hash && (url.search === '' || url.search === '?single') && channelIsValid && postIsValid && extra.length === 0
+      ? null
+      : { telegramSourceUrl: true };
+  } catch {
+    return { telegramSourceUrl: true };
+  }
+}
+
 @Component({
   selector: 'app-create-event',
   standalone: true,
@@ -45,6 +62,15 @@ function ticketSellerLinkValidator(control: AbstractControl): ValidationErrors |
               @if (fieldErrorVisible('title')) { <small id="title-error" class="field-error" role="alert">Укажите название события.</small> }
             </label>
             <label class="wide">Описание <textarea formControlName="description" rows="4" placeholder="Коротко: программа, атмосфера, для кого событие"></textarea></label>
+            <fieldset class="wide source-confirmation">
+              <legend>Публичность и источник <b>*</b></legend>
+              <label class="checkbox-label"><input formControlName="isPublicEvent" type="checkbox" /> Я подтверждаю, что это публичное мероприятие, а пост размещён в открытом Telegram-канале.</label>
+              @if (submitAttempted() && form.get('isPublicEvent')?.invalid) { <small class="field-error" role="alert">Подтвердите, что мероприятие публичное.</small> }
+              <label>Ссылка на пост Telegram <b>*</b><input formControlName="telegramSourceUrl" type="url" inputmode="url" placeholder="https://t.me/channel/123" [attr.aria-invalid]="submitAttempted() && form.get('telegramSourceUrl')?.invalid" aria-describedby="telegram-source-hint" />
+                <small id="telegram-source-hint" class="field-hint">Нужна прямая ссылка вида https://t.me/channel/postId. Модератор проверит источник перед публикацией.</small>
+                @if (submitAttempted() && form.get('telegramSourceUrl')?.invalid) { <small class="field-error" role="alert">Укажите ссылку на пост публичного Telegram-канала в формате https://t.me/channel/postId.</small> }
+              </label>
+            </fieldset>
             <label>Дата <b>*</b><input formControlName="date" type="date" [attr.aria-invalid]="fieldErrorVisible('date')" [attr.aria-describedby]="fieldErrorVisible('date') ? 'date-error' : null" />
               @if (fieldErrorVisible('date')) { <small id="date-error" class="field-error" role="alert">Выберите дату события.</small> }
             </label>
@@ -137,6 +163,9 @@ function ticketSellerLinkValidator(control: AbstractControl): ValidationErrors |
       .image-preview { display: block; width: 100%; max-height: 220px; object-fit: cover; margin-top: .5rem; border-radius: 3px; }
       .field-hint { opacity: .65; font-size: .78rem; }
       .field-error { color: #9a372e; font-size: .78rem; line-height: 1.4; }
+      .source-confirmation { display: grid; gap: .65rem; }
+      .source-confirmation .checkbox-label { flex-direction: row; align-items: flex-start; line-height: 1.45; }
+      .source-confirmation .checkbox-label input { flex: 0 0 auto; width: 1rem; min-height: 1rem; margin: .15rem 0 0; }
       input[aria-invalid="true"], textarea[aria-invalid="true"], select[aria-invalid="true"] { border-color: #b3483d; }
       input[aria-invalid="true"]:focus, textarea[aria-invalid="true"]:focus, select[aria-invalid="true"]:focus { box-shadow: 0 0 0 3px rgba(154,55,46,.14); }
       :host-context(.dark-theme) .field-error { color: #ff9a8f; }
@@ -226,6 +255,8 @@ export class CreateEventComponent {
       imageUrl: [''],
       ticketUrl: ['', Validators.pattern(/^$|^https:\/\/.+/i)],
       ticketSellerName: ['', Validators.maxLength(100)],
+      isPublicEvent: [false, Validators.requiredTrue],
+      telegramSourceUrl: ['', [Validators.required, Validators.maxLength(500), telegramSourceUrlValidator]],
       organizerName: [this.savedContact('organizerName')],
       organizerEmail: [this.savedContact('organizerEmail'), Validators.email],
       organizerPhone: [this.savedContact('organizerPhone')],
@@ -327,6 +358,8 @@ export class CreateEventComponent {
       category: v.category,
       price: v.price ? Number(v.price) : null,
       imageUrl: v.imageUrl || this.defaultCover(v.category),
+      isPublicEvent: v.isPublicEvent,
+      telegramSourceUrl: String(v.telegramSourceUrl ?? '').trim(),
       ticketUrl: v.ticketUrl || '',
       ticketSellerName: v.ticketSellerName || '',
       organizerName: v.organizerName,

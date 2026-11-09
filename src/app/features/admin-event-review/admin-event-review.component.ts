@@ -39,6 +39,7 @@ import type { EventItem } from '../../core/types/event.model';
                 <div class="event-topline"><span class="category">{{ event.category || 'Событие' }}</span><span class="pending">На модерации</span></div>
                 <h2>{{ event.title }}</h2>
                 <p class="event-meta">{{ formatEventDate(event.date) }}<span aria-hidden="true"> · </span>{{ event.time || 'время уточняется' }}<span aria-hidden="true"> · </span>{{ event.place }}</p>
+                <p class="event-meta"><strong>{{ event.isPublicEvent ? 'Публичное событие' : 'Публичность не подтверждена' }}</strong>@if (event.telegramSourceUrl) { <span> · Источник: <a [href]="event.telegramSourceUrl" target="_blank" rel="noopener noreferrer">проверить пост Telegram ↗</a></span> }</p>
                 @if (event.address) { <p class="address">{{ event.address }}</p> }
                 @if (event.ticketUrl) { <p>Дистрибьютор: {{ event.ticketSellerName }} · <a [href]="event.ticketUrl" target="_blank" rel="noopener noreferrer">Проверить ссылку ↗</a></p> }
                 @if (event.description) { <p class="description">{{ event.description }}</p> }

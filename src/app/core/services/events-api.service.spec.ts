@@ -4,6 +4,7 @@ import { TestBed } from '@angular/core/testing';
 import { firstValueFrom } from 'rxjs';
 import { TelegramService } from './telegram.service';
 import { EventsApiService } from './events-api.service';
+import type { EventItem } from '../types/event.model';
 
 describe('EventsApiService', () => {
   let http: HttpTestingController;
@@ -36,6 +37,30 @@ describe('EventsApiService', () => {
     await expect(result).resolves.toEqual([
       { eventId: 'event-1', eventTitle: 'Pilot', eventDate: '2026-11-06', views: 7, shares: 2, rsvps: 3 },
     ]);
+  });
+
+  it('loads past events from the public archive endpoint', async () => {
+    const result = firstValueFrom(service.getPastEvents());
+    const request = http.expectOne('/api/events/history');
+    expect(request.request.method).toBe('GET');
+    const event = { id: 'past-event', title: 'Past event', date: '2026-11-09', isPublicEvent: true, telegramSourceUrl: 'https://t.me/channel/12' };
+    request.flush([event]);
+    await expect(result).resolves.toEqual([event]);
+  });
+
+  it('sends public-event confirmation and Telegram source permalink with a submission', async () => {
+    const event: Omit<EventItem, 'id'> = {
+      title: 'Channel event', description: '', date: '2026-12-01', time: '19:00', place: 'Astana venue',
+      address: '', lat: 51.1694, lng: 71.4494, category: 'concert', price: null, imageUrl: '', organizerName: 'Host',
+      isPublicEvent: true, telegramSourceUrl: 'https://t.me/astana_events/123',
+    };
+    const result = firstValueFrom(service.createEvent(event));
+    const request = http.expectOne('/api/events');
+    expect(request.request.method).toBe('POST');
+    expect(request.request.body.isPublicEvent).toBe(true);
+    expect(request.request.body.telegramSourceUrl).toBe('https://t.me/astana_events/123');
+    request.flush({ id: 'event-1', ...event });
+    await expect(result).resolves.toMatchObject({ isPublicEvent: true, telegramSourceUrl: 'https://t.me/astana_events/123' });
   });
 
   it('loads admin funnel totals with verified initData', async () => {

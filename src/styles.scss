@@ -37,7 +37,7 @@
   animation: holiday-light-drift 34s ease-in-out infinite alternate;
 }
 .shell.dark-theme::before {
-  background-color: #080a10;
+  background-color: #090d16;
   background-size: 160% 160%;
   opacity: 1;
   animation: holiday-light-drift 12s ease-in-out infinite alternate, holiday-hue-cycle 20s linear infinite;
@@ -115,14 +115,14 @@
 .topbar > *:not(.holiday-garland) { position: relative; z-index: 1; }
 
 html, body {
-  background: #080a10;
-  color: #f4f0e5;
+  background: #090d16;
+  color: #f4f3ef;
   margin: 0;
   color-scheme: dark;
   overscroll-behavior-y: none;
 }
 
-html[data-theme='dark'], html[data-theme='dark'] body { background: #080a10; color: #f4f0e5; color-scheme: dark; }
+html[data-theme='dark'], html[data-theme='dark'] body { background: #090d16; color: #f4f3ef; color-scheme: dark; }
 html[data-theme='light'], html[data-theme='light'] body { background: #fffaf1; color: #25372f; color-scheme: light; }
 .shell.dark-theme .interests-page .primary-action { border-color: var(--tg-button) !important; background: var(--tg-button) !important; color: var(--tg-button-text) !important; }
 .shell.dark-theme .interests-page .primary-action:hover { background: color-mix(in srgb, var(--tg-button) 86%, white) !important; }

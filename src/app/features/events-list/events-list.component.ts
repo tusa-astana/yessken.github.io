@@ -15,7 +15,7 @@ import type { EventItem } from '../../core/types/event.model';
       <header class="hero">
         <div class="hero-copy">
           <p class="date-line">{{ i18n.brandCity() }} <span aria-hidden="true">·</span> {{ todayLabel() }}</p>
-          <h1>{{ i18n.t('events.heading') }}</h1>
+          <h1>{{ historyView() ? i18n.t('events.archive') : i18n.t('events.heading') }}</h1>
           <p class="hero-subtitle">{{ i18n.t('events.subtitle') }}</p>
           <div class="hero-actions">
             <a routerLink="/create-event" class="organizer-link" queryParamsHandling="preserve">{{ i18n.t('events.organizer') }} <span aria-hidden="true">→</span></a>
@@ -30,8 +30,12 @@ import type { EventItem } from '../../core/types/event.model';
       </header>
       <section class="discovery" aria-labelledby="discovery-title">
         <div class="discovery-heading">
-          <div><p class="section-kicker">{{ i18n.brandCity().toUpperCase() }}</p><h2 id="discovery-title">{{ i18n.t('events.allTitle') }}</h2></div>
+          <div><p class="section-kicker">{{ i18n.brandCity().toUpperCase() }}</p><h2 id="discovery-title">{{ historyView() ? i18n.t('events.archive') : i18n.t('events.allTitle') }}</h2></div>
           @if (!loading()) { <span class="result-count">{{ filteredEvents().length }} событий</span> }
+        </div>
+        <div class="event-view-switch" role="group" aria-label="Раздел афиши">
+          <button type="button" [attr.aria-pressed]="!historyView()" (click)="showUpcoming()">{{ i18n.t('events.upcoming') }}</button>
+          <button type="button" [attr.aria-pressed]="historyView()" (click)="showHistory()">{{ i18n.t('events.archive') }}</button>
         </div>
         <div class="filters" aria-label="Фильтры событий">
         <label class="search-label">
@@ -44,11 +48,11 @@ import type { EventItem } from '../../core/types/event.model';
           <option value="вечеринка">Вечеринка</option>
           <option value="развлечения">Развлечения</option>
         </select>
-        <select aria-label="Дата проведения" (change)="dateFilter = $any($event.target).value">
+        @if (!historyView()) { <select aria-label="Дата проведения" (change)="dateFilter = $any($event.target).value">
           <option value="">Любая дата</option>
           <option value="today">Сегодня</option>
           <option value="weekend">Эти выходные</option>
-        </select>
+        </select> }
         <select aria-label="Цена, указанная организатором" (change)="priceFilter = $any($event.target).value">
           <option value="">Любая цена</option>
           <option value="free">{{ i18n.t('events.filters.free') }}</option>
@@ -58,7 +62,7 @@ import type { EventItem } from '../../core/types/event.model';
       </section>
       @if (loading()) { <p class="state" role="status">{{ i18n.t('events.loading') }}</p> }
       @else if (!filteredEvents().length) {
-        <div class="state"><strong>{{ data.eventsError() ? 'Не удалось загрузить события' : i18n.t('events.empty') }}</strong><span>{{ data.eventsError() ? 'Проверьте соединение с сервером.' : 'Попробуйте изменить фильтры.' }}</span><button type="button" (click)="reload()">{{ data.eventsError() ? i18n.t('events.retry') : i18n.t('events.reset') }}</button></div>
+        <div class="state"><strong>{{ data.eventsError() ? 'Не удалось загрузить события' : (historyView() ? i18n.t('events.archiveEmpty') : i18n.t('events.empty')) }}</strong><span>{{ data.eventsError() ? 'Проверьте соединение с сервером.' : (historyView() ? '' : 'Попробуйте изменить фильтры.') }}</span><button type="button" (click)="reload()">{{ data.eventsError() ? i18n.t('events.retry') : i18n.t('events.reset') }}</button></div>
       } @else {
       <div class="cards">
         @for (event of filteredEvents(); track event.id; let first = $first) {
@@ -105,6 +109,9 @@ import type { EventItem } from '../../core/types/event.model';
       .discovery-heading { display: flex; justify-content: space-between; align-items: end; gap: 1rem; margin-bottom: .75rem; }
       .section-kicker { margin-bottom: .25rem; font-size: .6rem; }
       .discovery-heading h2 { margin: 0; font-size: 1.3rem; letter-spacing: -.03em; }
+      .event-view-switch { display: flex; flex-wrap: wrap; gap: .45rem; margin: 0 0 .75rem; }
+      .event-view-switch button { min-height: 2.5rem; padding: 0 .8rem; border: 1px solid var(--tg-line); border-radius: 999px; background: var(--tg-surface); color: var(--tg-muted); font: inherit; font-size: .74rem; font-weight: 700; }
+      .event-view-switch button[aria-pressed="true"] { border-color: var(--tg-button); background: color-mix(in srgb, var(--tg-button) 10%, var(--tg-surface)); color: var(--tg-button); }
       .result-count { padding: .3rem .6rem; border: 1px solid var(--tg-line); border-radius: 999px; color: var(--tg-muted); font-size: .68rem; white-space: nowrap; }
       .filters { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; margin-bottom: 1rem; }
       .search-label { grid-column: 1 / -1; }
@@ -151,6 +158,7 @@ export class EventsListComponent implements OnInit, OnDestroy {
   priceFilter = '';
   loading = signal(true);
   events = signal<EventItem[]>([]);
+  historyView = signal(false);
 
   protected readonly i18n = inject(I18nService);
   private searchAnalyticsTimer: ReturnType<typeof setTimeout> | null = null;
@@ -159,7 +167,27 @@ export class EventsListComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.analytics.track('catalog_view');
-    this.data.getEvents().subscribe((list) => { this.events.set(list); this.loading.set(false); });
+    this.loadEvents(false);
+  }
+
+  showUpcoming(): void { this.setHistoryView(false); }
+
+  showHistory(): void { this.setHistoryView(true); }
+
+  private setHistoryView(isHistory: boolean): void {
+    if (this.historyView() === isHistory) return;
+    this.historyView.set(isHistory);
+    this.searchQuery = '';
+    this.category = '';
+    this.dateFilter = '';
+    this.priceFilter = '';
+    this.loadEvents(isHistory);
+  }
+
+  private loadEvents(isHistory: boolean): void {
+    this.loading.set(true);
+    const request = isHistory ? this.data.getPastEvents() : this.data.getEvents();
+    request.subscribe((list) => { this.events.set(list); this.loading.set(false); });
   }
 
   onSearchInput(value: string): void {
@@ -196,13 +224,13 @@ export class EventsListComponent implements OnInit, OnDestroy {
       .filter((event) => !this.priceFilter || (this.priceFilter === 'free' ? event.price === 0 || event.price === null : (event.price ?? 0) <= 5000))
       .sort((a, b) => this.searchRelevance(b, query) - this.searchRelevance(a, query)
         || Number(b.featured) - Number(a.featured)
-        || a.date.localeCompare(b.date));
+        || (this.historyView() ? b.date.localeCompare(a.date) : a.date.localeCompare(b.date)));
   };
 
   resetFilters(): void { this.searchQuery = ''; this.category = ''; this.dateFilter = ''; this.priceFilter = ''; }
 
   reload(): void {
-    if (this.data.eventsError()) this.data.getEvents().subscribe((list) => { this.events.set(list); this.loading.set(false); });
+    if (this.data.eventsError()) this.loadEvents(this.historyView());
     else this.resetFilters();
   }
 

@@ -16,7 +16,7 @@ describe('EventsListComponent', () => {
       imports: [EventsListComponent],
       providers: [
         provideRouter([]),
-        { provide: DataService, useValue: { getEvents: () => of([]), eventsError: signal(false) } },
+        { provide: DataService, useValue: { getEvents: () => of([]), getPastEvents: () => of([]), eventsError: signal(false) } },
         { provide: AnalyticsService, useValue: { track: () => undefined } },
       ],
     }).compileComponents();
@@ -30,6 +30,24 @@ describe('EventsListComponent', () => {
 
     expect(link?.getAttribute('href')).toBe('/interests?group=board-games');
     expect(link?.textContent).toContain('Хобби и клубы');
+  });
+
+  it('switches to the past-events archive and requests its records', () => {
+    const pastEvent: EventItem = {
+      id: 'past-event', title: 'Past event', description: '', date: '2026-11-09', time: '19:00',
+      place: 'Astana venue', address: '', lat: 0, lng: 0, category: 'concert', price: null,
+      imageUrl: '', organizerName: 'Organizer',
+    };
+    const data = TestBed.inject(DataService) as unknown as { getPastEvents: ReturnType<typeof vi.fn> };
+    data.getPastEvents = vi.fn(() => of([pastEvent]));
+
+    const archiveButton = (fixture.nativeElement as HTMLElement).querySelectorAll<HTMLButtonElement>('.event-view-switch button')[1];
+    archiveButton.click();
+    fixture.detectChanges();
+
+    expect(data.getPastEvents).toHaveBeenCalledOnce();
+    expect(fixture.componentInstance.historyView()).toBe(true);
+    expect(fixture.componentInstance.events()).toEqual([pastEvent]);
   });
 
   it('ranks title matches ahead of description-only matches, then by event date', () => {

@@ -37,6 +37,7 @@ import QRCode from 'qrcode';
           @if (ev.ticketUrl) {
             <a class="external-ticket-link" [href]="ev.ticketUrl" target="_blank" rel="noopener noreferrer" (click)="trackTicketSellerClick(ev)">Билеты у {{ ev.ticketSellerName || 'внешнего дистрибьютора' }} ↗</a>
           }
+          @if (ev.telegramSourceUrl) { <a class="source-link" [href]="ev.telegramSourceUrl" target="_blank" rel="noopener noreferrer">Пост-источник в Telegram ↗</a> }
           <p class="description">{{ ev.description }}</p>
           <p class="ticket-policy" role="note">{{ i18n.t('events.details.rsvpPolicy') }}</p>
           <div class="going-row">
@@ -141,6 +142,7 @@ import QRCode from 'qrcode';
       .btn-going:disabled { opacity: 0.6; cursor: not-allowed; }
       .ticket-policy { margin: 1rem 0; padding: .8rem .9rem; border: 1px solid var(--tg-line); border-radius: 10px; color: var(--tg-muted); background: var(--tg-surface); font-size: .76rem; line-height: 1.5; }
       .external-ticket-link { display: inline-flex; min-height: 42px; align-items: center; margin: .25rem 0; color: var(--tg-button); font-size: .8rem; font-weight: 750; }
+      .source-link { display: inline-flex; min-height: 42px; align-items: center; margin: .25rem .75rem .25rem 0; color: var(--tg-button); font-size: .8rem; font-weight: 700; }
       .promotion-card { display: grid; gap: .55rem; margin: 1rem 0; padding: .9rem; border: 1px solid var(--tg-line); border-radius: 10px; background: var(--tg-surface); }
       .promotion-card h2, .promotion-card p { margin: 0; }
       .promotion-card h2 { font-size: 1rem; }

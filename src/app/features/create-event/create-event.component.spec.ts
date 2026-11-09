@@ -51,4 +51,23 @@ describe('CreateEventComponent', () => {
     expect(form.hasError('ticketSellerLinkPairRequired')).toBe(true);
     fixture.destroy();
   });
+
+  it('requires an explicit public-event confirmation and a public Telegram post permalink', () => {
+    const fixture = TestBed.createComponent(CreateEventComponent);
+    const form = fixture.componentInstance.form;
+    const publicControl = form.get('isPublicEvent');
+    const sourceControl = form.get('telegramSourceUrl');
+
+    expect(publicControl?.invalid).toBe(true);
+    expect(sourceControl?.invalid).toBe(true);
+    publicControl?.setValue(true);
+    sourceControl?.setValue('https://t.me/astana_events/123');
+    expect(publicControl?.valid).toBe(true);
+    expect(sourceControl?.valid).toBe(true);
+    sourceControl?.setValue('https://t.me/c/12345/123');
+    expect(sourceControl?.invalid).toBe(true);
+    sourceControl?.setValue('http://t.me/astana_events/123');
+    expect(sourceControl?.invalid).toBe(true);
+    fixture.destroy();
+  });
 });
