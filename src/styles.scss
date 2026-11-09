@@ -2,11 +2,70 @@
 @use './app/features/meetups/meetups.component';
 @import 'leaflet/dist/leaflet.css';
 
+.shell::before {
+  position: fixed;
+  z-index: -1;
+  inset: 0;
+  background-color: var(--tg-bg, #080a10);
+  background-image:
+    radial-gradient(ellipse 44% 42% at 8% 14%, color-mix(in srgb, var(--holiday-red) 62%, transparent), transparent 72%),
+    radial-gradient(ellipse 42% 38% at 91% 12%, color-mix(in srgb, var(--holiday-cyan) 58%, transparent), transparent 72%),
+    radial-gradient(ellipse 48% 44% at 82% 86%, color-mix(in srgb, var(--holiday-violet) 56%, transparent), transparent 72%),
+    radial-gradient(ellipse 40% 42% at 12% 82%, color-mix(in srgb, var(--holiday-gold) 54%, transparent), transparent 74%),
+    radial-gradient(ellipse 50% 46% at 52% 48%, color-mix(in srgb, var(--holiday-mint) 42%, transparent), transparent 74%);
+  background-repeat: no-repeat;
+  background-size: 190% 190%;
+  background-position: 0% 14%, 100% 0%, 100% 100%, 0% 100%, 50% 50%;
+  content: '';
+  opacity: .2;
+  pointer-events: none;
+  animation: holiday-light-drift 34s ease-in-out infinite alternate;
+}
+.shell.dark-theme::before {
+  background-color: #080a10;
+  background-size: 160% 160%;
+  opacity: 1;
+  animation: holiday-light-drift 12s ease-in-out infinite alternate, holiday-hue-cycle 20s linear infinite;
+}
+@keyframes holiday-light-drift {
+  0% { background-position: 0% 14%, 100% 0%, 100% 100%, 0% 100%, 50% 50%; }
+  50% { background-position: 55% 0%, 28% 42%, 0% 42%, 72% 18%, 100% 100%; }
+  100% { background-position: 100% 48%, 0% 100%, 38% 0%, 100% 54%, 0% 0%; }
+}
+@keyframes holiday-hue-cycle {
+  to { filter: hue-rotate(360deg) saturate(1.35); }
+}
+.shell.dark-theme .pulse-dot { animation: holiday-dot-pulse 2.1s ease-in-out infinite; }
+.shell.dark-theme .scene-spark { transform-origin: center; animation: holiday-twinkle 3.2s ease-in-out infinite; }
+.shell.dark-theme .spark-two { animation-delay: -1.6s; }
+.shell.dark-theme .interests-shortcut:not(.groups-shortcut) { animation: holiday-interest-pulse 4.2s ease-in-out infinite; }
+.shell.dark-theme .plan-card.featured-card { animation: holiday-featured-breathe 4s ease-in-out infinite; }
+.shell.dark-theme .interest-card.highlighted, .shell.dark-theme .gathering-card.highlighted-gathering { animation: holiday-selection-pulse 1.3s ease-in-out 3; }
+@keyframes holiday-dot-pulse {
+  0%, 100% { transform: scale(.92); box-shadow: 0 0 0 3px color-mix(in srgb, var(--holiday-red) 14%, transparent); }
+  50% { transform: scale(1.18); box-shadow: 0 0 0 7px color-mix(in srgb, var(--holiday-red) 22%, transparent), 0 0 18px color-mix(in srgb, var(--holiday-gold) 40%, transparent); }
+}
+@keyframes holiday-twinkle {
+  0%, 100% { opacity: .58; transform: scale(.86) rotate(-8deg); }
+  50% { opacity: 1; transform: scale(1.16) rotate(8deg); }
+}
+@keyframes holiday-interest-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--holiday-cyan) 0%, transparent); }
+  50% { box-shadow: 0 0 16px 2px color-mix(in srgb, var(--holiday-cyan) 34%, transparent); }
+}
+@keyframes holiday-featured-breathe {
+  0%, 100% { border-color: color-mix(in srgb, var(--holiday-gold) 48%, var(--tg-line)); box-shadow: 0 8px 26px rgba(0,0,0,.14), 0 0 0 1px color-mix(in srgb, var(--holiday-gold) 24%, transparent); }
+  50% { border-color: color-mix(in srgb, var(--holiday-cyan) 74%, var(--tg-line)); box-shadow: 0 10px 30px rgba(0,0,0,.2), 0 0 0 2px color-mix(in srgb, var(--holiday-red) 42%, transparent), 0 0 24px color-mix(in srgb, var(--holiday-cyan) 28%, transparent); }
+}
+@keyframes holiday-selection-pulse {
+  0%, 100% { box-shadow: 0 0 0 1px color-mix(in srgb, var(--holiday-gold) 25%, transparent); }
+  50% { box-shadow: 0 0 0 3px color-mix(in srgb, var(--holiday-cyan) 52%, transparent), 0 0 22px color-mix(in srgb, var(--holiday-violet) 26%, transparent); }
+}
 .holiday-garland { position: absolute; inset: 0 0 auto; z-index: 0; height: 25px; overflow: hidden; pointer-events: none; }
 .garland-wire { position: absolute; inset: 0; width: 100%; height: 24px; overflow: visible; }
 .garland-wire path { fill: none; stroke: color-mix(in srgb, var(--tg-button) 68%, var(--holiday-gold)); stroke-width: 1.5; vector-effect: non-scaling-stroke; }
 .garland-lights { position: absolute; inset: 0 0 auto; display: flex; justify-content: space-around; height: 22px; }
-.garland-bulb { position: relative; display: block; width: 8px; height: 9px; flex: 0 0 auto; margin-top: 5px; border: 1px solid rgba(255,255,255,.68); border-radius: 45% 45% 55% 55%; background: #d54b4b; box-shadow: 0 0 7px currentColor; animation: festive-lights 8s ease-in-out infinite; }
+.garland-bulb { position: relative; display: block; width: 8px; height: 9px; flex: 0 0 auto; margin-top: 5px; border: 1px solid rgba(255,255,255,.68); border-radius: 45% 45% 55% 55%; background: #d54b4b; box-shadow: 0 0 7px currentColor; animation: festive-lights 5.5s ease-in-out infinite; }
 .garland-bulb::before { position: absolute; bottom: 100%; left: 50%; height: 5px; border-left: 1px solid color-mix(in srgb, var(--tg-button) 70%, var(--holiday-gold)); content: ''; }
 .garland-bulb:nth-child(4n + 1) { margin-top: 2px; animation-delay: -1.6s; }
 .garland-bulb:nth-child(4n + 2) { margin-top: 8px; animation-delay: -3.2s; }
@@ -19,6 +78,12 @@
   75% { color: #75c4e8; background: #75c4e8; box-shadow: 0 0 8px rgba(117,196,232,.8); }
 }
 @media (prefers-reduced-motion: reduce) {
+  .shell::before, .shell.dark-theme::before { animation: none; filter: none; }
+  .shell.dark-theme .pulse-dot, .shell.dark-theme .scene-spark,
+  .shell.dark-theme .interests-shortcut:not(.groups-shortcut),
+  .shell.dark-theme .plan-card.featured-card,
+  .shell.dark-theme .interest-card.highlighted,
+  .shell.dark-theme .gathering-card.highlighted-gathering { animation: none; }
   .garland-bulb { animation: none; }
   .garland-bulb:nth-child(4n + 1) { background: #ef5c61; }
   .garland-bulb:nth-child(4n + 2) { background: #f2c550; }
@@ -28,14 +93,15 @@
 .topbar > *:not(.holiday-garland) { position: relative; z-index: 1; }
 
 html, body {
-  background: #fffaf1;
-  color: #25372f;
+  background: #080a10;
+  color: #f4f0e5;
   margin: 0;
-  color-scheme: light;
+  color-scheme: dark;
   overscroll-behavior-y: none;
 }
 
-html[data-theme='dark'], html[data-theme='dark'] body { background: #111d18; color: #f4f0e5; }
+html[data-theme='dark'], html[data-theme='dark'] body { background: #080a10; color: #f4f0e5; color-scheme: dark; }
+html[data-theme='light'], html[data-theme='light'] body { background: #fffaf1; color: #25372f; color-scheme: light; }
 
 .tusa-marker {
   width: 22px !important;

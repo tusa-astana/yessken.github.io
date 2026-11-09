@@ -25,9 +25,9 @@ export class ThemeService {
   }
 
   private initialTheme(): AppTheme {
-    if (typeof window === 'undefined') return 'light';
+    if (typeof window === 'undefined') return 'dark';
     const saved = window.localStorage.getItem('tusa-theme-preference-v1');
     if (saved === 'light' || saved === 'dark') return saved;
-    return 'light';
+    return 'dark';
   }
 }

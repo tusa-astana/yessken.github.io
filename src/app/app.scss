@@ -10,13 +10,16 @@
   --tg-muted: #716d62;
   --holiday-red: #bc3d42;
   --holiday-gold: #c79a39;
+  --holiday-cyan: #3a97b6;
+  --holiday-violet: #8465a8;
+  --holiday-mint: #287d57;
   display: block;
   min-height: 100dvh;
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
   box-sizing: border-box;
 }
 
-.shell { min-height: 100dvh; background: var(--tg-bg); color: var(--tg-text); }
+.shell { position: relative; isolation: isolate; min-height: 100dvh; background: transparent; color: var(--tg-text); }
 .topbar { position: sticky; top: 0; z-index: 90; display: flex; align-items: center; gap: 1.5rem; height: 64px; padding: 0 clamp(1rem, 4vw, 3.5rem); background: color-mix(in srgb, var(--tg-bg) 92%, transparent); border-bottom: 1px solid var(--tg-line); backdrop-filter: blur(16px); }
 .brand { flex: 0 0 auto; display: flex; align-items: baseline; gap: .45rem; color: var(--tg-text); text-decoration: none; letter-spacing: .11em; }
 .brand strong { font-size: 1.05rem; font-weight: 850; }
@@ -64,13 +67,17 @@ button, a { -webkit-tap-highlight-color: transparent; }
   --tg-text: #f4f0e5;
   --tg-button: #a8d7b4;
   --tg-button-text: #142017;
-  --tg-surface: #1b2922;
+  --tg-surface: rgba(18, 25, 34, .78);
   --tg-glow: 0 8px 22px rgba(168, 215, 180, .15);
   --tg-line: #35463c;
   --tg-muted: #b8c2b9;
   --holiday-red: #ff8e83;
   --holiday-gold: #efc96a;
+  --holiday-cyan: #53dcff;
+  --holiday-violet: #c17bff;
+  --holiday-mint: #5af2ae;
   color-scheme: dark;
-  background: var(--tg-bg);
+  background: transparent;
   color: var(--tg-text);
 }
+.shell.dark-theme .topbar { background: color-mix(in srgb, var(--tg-bg) 78%, transparent); }

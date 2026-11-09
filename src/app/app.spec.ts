@@ -91,14 +91,17 @@ describe('App', () => {
     const compiled = fixture.nativeElement as HTMLElement;
     const toggle = compiled.querySelector<HTMLButtonElement>('.theme-toggle');
 
-    toggle?.click();
-    fixture.detectChanges();
     expect(compiled.querySelector('.shell')?.classList.contains('dark-theme')).toBe(true);
     expect(toggle?.getAttribute('aria-label')).toBe('Включить светлую тему');
 
     toggle?.click();
     fixture.detectChanges();
     expect(compiled.querySelector('.shell')?.classList.contains('dark-theme')).toBe(false);
+    expect(toggle?.getAttribute('aria-label')).toBe('Включить тёмную тему');
+
+    toggle?.click();
+    fixture.detectChanges();
+    expect(compiled.querySelector('.shell')?.classList.contains('dark-theme')).toBe(true);
     fixture.destroy();
   });
 
