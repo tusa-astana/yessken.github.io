@@ -1,0 +1,59 @@
+/* Last-loaded palette touch-ups kept separate from app styles during the parallel interests UI work. */
+html, body {
+  background: #090d16;
+  color: #f4f3ef;
+  color-scheme: dark;
+}
+
+html[data-theme='dark'], html[data-theme='dark'] body {
+  background: #090d16;
+  color: #f4f3ef;
+  color-scheme: dark;
+}
+
+html[data-theme='light'], html[data-theme='light'] body {
+  background: #fffaf1;
+  color: #25372f;
+  color-scheme: light;
+}
+
+.shell.dark-theme::before {
+  background-color: #090d16;
+}
+
+.shell.dark-theme .interests-page .hero {
+  border-color: color-mix(in srgb, var(--holiday-cyan) 22%, var(--tg-line));
+  background:
+    radial-gradient(circle at 90% 15%, color-mix(in srgb, var(--holiday-gold) 18%, transparent), transparent 34%),
+    linear-gradient(125deg, color-mix(in srgb, var(--holiday-mint) 13%, var(--tg-surface)), color-mix(in srgb, var(--holiday-violet) 9%, var(--tg-surface)));
+}
+
+.shell.dark-theme .interests-page .safety-note {
+  border-color: color-mix(in srgb, var(--holiday-gold) 24%, var(--tg-line));
+  background: color-mix(in srgb, var(--holiday-gold) 7%, var(--tg-surface));
+}
+
+.shell.dark-theme .interests-page .interest-card.joined {
+  border-color: color-mix(in srgb, var(--holiday-mint) 54%, var(--tg-line));
+}
+
+.shell.dark-theme .interests-page .interest-card.highlighted,
+.shell.dark-theme .interests-page .gathering-card.highlighted-gathering {
+  border-color: var(--holiday-cyan);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--holiday-cyan) 27%, transparent), 0 8px 26px rgba(0, 0, 0, .2);
+}
+
+.shell.dark-theme .interests-page .group-icon {
+  background: color-mix(in srgb, var(--holiday-mint) 14%, var(--tg-surface));
+  color: var(--holiday-mint);
+}
+
+.shell.dark-theme .interests-page .primary-action {
+  border-color: var(--tg-button) !important;
+  background: var(--tg-button) !important;
+  color: var(--tg-button-text) !important;
+}
+
+.shell.dark-theme .interests-page .primary-action:hover {
+  background: color-mix(in srgb, var(--tg-button) 86%, white) !important;
+}

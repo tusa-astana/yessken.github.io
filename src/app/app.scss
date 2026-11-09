@@ -63,21 +63,21 @@ button, a { -webkit-tap-highlight-color: transparent; }
 }
 
 .shell.dark-theme {
-  --tg-bg: #111d18;
-  --tg-text: #f4f0e5;
-  --tg-button: #a8d7b4;
-  --tg-button-text: #142017;
-  --tg-surface: rgba(18, 25, 34, .78);
-  --tg-glow: 0 8px 22px rgba(168, 215, 180, .15);
-  --tg-line: #35463c;
-  --tg-muted: #b8c2b9;
-  --holiday-red: #ff8e83;
-  --holiday-gold: #efc96a;
-  --holiday-cyan: #53dcff;
-  --holiday-violet: #c17bff;
-  --holiday-mint: #5af2ae;
+  --tg-bg: #090d16;
+  --tg-text: #f4f3ef;
+  --tg-button: #8fe1c0;
+  --tg-button-text: #10231d;
+  --tg-surface: rgba(17, 26, 39, .84);
+  --tg-glow: 0 8px 24px rgba(96, 224, 184, .17);
+  --tg-line: rgba(190, 211, 232, .18);
+  --tg-muted: #b3bfd0;
+  --holiday-red: #ff7888;
+  --holiday-gold: #ffd17a;
+  --holiday-cyan: #70dcff;
+  --holiday-violet: #b995ff;
+  --holiday-mint: #58e3b1;
   color-scheme: dark;
   background: transparent;
   color: var(--tg-text);
 }
-.shell.dark-theme .topbar { background: color-mix(in srgb, var(--tg-bg) 78%, transparent); }
+.shell.dark-theme .topbar { background: color-mix(in srgb, var(--tg-bg) 82%, transparent); }
