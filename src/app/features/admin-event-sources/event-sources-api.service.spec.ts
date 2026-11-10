@@ -77,4 +77,22 @@ describe('EventSourcesApiService', () => {
     request.flush({ id: 'pending-event-1', status: 'pending' }, { status: 201, statusText: 'Created' });
     await expect(converting).resolves.toBe('pending-event-1');
   });
+
+  it('submits a reviewed batch in one protected request and returns pending draft ids', async () => {
+    const body = {
+      sourcePermissionConfirmed: true,
+      items: [{
+        candidateId: 'candidate-1', title: 'Astana equestrian cup', date: '2026-11-18', time: '10:00',
+        place: 'Argymak', category: 'соревнование', description: '',
+      }],
+    };
+    const conversion = service.convertBatch(body);
+    const request = http.expectOne(`${apiBase}/api/admin/event-sources/convert-batch`);
+    expect(request.request.method).toBe('POST');
+    expect(request.request.headers.get('X-Telegram-Init-Data')).toBe('verified-admin-init-data');
+    expect(request.request.body).toEqual(body);
+    const result = [{ candidateId: 'candidate-1', eventId: 'pending-event-2', status: 'pending' as const }];
+    request.flush(result);
+    await expect(conversion).resolves.toEqual(result);
+  });
 });

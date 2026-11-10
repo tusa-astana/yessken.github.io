@@ -53,4 +53,38 @@ describe('AdminEventSourcesComponent', () => {
     expect(fixture.componentInstance.candidates()?.[0]).toMatchObject({ status: 'converted', eventId: 'pending-event-1' });
     fixture.destroy();
   });
+
+  it('creates a selected batch as pending drafts only after global review and required details', async () => {
+    const convertBatch = vi.fn(async () => [{ candidateId: candidate.id, eventId: 'pending-event-2', status: 'pending' as const }]);
+    await TestBed.configureTestingModule({
+      imports: [AdminEventSourcesComponent],
+      providers: [
+        provideRouter([]),
+        { provide: EventSourcesApiService, useValue: { loadPending: vi.fn(async () => [candidate]), convertBatch, convert: vi.fn(), dismiss: vi.fn() } },
+      ],
+    }).compileComponents();
+    const fixture = TestBed.createComponent(AdminEventSourcesComponent);
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const component = fixture.componentInstance;
+    component.startBatch();
+    expect(component.selectedBatchCount()).toBe(1);
+    expect(component.batchRows()[0]).toMatchObject({ title: candidate.title, date: candidate.eventDate, place: '' });
+
+    await component.convertBatch();
+    expect(convertBatch).not.toHaveBeenCalled();
+    expect(component.batchError()).toContain('Подтверди проверку');
+
+    component.batchPermissionConfirmed.set(true);
+    component.updateBatchField(candidate.id, 'place', { target: { value: 'Argymak Equestrian Complex' } } as unknown as Event);
+    await component.convertBatch();
+    expect(convertBatch).toHaveBeenCalledWith(expect.objectContaining({
+      sourcePermissionConfirmed: true,
+      items: [expect.objectContaining({ candidateId: candidate.id, date: candidate.eventDate, place: 'Argymak Equestrian Complex' })],
+    }));
+    expect(component.candidates()?.[0]).toMatchObject({ status: 'converted', eventId: 'pending-event-2' });
+    expect(component.announcement()).toContain('не опубликованы');
+    fixture.destroy();
+  });
 });

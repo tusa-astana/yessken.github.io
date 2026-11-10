@@ -31,6 +31,27 @@ export interface ConvertEventSourceCandidateRequest {
   sourcePermissionConfirmed: boolean;
 }
 
+export interface ConvertEventSourceBatchItemRequest {
+  candidateId: string;
+  title: string;
+  date: string;
+  time: string;
+  place: string;
+  category: string;
+  description: string;
+}
+
+export interface ConvertEventSourceBatchRequest {
+  sourcePermissionConfirmed: boolean;
+  items: ConvertEventSourceBatchItemRequest[];
+}
+
+export interface ConvertedEventSourceBatchItem {
+  candidateId: string;
+  eventId: string;
+  status: 'pending';
+}
+
 @Injectable({ providedIn: 'root' })
 export class EventSourcesApiService {
   private readonly http = inject(HttpClient);
@@ -62,6 +83,17 @@ export class EventSourcesApiService {
         `${this.base}/api/admin/event-sources/${encodeURIComponent(id)}/convert`, request, { headers: this.headers() },
       ));
       return response.id;
+    } catch {
+      return null;
+    }
+  }
+
+  async convertBatch(request: ConvertEventSourceBatchRequest): Promise<ConvertedEventSourceBatchItem[] | null> {
+    if (!request.items.length) return null;
+    try {
+      return await firstValueFrom(this.http.post<ConvertedEventSourceBatchItem[]>(
+        `${this.base}/api/admin/event-sources/convert-batch`, request, { headers: this.headers() },
+      ));
     } catch {
       return null;
     }
