@@ -51,6 +51,7 @@ import { InterestsApiService } from './interests-api.service';
       @if (error()) { <p class="error-text" role="alert">{{ error() }}</p> }
       @if (announcement()) { <p class="success-text" role="status">{{ announcement() }}</p> }
       <a class="back-link" routerLink="/admin/event-review">← К модерации событий</a>
+      <a class="back-link" routerLink="/admin/interest-communities">Модерация сообществ →</a>
     </div>
   `,
   styles: [`

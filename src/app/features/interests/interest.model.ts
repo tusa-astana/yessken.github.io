@@ -6,7 +6,26 @@ export interface InterestGroup {
   memberCount: number;
   isMember: boolean;
   notifyNewGatherings: boolean;
+  communities?: InterestCommunity[];
   gatherings: InterestGathering[];
+}
+
+export interface InterestCommunity {
+  id: string;
+  title: string;
+  description: string;
+  platform: 'telegram' | 'reddit';
+  url: string;
+}
+
+export interface InterestCommunityReview {
+  id: string;
+  title: string;
+  description: string;
+  platform: 'telegram' | 'reddit';
+  url: string;
+  createdAt: string;
+  interests: string[];
 }
 
 export interface InterestGathering {

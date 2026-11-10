@@ -24,7 +24,7 @@ export class App implements OnInit {
   protected readonly i18n = inject(I18nService);
   protected readonly theme = inject(ThemeService);
   protected readonly breadcrumbs = signal<Breadcrumb[]>([]);
-  protected readonly activeTab = signal<'events' | 'calendar' | 'meetups' | 'profile' | null>('meetups');
+  protected readonly activeTab = signal<'interests' | 'events' | 'calendar' | 'meetups' | 'profile' | null>('interests');
   protected readonly garlandBulbs = Array.from({ length: 14 }, (_, index) => index);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
@@ -84,20 +84,21 @@ export class App implements OnInit {
 
   private updateNavigationChrome(url: string): void {
     this.breadcrumbs.set(this.createBreadcrumbs(url));
-    const section = url.split('/').filter(Boolean)[0] ?? 'meetups';
+    const section = url.split('/').filter(Boolean)[0] ?? 'interests';
     const activeTab = section === 'calendar' ? 'calendar'
-      : section === 'meetups' || section === 'interests' || section === 'tg-groups' ? 'meetups'
+      : section === 'interests' ? 'interests'
+      : section === 'meetups' || section === 'tg-groups' ? 'meetups'
       : ['profile', 'my-tickets', 'organizer', 'create-event', 'admin'].includes(section) ? 'profile'
       : section === 'terms' ? null
       : 'events';
     this.activeTab.set(activeTab);
-    const isPrimaryRoute = url === '/' || (['events', 'calendar', 'meetups', 'profile'].includes(section) && url.split('/').filter(Boolean).length === 1);
+    const isPrimaryRoute = url === '/' || (['interests', 'events', 'meetups', 'profile'].includes(section) && url.split('/').filter(Boolean).length === 1);
     this.telegram.setBackButtonVisible(!isPrimaryRoute);
   }
 
   private createBreadcrumbs(url: string): Breadcrumb[] {
     const segments = url.split('/').filter(Boolean);
-    if (segments.length === 1 && ['events', 'meetups', 'calendar', 'profile'].includes(segments[0])) return [];
+    if (segments.length === 1 && ['events', 'meetups', 'interests', 'calendar', 'profile'].includes(segments[0])) return [];
     if (segments[0] === 'admin' && segments[1] === 'event-review')
       return [{ key: 'breadcrumb.orders', url: '/admin' }, { key: 'breadcrumb.review' }];
     if (segments[0] === 'admin' && segments[1] === 'bot-messages')
@@ -136,7 +137,7 @@ export class App implements OnInit {
     if (segments[0] === 'calendar' || segments[0] === 'city-map') return '/events';
     if (segments[0] === 'events' && segments.length >= 3 && segments[2] === 'buy') return `/events/${segments[1]}`;
     if (segments[0] === 'events' && segments.length >= 2) return '/events';
-    if (segments.length > 0 && url !== '/' && url !== '/meetups') return '/events';
+    if (segments.length > 0 && url !== '/' && url !== '/meetups' && url !== '/interests') return '/events';
     return null;
   }
 

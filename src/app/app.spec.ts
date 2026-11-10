@@ -13,7 +13,8 @@ describe('App', () => {
     await TestBed.configureTestingModule({
       imports: [App],
       providers: [provideRouter([
-        { path: '', pathMatch: 'full', redirectTo: 'meetups' },
+        { path: '', pathMatch: 'full', redirectTo: 'interests' },
+        { path: 'interests', component: RouteStubComponent },
         { path: 'meetups', component: RouteStubComponent },
         { path: 'events', component: RouteStubComponent },
         { path: 'calendar', component: RouteStubComponent },
@@ -54,16 +55,19 @@ describe('App', () => {
     expect(routeFromStartParam('gathering_unsafe%2Fid')).toBeNull();
   });
 
-  it('lands visitors in Together as the primary people-first experience', async () => {
+  it('lands visitors in Interests as the primary discovery experience and keeps Together one tap away', async () => {
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
     await TestBed.inject(Router).navigateByUrl('/');
     fixture.detectChanges();
 
-    expect(TestBed.inject(Router).url).toBe('/meetups');
+    expect(TestBed.inject(Router).url).toBe('/interests');
+    const interestsLink = (fixture.nativeElement as HTMLElement).querySelector('.bottom-nav a[href="/interests"]');
+    expect(interestsLink?.classList.contains('active')).toBe(true);
+    expect(interestsLink?.getAttribute('aria-current')).toBe('page');
     const togetherLink = (fixture.nativeElement as HTMLElement).querySelector('.bottom-nav a[href="/meetups"]');
-    expect(togetherLink?.classList.contains('active')).toBe(true);
-    expect(togetherLink?.getAttribute('aria-current')).toBe('page');
+    expect(togetherLink?.textContent).toContain('Вместе');
+    expect(togetherLink?.getAttribute('href')).toBe('/meetups');
     fixture.destroy();
   });
 

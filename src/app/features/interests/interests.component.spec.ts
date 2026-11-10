@@ -16,6 +16,7 @@ const group: InterestGroup = {
   memberCount: 2,
   isMember: false,
   notifyNewGatherings: false,
+  communities: [],
   gatherings: [{
     id: gatheringId,
     interestId: 'board-games',
@@ -36,6 +37,27 @@ describe('InterestsComponent gathering links', () => {
   afterEach(() => {
     vi.restoreAllMocks();
     TestBed.resetTestingModule();
+  });
+
+  it('keeps the Together venue and RSVP experience directly accessible from Interests', async () => {
+    await TestBed.configureTestingModule({
+      imports: [InterestsComponent],
+      providers: [
+        provideRouter([]),
+        { provide: ActivatedRoute, useValue: { snapshot: { queryParamMap: convertToParamMap({}) } } },
+        { provide: TelegramService, useValue: { isInTelegram: false, startParam: '', miniAppLink: vi.fn(), openTelegramLink: vi.fn() } },
+        { provide: AnalyticsService, useValue: { track: vi.fn() } },
+        { provide: InterestsApiService, useValue: { load: vi.fn(async () => [group]) } },
+      ],
+    }).compileComponents();
+    const fixture = TestBed.createComponent(InterestsComponent);
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const togetherLink = (fixture.nativeElement as HTMLElement).querySelector<HTMLAnchorElement>('.hero a[routerLink="/meetups"]');
+    expect(togetherLink?.getAttribute('href')).toBe('/meetups');
+    expect(togetherLink?.textContent).toContain('Вместе · Куда идём?');
+    fixture.destroy();
   });
 
   it('highlights and scrolls to the exact gathering from a validated link', async () => {
@@ -198,6 +220,71 @@ describe('InterestsComponent gathering links', () => {
 
     expect(setNotifications).toHaveBeenCalledWith('board-games', true);
     expect(fixture.componentInstance.announcement()).toContain('включены');
+    fixture.destroy();
+  });
+
+  it('displays an approved Reddit community in its related interest group', async () => {
+    const redditCommunity = {
+      id: 'community-1',
+      title: 'Astana community',
+      description: 'Обсуждения города',
+      platform: 'reddit' as const,
+      url: 'https://www.reddit.com/r/Astana',
+    };
+    await TestBed.configureTestingModule({
+      imports: [InterestsComponent],
+      providers: [
+        provideRouter([]),
+        { provide: ActivatedRoute, useValue: { snapshot: { queryParamMap: convertToParamMap({}) } } },
+        { provide: TelegramService, useValue: { isInTelegram: false, startParam: '', miniAppLink: vi.fn(), openTelegramLink: vi.fn() } },
+        { provide: AnalyticsService, useValue: { track: vi.fn() } },
+        { provide: InterestsApiService, useValue: { load: vi.fn(async () => [{ ...group, communities: [redditCommunity] }]) } },
+      ],
+    }).compileComponents();
+    const fixture = TestBed.createComponent(InterestsComponent);
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const link = (fixture.nativeElement as HTMLElement).querySelector<HTMLAnchorElement>('.community-link');
+    expect(link?.href).toBe(redditCommunity.url);
+    expect(link?.textContent).toContain('Reddit');
+    expect(link?.textContent).toContain(redditCommunity.title);
+    expect(link?.rel).toContain('noopener');
+    fixture.destroy();
+  });
+
+  it('submits a community with all selected interest IDs and explains pending moderation', async () => {
+    const submitCommunity = vi.fn(async () => true);
+    const secondGroup: InterestGroup = { ...group, id: 'running', name: 'Бег и прогулки' };
+    await TestBed.configureTestingModule({
+      imports: [InterestsComponent],
+      providers: [
+        provideRouter([]),
+        { provide: ActivatedRoute, useValue: { snapshot: { queryParamMap: convertToParamMap({}) } } },
+        { provide: TelegramService, useValue: { isInTelegram: true, startParam: '', miniAppLink: vi.fn(), openTelegramLink: vi.fn() } },
+        { provide: AnalyticsService, useValue: { track: vi.fn() } },
+        { provide: InterestsApiService, useValue: { load: vi.fn(async () => [group, secondGroup]), submitCommunity } },
+      ],
+    }).compileComponents();
+    const fixture = TestBed.createComponent(InterestsComponent);
+    const component = fixture.componentInstance;
+    component.communityTitle.set('Группа настольных игр');
+    component.communityDescription.set('Встречи и обсуждения');
+    component.communityPlatform.set('telegram');
+    component.communityUrl.set('https://t.me/boardgames_astana');
+    component.toggleCommunityInterest('board-games', true);
+    component.toggleCommunityInterest('running', true);
+
+    await component.submitCommunity();
+
+    expect(submitCommunity).toHaveBeenCalledWith({
+      title: 'Группа настольных игр',
+      description: 'Встречи и обсуждения',
+      platform: 'telegram',
+      url: 'https://t.me/boardgames_astana',
+      interestIds: ['board-games', 'running'],
+    });
+    expect(component.announcement()).toContain('на проверку');
     fixture.destroy();
   });
 

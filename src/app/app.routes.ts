@@ -1,11 +1,12 @@
 import { Routes } from '@angular/router';
 
 export const routes: Routes = [
-  { path: '', pathMatch: 'full', redirectTo: 'meetups' },
+  { path: '', pathMatch: 'full', redirectTo: 'interests' },
   { path: 'calendar', loadComponent: () => import('./features/start/start.component').then((m) => m.StartComponent) },
   { path: 'meetups', loadComponent: () => import('./features/meetups/meetups.component').then((m) => m.MeetupsComponent) },
   { path: 'interests', loadComponent: () => import('./features/interests/interests.component').then((m) => m.InterestsComponent) },
   { path: 'admin/interest-reports', loadComponent: () => import('./features/interests/admin-interest-reports.component').then((m) => m.AdminInterestReportsComponent) },
+  { path: 'admin/interest-communities', loadComponent: () => import('./features/interests/admin-interest-communities.component').then((m) => m.AdminInterestCommunitiesComponent) },
   { path: 'city-map', loadComponent: () => import('./features/map/map.component').then((m) => m.MapComponent) },
   { path: 'map', redirectTo: 'city-map' },
   { path: 'events', loadComponent: () => import('./features/events-list/events-list.component').then((m) => m.EventsListComponent) },
@@ -20,6 +21,7 @@ export const routes: Routes = [
   { path: 'admin/analytics', loadComponent: () => import('./features/admin-analytics/admin-analytics.component').then((m) => m.AdminAnalyticsComponent) },
   { path: 'admin/bot-messages', loadComponent: () => import('./features/admin-bot-logs/admin-bot-logs.component').then((m) => m.AdminBotLogsComponent) },
   { path: 'admin/event-review', loadComponent: () => import('./features/admin-event-review/admin-event-review.component').then((m) => m.AdminEventReviewComponent) },
+  { path: 'admin/event-sources', loadComponent: () => import('./features/admin-event-sources/admin-event-sources.component').then((m) => m.AdminEventSourcesComponent) },
   { path: 'tg-groups', loadComponent: () => import('./features/tg-groups/tg-groups.component').then((m) => m.TgGroupsComponent) },
   { path: 'create-event', loadComponent: () => import('./features/create-event/create-event.component').then((m) => m.CreateEventComponent) },
   { path: 'profile', loadComponent: () => import('./features/profile/profile.component').then((m) => m.ProfileComponent) },

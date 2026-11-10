@@ -9,6 +9,9 @@ export interface EventItem {
   lat: number;
   lng: number;
   category: string;
+  hobbyId?: string;
+  sourceUrl?: string;
+  sourceVerifiedAtUtc?: string | null;
   price: number | null;
   imageUrl: string;
   isPublicEvent?: boolean;

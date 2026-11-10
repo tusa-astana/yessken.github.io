@@ -16,7 +16,7 @@ import { InterestsApiService } from './interests-api.service';
         <p class="eyebrow">TUSA · СООБЩЕСТВА</p>
         <h1>Тусы по интересам</h1>
         <p>Находи людей с общими увлечениями и собирайся вместе в реальных местах. Здесь нет чатов — только интересы и планы на встречи.</p>
-        <a routerLink="/meetups">← К местам и встречам</a>
+        <a routerLink="/meetups">Вместе · Куда идём? →</a>
       </header>
 
       <section class="safety-note" aria-label="Безопасность и приватность">
@@ -56,6 +56,18 @@ import { InterestsApiService } from './interests-api.service';
                 <div class="group-title-row"><h2>{{ group.name }}</h2><span class="member-count">{{ group.memberCount }} участников</span></div>
                 <p>{{ group.description }}</p>
               </div>
+              @if (group.communities?.length) {
+                <section class="community-list" [attr.aria-label]="'Сообщества по интересу: ' + group.name">
+                  <strong>Сообщества</strong>
+                  @for (community of group.communities; track community.id) {
+                    <a class="community-link" [href]="community.url" target="_blank" rel="noopener noreferrer">
+                      <span class="community-platform">{{ community.platform === 'reddit' ? 'Reddit' : 'Telegram' }}</span>
+                      <span class="community-copy"><b>{{ community.title }}</b>@if (community.description) { <small>{{ community.description }}</small> }</span>
+                      <span aria-hidden="true">↗</span>
+                    </a>
+                  }
+                </section>
+              }
               <div class="group-actions">
                 @if (group.isMember) {
                   <button class="primary-action" type="button" [disabled]="busyId() !== null" (click)="leave(group)">{{ busyId() === group.id ? 'Сохраняем…' : 'Ты в группе · выйти' }}</button>
@@ -139,6 +151,28 @@ import { InterestsApiService } from './interests-api.service';
 
       @if (announcement()) { <p class="announcement" role="status">{{ announcement() }}</p> }
       @if (actionError()) { <p class="action-error" role="alert">{{ actionError() }}</p> }
+      <section class="community-submit" aria-labelledby="community-submit-heading">
+        @if (createCommunityForm()) {
+          <form class="gathering-form community-form" (submit)="$event.preventDefault(); submitCommunity()">
+            <div class="form-heading"><strong id="community-submit-heading">Добавить сообщество</strong><button type="button" aria-label="Закрыть форму" (click)="createCommunityForm.set(false)">×</button></div>
+            <p>Подойдут публичные Telegram- и Reddit-сообщества. Ссылка появится в TUSA только после проверки модератором. TUSA не подтверждает владельцев, расписание или содержание внешних групп.</p>
+            <label>Название сообщества<input required minlength="3" maxlength="100" [value]="communityTitle()" (input)="communityTitle.set($any($event.target).value)" /></label>
+            <label>Ссылка на сообщество<input required type="url" maxlength="300" [value]="communityUrl()" (input)="communityUrl.set($any($event.target).value)" placeholder="https://www.reddit.com/r/... или https://t.me/..." /></label>
+            <label>Платформа<select [value]="communityPlatform()" (change)="communityPlatform.set($any($event.target).value)"><option value="telegram">Telegram</option><option value="reddit">Reddit</option></select></label>
+            <label>Короткое описание <span>Необязательно, до 300 символов</span><textarea maxlength="300" rows="2" [value]="communityDescription()" (input)="communityDescription.set($any($event.target).value)"></textarea></label>
+            <fieldset><legend>К каким интересам относится? Выбери от одного до пяти</legend>
+              @for (group of groups(); track group.id) {
+                <label class="interest-choice"><input type="checkbox" [checked]="communityInterestIds().has(group.id)" (change)="toggleCommunityInterest(group.id, $any($event.target).checked)" />{{ group.name }}</label>
+              }
+            </fieldset>
+            @if (!telegram.isInTelegram) { <small class="community-auth-hint">Отправить предложение можно из Telegram, где проверяется твой аккаунт.</small> }
+            @if (communitySubmitError()) { <p class="action-error" role="alert">{{ communitySubmitError() }}</p> }
+            <button class="primary-action" type="submit" [disabled]="!telegram.isInTelegram || communitySubmitting() || communityInterestIds().size === 0">{{ communitySubmitting() ? 'Отправляем…' : 'Отправить на проверку' }}</button>
+          </form>
+        } @else {
+          <button class="create-community-button" type="button" (click)="startCommunitySubmission()">＋ Предложить своё сообщество</button>
+        }
+      </section>
     </div>
 
     @if (reportTarget(); as target) {
@@ -276,6 +310,14 @@ export class InterestsComponent implements OnInit, OnDestroy {
   readonly draftPlace = signal('');
   readonly draftDetails = signal('');
   readonly draftIsOpen = signal(true);
+  readonly createCommunityForm = signal(false);
+  readonly communityTitle = signal('');
+  readonly communityDescription = signal('');
+  readonly communityPlatform = signal<'telegram' | 'reddit'>('telegram');
+  readonly communityUrl = signal('');
+  readonly communityInterestIds = signal<ReadonlySet<string>>(new Set());
+  readonly communitySubmitting = signal(false);
+  readonly communitySubmitError = signal('');
   readonly newGatherings = computed(() => this.groups().flatMap((group) => group.isMember
     ? group.gatherings.filter((gathering) => gathering.isNew && !gathering.isHost).map((gathering) => ({ group, gathering }))
     : []).slice(0, 6));
@@ -459,6 +501,45 @@ export class InterestsComponent implements OnInit, OnDestroy {
     this.draftDetails.set('');
     this.draftIsOpen.set(true);
     this.actionError.set('');
+  }
+
+  startCommunitySubmission(): void {
+    this.createCommunityForm.set(true);
+    this.communityTitle.set('');
+    this.communityDescription.set('');
+    this.communityPlatform.set('telegram');
+    this.communityUrl.set('');
+    this.communityInterestIds.set(new Set());
+    this.communitySubmitError.set('');
+  }
+
+  toggleCommunityInterest(interestId: string, selected: boolean): void {
+    this.communityInterestIds.update((ids) => {
+      const next = new Set(ids);
+      if (selected) next.add(interestId);
+      else next.delete(interestId);
+      return next;
+    });
+  }
+
+  async submitCommunity(): Promise<void> {
+    if (!this.telegram.isInTelegram) return;
+    this.communitySubmitting.set(true);
+    this.communitySubmitError.set('');
+    const saved = await this.api.submitCommunity({
+      title: this.communityTitle(),
+      description: this.communityDescription(),
+      platform: this.communityPlatform(),
+      url: this.communityUrl(),
+      interestIds: [...this.communityInterestIds()],
+    });
+    this.communitySubmitting.set(false);
+    if (!saved) {
+      this.communitySubmitError.set('Не удалось отправить. Проверь ссылку и подключение; возможно, ссылка уже добавлена.');
+      return;
+    }
+    this.createCommunityForm.set(false);
+    this.announcement.set('Сообщество отправлено на проверку. После одобрения оно появится во всех выбранных интересах.');
   }
 
   async submitGathering(group: InterestGroup): Promise<void> {

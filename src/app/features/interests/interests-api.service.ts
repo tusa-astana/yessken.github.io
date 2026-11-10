@@ -3,7 +3,7 @@ import { Injectable, inject } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { TelegramService } from '../../core/services/telegram.service';
-import type { InterestGathering, InterestGatheringPreview, InterestGroup, InterestMember, InterestReport, InterestReportReason } from './interest.model';
+import type { InterestCommunityReview, InterestGathering, InterestGatheringPreview, InterestGroup, InterestMember, InterestReport, InterestReportReason } from './interest.model';
 
 @Injectable({ providedIn: 'root' })
 export class InterestsApiService {
@@ -108,6 +108,16 @@ export class InterestsApiService {
     }
   }
 
+  async submitCommunity(request: { title: string; description: string; platform: 'telegram' | 'reddit'; url: string; interestIds: string[] }): Promise<boolean> {
+    if (!this.telegram.initData) return false;
+    try {
+      await firstValueFrom(this.http.post<void>(`${this.base}/api/interests/communities`, request, { headers: this.headers() }));
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
   async joinGathering(interestId: string, gatheringId: string): Promise<boolean> {
     if (!this.telegram.initData) return false;
     try {
@@ -149,6 +159,23 @@ export class InterestsApiService {
   async reviewReport(reportId: string, action: 'dismiss' | 'suspend'): Promise<boolean> {
     try {
       await firstValueFrom(this.http.post<void>(`${this.base}/api/admin/interest-reports/${encodeURIComponent(reportId)}/review`, { action }, { headers: this.headers() }));
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  async loadPendingCommunities(): Promise<InterestCommunityReview[] | null> {
+    try {
+      return await firstValueFrom(this.http.get<InterestCommunityReview[]>(`${this.base}/api/admin/interest-communities`, { headers: this.headers() }));
+    } catch {
+      return null;
+    }
+  }
+
+  async reviewCommunity(communityId: string, action: 'approve' | 'reject'): Promise<boolean> {
+    try {
+      await firstValueFrom(this.http.post<void>(`${this.base}/api/admin/interest-communities/${encodeURIComponent(communityId)}/review`, { action }, { headers: this.headers() }));
       return true;
     } catch {
       return false;

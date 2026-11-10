@@ -48,14 +48,16 @@ describe('AdminAnalyticsComponent', () => {
     expect(element.textContent).toContain('не число вступивших участников');
   });
 
-  it('offers statistics and task-board tabs inside pilot analytics', () => {
+  it('offers statistics, task-board, and event-source tabs inside pilot analytics', () => {
     const tabs = (fixture.nativeElement as HTMLElement).querySelectorAll<HTMLAnchorElement>('.analytics-tabs a');
 
-    expect(tabs).toHaveLength(2);
+    expect(tabs).toHaveLength(3);
     expect(tabs[0].getAttribute('href')).toBe('/admin/analytics');
     expect(tabs[0].textContent).toContain('Статистика');
     expect(tabs[1].getAttribute('href')).toBe('/admin/analytics/board');
     expect(tabs[1].textContent).toContain('Доска задач');
+    expect(tabs[2].getAttribute('href')).toBe('/admin/event-sources');
+    expect(tabs[2].textContent).toContain('Источники событий');
   });
 
   it('offers a secure Telegram handoff when opened without admin web-app credentials', () => {

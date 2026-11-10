@@ -34,8 +34,36 @@ describe('InterestsApiService', () => {
     const request = http.expectOne(`${apiBase}/api/interests`);
     expect(request.request.method).toBe('GET');
     expect(request.request.headers.get('X-Telegram-Init-Data')).toBe('verified-init-data');
-    request.flush([{ id: 'board-games', name: 'Настольные игры', description: 'Игры', emoji: '♟', memberCount: 2, isMember: true, notifyNewGatherings: false, gatherings: [] }]);
-    await expect(loading).resolves.toEqual([{ id: 'board-games', name: 'Настольные игры', description: 'Игры', emoji: '♟', memberCount: 2, isMember: true, notifyNewGatherings: false, gatherings: [] }]);
+    request.flush([{ id: 'board-games', name: 'Настольные игры', description: 'Игры', emoji: '♟', memberCount: 2, isMember: true, notifyNewGatherings: false, communities: [], gatherings: [] }]);
+    await expect(loading).resolves.toEqual([{ id: 'board-games', name: 'Настольные игры', description: 'Игры', emoji: '♟', memberCount: 2, isMember: true, notifyNewGatherings: false, communities: [], gatherings: [] }]);
+  });
+
+  it('submits a community with its selected interests using the verified Telegram identity', async () => {
+    const body = { title: 'Astana Reddit', description: '', platform: 'reddit' as const, url: 'https://www.reddit.com/r/Astana', interestIds: ['books', 'coffee'] };
+    const submission = service.submitCommunity(body);
+    const request = http.expectOne(`${apiBase}/api/interests/communities`);
+    expect(request.request.method).toBe('POST');
+    expect(request.request.body).toEqual(body);
+    expect(request.request.headers.get('X-Telegram-Init-Data')).toBe('verified-init-data');
+    request.flush({ id: 'community-id', status: 'pending' }, { status: 202, statusText: 'Accepted' });
+    await expect(submission).resolves.toBe(true);
+  });
+
+  it('loads and reviews pending communities through admin endpoints', async () => {
+    const loading = service.loadPendingCommunities();
+    const request = http.expectOne(`${apiBase}/api/admin/interest-communities`);
+    expect(request.request.method).toBe('GET');
+    expect(request.request.headers.get('X-Telegram-Init-Data')).toBe('verified-init-data');
+    const pending = [{ id: 'community-id', title: 'Astana Reddit', description: '', platform: 'reddit', url: 'https://www.reddit.com/r/Astana', createdAt: '2026-11-10T00:00:00Z', interests: ['Книги'] }];
+    request.flush(pending);
+    await expect(loading).resolves.toEqual(pending);
+
+    const review = service.reviewCommunity('community-id', 'approve');
+    const reviewRequest = http.expectOne(`${apiBase}/api/admin/interest-communities/community-id/review`);
+    expect(reviewRequest.request.method).toBe('POST');
+    expect(reviewRequest.request.body).toEqual({ action: 'approve' });
+    reviewRequest.flush(null);
+    await expect(review).resolves.toBe(true);
   });
 
   it('loads the upcoming public plan feed without private identity headers', async () => {

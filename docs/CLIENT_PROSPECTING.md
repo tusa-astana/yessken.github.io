@@ -2,17 +2,19 @@
 
 ## Objective
 
-Find the first 10 organizers with real events and an audience who value Telegram discovery and measurable RSVP interest. TUSA does not sell offline tickets or take admission payments.
+Build a broad, source-checked directory of Astana hobby organizers, clubs and recurring event providers across multiple categories. TUSA can link visitors to a real current plan and provide free RSVP for community meetups; it does not sell offline tickets or take admission payments. The categories are a portfolio, not a preselected winning niche.
 
 ## Best client profile
 
-Prioritize organizers who:
+Prioritize public-facing organizers and clubs who:
 
 - run events at least once per month;
 - promote through Telegram or Instagram;
 - sell paid admission or paid reservations;
 - have a clear venue and date;
 - can make a decision without a long procurement process.
+
+Also include free or drop-in activities and publicly listed regular schedules. Do not rank categories by assumed popularity; record the source and date checked, whether an official date is published, and whether the organizer permits a TUSA card.
 
 ## Prospect segments
 
@@ -43,15 +45,25 @@ Offer: clean event information, Telegram sharing, and RSVP/interest measurement.
 
 Offer: recurring event calendar and an in-Telegram discovery channel.
 
+### Priority 4: hobbies, sports and outdoor activities
+
+- hobby clubs and workshops
+- padel and other court sports
+- equestrian clubs and guided rides
+- running/walking communities and outdoor/seasonal plans
+
+Offer: a TUSA hobby-category card linking to the organizer's current public schedule, with a separate free community RSVP only when there is a specific open plan. TUSA does not reserve a court, lesson, horse, seat, or admission.
+
 ## Where to search
 
-Use public sources and record only business contact details:
+Use official/public sources and record only necessary business contact details and source metadata. A search result is a lead, not permission to republish or a verified schedule:
 
 - Telegram channels for Astana events, nightlife, music, comedy, and venues
 - Instagram event pages and venue profiles
 - 2GIS and Google Maps venue listings
 - event posters showing organizer or booking contacts
 - public event calendars and community pages
+- official club/activity schedules and venue calendars
 
 Search phrases:
 
@@ -137,7 +149,9 @@ Start with recurring organizers because one successful pilot can become multiple
 
 ### First message
 
-“Здравствуйте! Мы запускаем TUSA для событий Астаны: пользователи находят событие в Telegram, смотрят детали и отмечают интерес. TUSA не продаёт офлайн-билеты и не принимает оплату за вход. Хотим бесплатно разместить одно ваше ближайшее событие и показать охват/RSVP. Куда лучше отправить детали?”
+“Здравствуйте! Я [имя], пишу от команды TUSA — Telegram-сервиса для поиска событий, занятий и клубов по хобби в Астане. Нашли вашу публичную страницу/расписание: [ссылка]. Проверяем актуальность [конкретная дата/активность]. Разрешаете ли вы разместить короткую карточку со ссылкой на ваш официальный источник? Публикуем только после вашего подтверждения. TUSA не продаёт офлайн-билеты, не бронирует места и не принимает оплату за вход. Если неактуально или не подходит — никаких действий не нужно.”
+
+Use the same explicit TUSA introduction as the first sentence in WhatsApp, Telegram or Instagram. Verify the business channel before sending; personalize with one concrete public source. Send manually after review, never as bulk automated outreach. If no reply, one respectful follow-up at most; honor requests not to contact again. Instagram DM may not support reliable prefilled text, so copy the reviewed text and open the official profile rather than trying to automate the send.
 
 ### Follow-up after two days
 

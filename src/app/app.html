@@ -10,11 +10,11 @@
         }
       </div>
     </div>
-    <a routerLink="/events" class="brand" queryParamsHandling="preserve"><strong>TUSA</strong><span>{{ i18n.brandCity() }}</span></a>
+    <a routerLink="/interests" class="brand" queryParamsHandling="preserve"><strong>TUSA</strong><span>{{ i18n.brandCity() }}</span></a>
     <nav class="desktop-nav" [attr.aria-label]="i18n.t('nav.mainAria')">
+      <a routerLink="/interests" [class.active]="activeTab() === 'interests'" [attr.aria-current]="activeTab() === 'interests' ? 'page' : null" queryParamsHandling="preserve">{{ i18n.t('nav.interests') }}</a>
       <a routerLink="/meetups" [class.active]="activeTab() === 'meetups'" [attr.aria-current]="activeTab() === 'meetups' ? 'page' : null" queryParamsHandling="preserve">{{ i18n.t('nav.meetups') }}</a>
       <a routerLink="/events" [class.active]="activeTab() === 'events'" [attr.aria-current]="activeTab() === 'events' ? 'page' : null" queryParamsHandling="preserve">{{ i18n.t('nav.events') }}</a>
-      <a routerLink="/calendar" [class.active]="activeTab() === 'calendar'" [attr.aria-current]="activeTab() === 'calendar' ? 'page' : null" queryParamsHandling="preserve">{{ i18n.t('nav.calendar') }}</a>
       <a routerLink="/profile" [class.active]="activeTab() === 'profile'" [attr.aria-current]="activeTab() === 'profile' ? 'page' : null" queryParamsHandling="preserve">{{ i18n.t('nav.profile') }}</a>
     </nav>
     <div class="topbar-right">
@@ -45,9 +45,9 @@
     <router-outlet />
   </main>
   <nav class="bottom-nav" [attr.aria-label]="i18n.t('nav.mainAria')">
+    <a routerLink="/interests" [class.active]="activeTab() === 'interests'" [attr.aria-current]="activeTab() === 'interests' ? 'page' : null" queryParamsHandling="preserve">{{ i18n.t('nav.interests') }}</a>
     <a routerLink="/meetups" [class.active]="activeTab() === 'meetups'" [attr.aria-current]="activeTab() === 'meetups' ? 'page' : null" queryParamsHandling="preserve">{{ i18n.t('nav.meetups') }}</a>
     <a routerLink="/events" [class.active]="activeTab() === 'events'" [attr.aria-current]="activeTab() === 'events' ? 'page' : null" queryParamsHandling="preserve">{{ i18n.t('nav.events') }}</a>
-    <a routerLink="/calendar" [class.active]="activeTab() === 'calendar'" [attr.aria-current]="activeTab() === 'calendar' ? 'page' : null" queryParamsHandling="preserve">{{ i18n.t('nav.calendar') }}</a>
     <a routerLink="/profile" [class.active]="activeTab() === 'profile'" [attr.aria-current]="activeTab() === 'profile' ? 'page' : null" queryParamsHandling="preserve">{{ i18n.t('nav.profile') }}</a>
   </nav>
 </div>

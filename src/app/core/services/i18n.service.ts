@@ -5,6 +5,7 @@ export type Locale = 'ru' | 'kz' | 'en';
 export type TranslationKey =
   | 'nav.events'
   | 'nav.meetups'
+  | 'nav.interests'
   | 'meetups.peoplePlansKicker'
   | 'meetups.peoplePlansTitle'
   | 'meetups.allInterests'
@@ -219,6 +220,7 @@ const translations: Record<Locale, Record<TranslationKey, string>> = {
   ru: {
     'nav.events': 'События',
     'nav.meetups': 'Вместе',
+    'nav.interests': 'По интересам',
     'meetups.peoplePlansKicker': 'ОТ УЧАСТНИКОВ',
     'meetups.peoplePlansTitle': 'Планы и встречи',
     'meetups.allInterests': 'Все интересы',
@@ -432,6 +434,7 @@ const translations: Record<Locale, Record<TranslationKey, string>> = {
   kz: {
     'nav.events': 'Іс-шақтар',
     'nav.meetups': 'Бірге',
+    'nav.interests': 'Қызығушылықтар',
     'meetups.peoplePlansKicker': 'ҚАТЫСУШЫЛАРДАН',
     'meetups.peoplePlansTitle': 'Жоспарлар мен кездесулер',
     'meetups.allInterests': 'Барлық қызығушылықтар',
@@ -645,6 +648,7 @@ const translations: Record<Locale, Record<TranslationKey, string>> = {
   en: {
     'nav.events': 'Events',
     'nav.meetups': 'Together',
+    'nav.interests': 'Interests',
     'meetups.peoplePlansKicker': 'FROM THE COMMUNITY',
     'meetups.peoplePlansTitle': 'Plans and meetups',
     'meetups.allInterests': 'All interests',

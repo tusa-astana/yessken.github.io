@@ -15,6 +15,19 @@
   .open-gathering-setting strong { color: var(--tg-text); font-size: .67rem; }
   .open-gathering-setting small { color: var(--tg-muted); font-size: .6rem; font-weight: 400; line-height: 1.4; }
   .notification-setting { display: flex !important; grid-column: 1 / -1; align-items: center; gap: .45rem !important; color: var(--tg-muted) !important; font-size: .61rem !important; font-weight: 500 !important; }
+  .community-list { display: grid; grid-column: 1 / -1; gap: .4rem; padding-top: .65rem; border-top: 1px solid var(--tg-line); }
+  .community-link { display: flex; align-items: center; gap: .45rem; padding: .45rem; border: 1px solid var(--tg-line); border-radius: 7px; color: var(--tg-text); text-decoration: none; }
+  .community-platform { flex: 0 0 auto; color: var(--tg-button); font-size: .58rem; font-weight: 800; }
+  .community-copy { display: grid; min-width: 0; gap: .15rem; font-size: .67rem; }
+  .community-copy small { overflow: hidden; color: var(--tg-muted); text-overflow: ellipsis; }
+  .community-submit { margin-top: 1rem; }
+  .create-community-button { min-height: 40px; padding: .5rem .7rem; border: 1px solid var(--tg-line); border-radius: 7px; background: var(--tg-surface); color: var(--tg-button); font: inherit; font-size: .7rem; font-weight: 800; cursor: pointer; }
+  .community-form > p, .community-auth-hint { margin: 0; color: var(--tg-muted); font-size: .65rem; line-height: 1.45; }
+  .community-form select { min-height: 38px; padding: .45rem; border: 1px solid var(--tg-line); border-radius: 6px; background: var(--tg-bg); color: var(--tg-text); }
+  .community-form fieldset { display: flex; flex-wrap: wrap; gap: .4rem .7rem; margin: 0; padding: .55rem; border: 1px solid var(--tg-line); border-radius: 7px; }
+  .community-form legend { padding: 0 .2rem; color: var(--tg-muted); font-size: .63rem; }
+  .community-form .interest-choice { display: inline-flex; align-items: center; gap: .25rem; font-size: .64rem; }
+  .community-form .interest-choice input { width: 16px; height: 16px; accent-color: var(--tg-button); }
 }
 
 .shell::before {

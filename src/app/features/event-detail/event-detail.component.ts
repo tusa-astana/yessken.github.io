@@ -38,6 +38,7 @@ import QRCode from 'qrcode';
             <a class="external-ticket-link" [href]="ev.ticketUrl" target="_blank" rel="noopener noreferrer" (click)="trackTicketSellerClick(ev)">Билеты у {{ ev.ticketSellerName || 'внешнего дистрибьютора' }} ↗</a>
           }
           @if (ev.telegramSourceUrl) { <a class="source-link" [href]="ev.telegramSourceUrl" target="_blank" rel="noopener noreferrer">Пост-источник в Telegram ↗</a> }
+          @if (ev.sourceUrl) { <a class="source-link" [href]="ev.sourceUrl" target="_blank" rel="noopener noreferrer">Официальный источник события ↗</a>@if (ev.sourceVerifiedAtUtc) { <small class="source-checked">Источник проверен {{ ev.sourceVerifiedAtUtc | date:'d MMM y' }}</small> } }
           <p class="description">{{ ev.description }}</p>
           <p class="ticket-policy" role="note">{{ i18n.t('events.details.rsvpPolicy') }}</p>
           <div class="going-row">

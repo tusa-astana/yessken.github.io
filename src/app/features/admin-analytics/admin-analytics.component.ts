@@ -20,6 +20,7 @@ import type { AnalyticsInsightsSummary, DailyFunnelSummary, FunnelSummaryRow, Me
       <nav class="analytics-tabs" [attr.aria-label]="i18n.t('analytics.tabsLabel')">
         <a routerLink="/admin/analytics" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">{{ i18n.t('analytics.statsTab') }}</a>
         <a routerLink="/admin/analytics/board" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">{{ i18n.t('analytics.boardTab') }}</a>
+        <a routerLink="/admin/event-sources" routerLinkActive="active">Источники событий</a>
       </nav>
 
       <section class="panel" aria-live="polite">
