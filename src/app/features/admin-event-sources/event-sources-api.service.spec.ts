@@ -1,6 +1,7 @@
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
+import { vi } from 'vitest';
 import { TelegramService } from '../../core/services/telegram.service';
 import { environment } from '../../../environments/environment';
 import { EventSourcesApiService } from './event-sources-api.service';
@@ -27,6 +28,7 @@ describe('EventSourcesApiService', () => {
   afterEach(() => {
     http.verify();
     TestBed.resetTestingModule();
+    vi.useRealTimers();
   });
 
   it('loads RSS candidates only through the protected admin endpoint', async () => {
@@ -37,11 +39,30 @@ describe('EventSourcesApiService', () => {
     const candidate = {
       id: 'candidate-1', sourceId: 'kazequestrian-rss', sourceName: 'Federation', externalId: 'entry-1',
       sourceUrl: 'https://kazequestrian.kz/en/archives/1203', title: 'Cup in Astana', summary: 'Schedule',
-      hobbyId: 'equestrian', publishedAtUtc: '2026-11-06T09:00:10Z', importedAtUtc: '2026-11-10T00:00:00Z',
+      hobbyId: 'equestrian', eventDate: '2026-11-18', publishedAtUtc: '2026-11-06T09:00:10Z', importedAtUtc: '2026-11-10T00:00:00Z',
       status: 'pending', eventId: null,
     };
     request.flush([candidate]);
     await expect(loading).resolves.toEqual([candidate]);
+  });
+
+  it('retries the protected RSS queue when Render is waking up', async () => {
+    vi.useFakeTimers();
+    const row = {
+      id: 'candidate-1', sourceId: 'kazequestrian-rss', sourceName: 'Federation',
+      externalId: 'entry-1', sourceUrl: 'https://kazequestrian.kz/en/archives/1203', title: 'Cup in Astana',
+      summary: 'Schedule', hobbyId: 'equestrian', publishedAtUtc: '2026-11-06T09:00:10Z',
+      importedAtUtc: '2026-11-10T00:00:00Z', status: 'pending' as const, eventId: null,
+    };
+    const loading = service.loadPending();
+    http.expectOne(`${apiBase}/api/admin/event-sources/pending`).flush([], { status: 503, statusText: 'Service Unavailable' });
+
+    await vi.advanceTimersByTimeAsync(2_000);
+    const retry = http.expectOne(`${apiBase}/api/admin/event-sources/pending`);
+    expect(retry.request.headers.get('X-Telegram-Init-Data')).toBe('verified-admin-init-data');
+    retry.flush([row]);
+
+    await expect(loading).resolves.toEqual([row]);
   });
 
   it('converts an explicitly reviewed source candidate into a pending event submission', async () => {

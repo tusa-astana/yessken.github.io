@@ -1,6 +1,6 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, retry, throwError, timer } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { TelegramService } from '../../core/services/telegram.service';
 
@@ -13,6 +13,7 @@ export interface EventSourceCandidate {
   title: string;
   summary: string;
   hobbyId: string;
+  eventDate: string | null;
   publishedAtUtc: string | null;
   importedAtUtc: string;
   status: 'pending' | 'converted' | 'ignored';
@@ -38,7 +39,9 @@ export class EventSourcesApiService {
 
   async loadPending(): Promise<EventSourceCandidate[] | null> {
     try {
-      return await firstValueFrom(this.http.get<EventSourceCandidate[]>(`${this.base}/api/admin/event-sources/pending`, { headers: this.headers() }));
+      return await firstValueFrom(this.http.get<EventSourceCandidate[]>(`${this.base}/api/admin/event-sources/pending`, { headers: this.headers() }).pipe(
+        retry({ count: 5, delay: (error, retryCount) => this.retryWhileServiceWakes(error, retryCount) }),
+      ));
     } catch {
       return null;
     }
@@ -67,5 +70,12 @@ export class EventSourcesApiService {
   private headers(): HttpHeaders {
     const initData = this.telegram.initData;
     return initData ? new HttpHeaders({ 'X-Telegram-Init-Data': initData }) : new HttpHeaders();
+  }
+
+  private retryWhileServiceWakes(error: unknown, retryCount: number) {
+    if (!(error instanceof HttpErrorResponse) || ![0, 502, 503, 504].includes(error.status)) {
+      return throwError(() => error);
+    }
+    return timer(Math.min(retryCount * 2_000, 10_000));
   }
 }

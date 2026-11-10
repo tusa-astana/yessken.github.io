@@ -1,7 +1,9 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { exhaustMap, filter, from, interval } from 'rxjs';
 import { EventSourceCandidate, EventSourcesApiService } from './event-sources-api.service';
 
 @Component({
@@ -17,7 +19,7 @@ import { EventSourceCandidate, EventSourcesApiService } from './event-sources-ap
         <a routerLink="/admin/event-review">Обычная очередь публикаций →</a>
       </header>
 
-      <div class="toolbar"><strong>{{ candidates()?.length ?? '—' }} на проверке</strong><button type="button" (click)="refresh()" [disabled]="loading()">Обновить</button></div>
+      <div class="toolbar"><strong>{{ candidates()?.length ?? '—' }} на проверке</strong><span class="auto-refresh">Автообновление раз в минуту</span><button type="button" (click)="refresh()" [disabled]="loading()">Обновить</button></div>
       @if (loading() && candidates() === null) {
         <p class="state" role="status">Загружаем публикации…</p>
       } @else if (candidates() === null) {
@@ -28,7 +30,7 @@ import { EventSourceCandidate, EventSourcesApiService } from './event-sources-ap
         <section class="candidate-list" aria-label="Импортированные публикации">
           @for (candidate of candidates(); track candidate.id) {
             <article class="candidate">
-              <div class="source-line"><span>{{ candidate.sourceName }} · {{ candidate.hobbyId }}</span>@if (candidate.publishedAtUtc) { <time>{{ candidate.publishedAtUtc | date:'d MMM y, HH:mm' }}</time> }</div>
+              <div class="source-line"><span>{{ candidate.sourceName }} · {{ candidate.hobbyId }}</span>@if (candidate.eventDate) { <time>Дата события: {{ candidate.eventDate | date:'d MMM y':'UTC' }}</time> }@else if (candidate.publishedAtUtc) { <time>Публикация: {{ candidate.publishedAtUtc | date:'d MMM y, HH:mm' }}</time> }</div>
               <h2>{{ candidate.title }}</h2>
               @if (candidate.summary) { <p class="summary">{{ candidate.summary }}</p> }
               <a class="source-link" [href]="candidate.sourceUrl" target="_blank" rel="noopener noreferrer">Проверить оригинальную публикацию ↗</a>
@@ -78,6 +80,7 @@ import { EventSourceCandidate, EventSourcesApiService } from './event-sources-ap
     header > p:not(.eyebrow) { max-width: 44rem; color: var(--tg-muted); font-size: .78rem; line-height: 1.55; }
     header > a, .source-link { color: var(--tg-button); font-size: .75rem; text-decoration: none; }
     .toolbar { display: flex; justify-content: space-between; align-items: center; margin: .9rem 0; color: var(--tg-muted); font-size: .75rem; }
+    .auto-refresh { margin-left: auto; font-size: .68rem; }
     button { min-height: 40px; padding: .55rem .75rem; border: 1px solid var(--tg-line); border-radius: 7px; background: transparent; color: var(--tg-text); font: inherit; font-size: .7rem; font-weight: 700; cursor: pointer; }
     button:disabled { opacity: .5; cursor: wait; }
     .candidate-list { display: grid; gap: .75rem; }
@@ -105,6 +108,7 @@ import { EventSourceCandidate, EventSourcesApiService } from './event-sources-ap
 export class AdminEventSourcesComponent implements OnInit {
   private readonly api = inject(EventSourcesApiService);
   private readonly fb = inject(FormBuilder);
+  private readonly destroyRef = inject(DestroyRef);
   readonly candidates = signal<EventSourceCandidate[] | null>(null);
   readonly loading = signal(false);
   readonly selectedId = signal<string | null>(null);
@@ -123,7 +127,16 @@ export class AdminEventSourcesComponent implements OnInit {
     sourcePermissionConfirmed: [false, Validators.requiredTrue],
   });
 
-  ngOnInit(): void { void this.refresh(); }
+  ngOnInit(): void {
+    void this.refresh();
+    interval(60_000).pipe(
+      filter(() => typeof document === 'undefined' || document.visibilityState === 'visible'),
+      exhaustMap(() => from(this.api.loadPending())),
+      takeUntilDestroyed(this.destroyRef),
+    ).subscribe((items) => {
+      if (items !== null) this.candidates.set(items);
+    });
+  }
 
   async refresh(): Promise<void> {
     this.loading.set(true);
@@ -136,7 +149,7 @@ export class AdminEventSourcesComponent implements OnInit {
     this.selectedId.set(candidate.id);
     this.form.reset({
       title: candidate.title,
-      date: '',
+      date: candidate.eventDate ?? '',
       time: '',
       place: '',
       category: 'соревнование',
