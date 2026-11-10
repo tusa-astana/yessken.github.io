@@ -1,6 +1,6 @@
 import { Injectable, signal } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
-import { Observable, catchError, map, of, timeout } from 'rxjs';
+import { Observable, catchError, map, of, retry, throwError, timer, timeout } from 'rxjs';
 import { TelegramService } from './telegram.service';
 import type { AdminEventReport, AdminSalesSummary, AnalyticsInsightsSummary, BotMessageLogRow, DailyFunnelSummary, EventItem, EventPromotionInvoice, EventPromotionOffer, FunnelSummaryRow, MeetupCampaignSummaryRow, MeetupDensitySummary, MeetupVenueOption, OrganizerEngagementRow, OrganizerOrderRow, OrganizerSubscriptionOffer, OrganizerSubscriptionStatus, Ticket, TelegramGroupItem } from '../types/event.model';
 import { environment } from '../../../environments/environment';
@@ -104,7 +104,10 @@ export class EventsApiService {
 
   getAdminSalesSummary(): Observable<AdminSalesSummary | null> {
     if (this.apiDisabled) return of(null);
-    return this.http.get<AdminSalesSummary>(`${this.base}/api/admin/sales-summary`, { headers: this.headers() }).pipe(catchError(() => of(null)));
+    return this.http.get<AdminSalesSummary>(`${this.base}/api/admin/sales-summary`, { headers: this.headers() }).pipe(
+      retry({ count: 5, delay: (error, retryCount) => this.retryWhileServiceWakes(error, retryCount) }),
+      catchError(() => of(null))
+    );
   }
 
   getAdminFunnelSummary(): Observable<FunnelSummaryRow[] | null> {
@@ -157,6 +160,13 @@ export class EventsApiService {
       params: { skip, take },
       headers: this.headers(),
     }).pipe(catchError(() => of(null)));
+  }
+
+  private retryWhileServiceWakes(error: unknown, retryCount: number): Observable<unknown> {
+    if (!(error instanceof HttpErrorResponse) || ![0, 502, 503, 504].includes(error.status)) {
+      return throwError(() => error);
+    }
+    return timer(Math.min(retryCount * 2_000, 10_000));
   }
 
   getOrganizerSubscription(): Observable<OrganizerSubscriptionStatus | null> {

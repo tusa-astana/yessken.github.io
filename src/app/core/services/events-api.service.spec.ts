@@ -2,6 +2,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { firstValueFrom } from 'rxjs';
+import { vi } from 'vitest';
 import { TelegramService } from './telegram.service';
 import { EventsApiService } from './events-api.service';
 import type { EventItem } from '../types/event.model';
@@ -26,6 +27,7 @@ describe('EventsApiService', () => {
   afterEach(() => {
     http.verify();
     TestBed.resetTestingModule();
+    vi.useRealTimers();
   });
 
   it('loads organizer engagement through the same-origin API with verified initData', async () => {
@@ -70,6 +72,27 @@ describe('EventsApiService', () => {
     expect(request.request.headers.get('X-Telegram-Init-Data')).toBe('verified-telegram-init-data');
     request.flush([{ name: 'community_open', count: 4 }]);
     await expect(result).resolves.toEqual([{ name: 'community_open', count: 4 }]);
+  });
+
+  it('retries admin detection after a transient backend wake-up response', async () => {
+    vi.useFakeTimers();
+    const result = firstValueFrom(service.getAdminSalesSummary());
+    http.expectOne('/api/admin/sales-summary').flush({}, { status: 503, statusText: 'Service Unavailable' });
+
+    await vi.advanceTimersByTimeAsync(2_000);
+    const retry = http.expectOne('/api/admin/sales-summary');
+    expect(retry.request.headers.get('X-Telegram-Init-Data')).toBe('verified-telegram-init-data');
+    retry.flush({ totalOrders: 0, totalTickets: 0, paidOrders: 0, pendingOrders: 0, paidRevenue: 0, requestedRefunds: 0, activeEvents: 0 });
+
+    await expect(result).resolves.toMatchObject({ activeEvents: 0 });
+  });
+
+  it('does not retry admin detection when the API denies access', async () => {
+    const result = firstValueFrom(service.getAdminSalesSummary());
+    http.expectOne('/api/admin/sales-summary').flush({}, { status: 403, statusText: 'Forbidden' });
+
+    await expect(result).resolves.toBeNull();
+    http.expectNone('/api/admin/sales-summary');
   });
 
   it('loads an owner event promotion offer with verified Telegram initData', async () => {

@@ -77,6 +77,8 @@ import type { OrganizerSubscriptionOffer, OrganizerSubscriptionStatus } from '..
           <a routerLink="/admin/analytics" queryParamsHandling="preserve">Аналитика пилота <span aria-hidden="true">→</span></a>
           <a routerLink="/admin/bot-messages" queryParamsHandling="preserve">Сообщения боту <span aria-hidden="true">→</span></a>
         </section>
+      } @else if (adminToolsLoading()) {
+        <p class="admin-check" role="status">Проверяем доступ администратора… Если API просыпается, проверка повторится автоматически.</p>
       }
     </main>
   `,
@@ -127,6 +129,7 @@ import type { OrganizerSubscriptionOffer, OrganizerSubscriptionStatus } from '..
     .admin-tools .eyebrow { font-size: .6rem; }
     .admin-tools h2 { margin: .3rem 0 .25rem; }
     .admin-tools a { display: flex; justify-content: space-between; gap: .7rem; padding: .6rem 0; border-top: 1px solid var(--tg-line); color: var(--tg-button, #426c47); font-size: .78rem; text-decoration: none; }
+    .admin-check { color: var(--tg-muted); font-size: .75rem; line-height: 1.5; }
     @media (min-width: 700px) { .profile-page { padding: 3rem clamp(2rem, 5vw, 5rem) 4rem; } .user-card { padding: 1.2rem; } .avatar { width: 72px; height: 72px; } .quick-links { gap: .7rem; } .nav-card { min-height: 78px; padding: .9rem; } }
     @media (max-width: 420px) { .profile-page { padding: 1.2rem .9rem 6rem; } .quick-links { grid-template-columns: 1fr; } .nav-card { min-height: 62px; } .avatar { width: 54px; height: 54px; } }
   `],
@@ -137,6 +140,7 @@ export class ProfileComponent implements OnInit {
   offer = signal<OrganizerSubscriptionOffer | null>(null);
   offerLoading = signal(true);
   adminToolsAvailable = signal(false);
+  adminToolsLoading = signal(true);
 
   constructor(private telegram: TelegramService, private data: DataService) {}
 
@@ -147,7 +151,10 @@ export class ProfileComponent implements OnInit {
   ngOnInit(): void {
     this.data.getOrganizerSubscription().subscribe((status) => this.subscription.set(status));
     this.data.getOrganizerSubscriptionOffer().subscribe((offer) => { this.offer.set(offer); this.offerLoading.set(false); });
-    this.data.getAdminSalesSummary().subscribe((summary) => this.adminToolsAvailable.set(summary !== null));
+    this.data.getAdminSalesSummary().subscribe((summary) => {
+      this.adminToolsAvailable.set(summary !== null);
+      this.adminToolsLoading.set(false);
+    });
   }
 
   subscriptionStatusLabel(plan: OrganizerSubscriptionStatus): string {
