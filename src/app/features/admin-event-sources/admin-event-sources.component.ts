@@ -461,7 +461,7 @@ export class AdminEventSourcesComponent implements OnInit {
       case 'padel': return 'турнир';
       case 'running': return 'забег';
       case 'board-games': return 'встреча';
-      case 'esports': return 'турнир';
+      case 'phygital-sports': return 'турнир';
       default: return 'событие';
     }
   }
