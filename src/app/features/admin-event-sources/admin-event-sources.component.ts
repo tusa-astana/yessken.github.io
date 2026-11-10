@@ -458,6 +458,10 @@ export class AdminEventSourcesComponent implements OnInit {
       case 'live-music': return 'концерт';
       case 'performing-arts': return 'спектакль';
       case 'football': return 'матч';
+      case 'padel': return 'турнир';
+      case 'running': return 'забег';
+      case 'board-games': return 'встреча';
+      case 'esports': return 'турнир';
       default: return 'событие';
     }
   }
