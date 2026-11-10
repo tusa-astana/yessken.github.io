@@ -59,6 +59,12 @@ import type { OrganizerSubscriptionOffer, OrganizerSubscriptionStatus } from '..
         }
         <a class="pro-terms" routerLink="/terms">Условия Organizer Pro</a>
       </section>
+      <section class="support-card" aria-labelledby="support-title">
+        <div class="pro-heading"><div><span class="eyebrow">ПОДДЕРЖКА</span><h2 id="support-title">Поддержать разработчика</h2></div></div>
+        <p class="pro-description">Добровольный донат в Telegram Stars помогает оплачивать хостинг и развивать TUSA. Это не покупка функций и не оплата офлайн-событий.</p>
+        <button type="button" class="subscribe secondary-action" (click)="donate()">Открыть /donate в боте <span aria-hidden="true">→</span></button>
+        <p class="pro-note">Сумму выбираете сами · возврат через /paysupport</p>
+      </section>
       <section class="account-section" aria-labelledby="account-links-title">
         <div class="section-heading"><h2 id="account-links-title">Быстрый доступ</h2><span>ВАШ TUSA</span></div>
         <nav class="quick-links" aria-label="Разделы профиля">
@@ -104,7 +110,8 @@ import type { OrganizerSubscriptionOffer, OrganizerSubscriptionStatus } from '..
     .subscription-status div { display: grid; gap: .15rem; }
     .subscription-status strong { font-size: .82rem; }
     .subscription-status div span { color: var(--tg-muted); font-size: .74rem; }
-    .pro-card { margin: 1rem 0 1.6rem; padding: 1.1rem; background: linear-gradient(130deg, rgba(66,108,71,.08), transparent 65%), var(--tg-surface, #ffffff); border: 1px solid rgba(66,108,71,.2); border-radius: 8px; }
+    .pro-card, .support-card { margin: 1rem 0 1.6rem; padding: 1.1rem; background: linear-gradient(130deg, rgba(66,108,71,.08), transparent 65%), var(--tg-surface, #ffffff); border: 1px solid rgba(66,108,71,.2); border-radius: 8px; }
+    .support-card { background: linear-gradient(130deg, rgba(242,190,104,.12), transparent 65%), var(--tg-surface, #ffffff); border-color: rgba(242,190,104,.35); }
     .pro-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: .8rem; }
     .pro-heading h2 { margin: .35rem 0 0; font-size: 1.35rem; font-weight: 500; }
     .pro-price { flex: 0 0 auto; padding: .35rem .5rem; border-radius: 5px; background: rgba(66,108,71,.1); color: var(--tg-button, #426c47); font-size: .7rem; white-space: nowrap; }
@@ -170,6 +177,11 @@ export class ProfileComponent implements OnInit {
   subscribe(): void {
     if (!this.offer()?.available) return;
     const url = 'https://t.me/tusa_astana_bot?start=subscribe_pro';
+    if (!this.telegram.openTelegramLink(url) && typeof window !== 'undefined') window.location.href = url;
+  }
+
+  donate(): void {
+    const url = 'https://t.me/tusa_astana_bot?start=donate';
     if (!this.telegram.openTelegramLink(url) && typeof window !== 'undefined') window.location.href = url;
   }
 }
