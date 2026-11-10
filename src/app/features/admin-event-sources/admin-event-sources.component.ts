@@ -4,6 +4,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { exhaustMap, filter, from, interval } from 'rxjs';
+import { compressEventImage } from '../../core/utils/event-image.util';
 import { ConvertEventSourceBatchItemRequest, EventSourceCandidate, EventSourcesApiService } from './event-sources-api.service';
 
 interface BatchDraftRow extends ConvertEventSourceBatchItemRequest {
@@ -11,7 +12,13 @@ interface BatchDraftRow extends ConvertEventSourceBatchItemRequest {
   sourceName: string;
   sourceUrl: string;
   hobbyId: string;
+  eventTime: string;
+  eventPlace: string;
+  suggestedCategory: string;
+  sourceSummary: string;
   included: boolean;
+  imagePermissionConfirmed: boolean;
+  descriptionPermissionConfirmed: boolean;
 }
 
 type BatchDraftField = 'title' | 'date' | 'time' | 'place' | 'category' | 'description';
@@ -59,6 +66,9 @@ type BatchDraftField = 'title' | 'date' | 'time' | 'place' | 'category' | 'descr
                   {{ row.sourceName }} · {{ row.hobbyId }}
                 </legend>
                 <a class="source-link" [href]="row.sourceUrl" target="_blank" rel="noopener noreferrer">Проверить оригинальную публикацию ↗</a>
+                @if (row.eventTime || row.eventPlace || row.suggestedCategory) {
+                  <p class="parser-hints">Подсказки парсера: {{ row.eventTime || 'время не найдено' }} · {{ row.eventPlace || 'место не найдено' }} · {{ row.suggestedCategory || 'категория не определена' }}</p>
+                }
                 @if (row.included) {
                   <label>Название<input [value]="row.title" maxlength="120" (input)="updateBatchField(row.id, 'title', $event)" /></label>
                   <div class="date-time">
@@ -67,13 +77,23 @@ type BatchDraftField = 'title' | 'date' | 'time' | 'place' | 'category' | 'descr
                   </div>
                   <label>Место проведения<input [value]="row.place" maxlength="160" (input)="updateBatchField(row.id, 'place', $event)" /></label>
                   <label>Категория события<input [value]="row.category" maxlength="80" (input)="updateBatchField(row.id, 'category', $event)" /></label>
-                  <label>Краткое описание<textarea [value]="row.description" rows="3" maxlength="3000" (input)="updateBatchField(row.id, 'description', $event)"></textarea></label>
+                  <label>Описание (подсказка RSS отредактируй перед публикацией)<textarea [value]="row.description" rows="3" maxlength="3000" (input)="updateBatchField(row.id, 'description', $event)"></textarea></label>
+                  @if (row.description.trim()) { <label class="image-permission"><input type="checkbox" [checked]="row.descriptionPermissionConfirmed" (change)="setBatchDescriptionPermission(row.id, $event)" /> Подтверждаю право использовать этот текст описания.</label> }
+                  <label>Обложка (необязательно)
+                    <input type="file" accept="image/png,image/jpeg,image/webp" [disabled]="imageUploadingIds().has(row.id) || batchSaving()" (change)="selectBatchImage(row.id, $event)" />
+                    <small class="image-help">Загрузи разрешённое изображение. Оно сожмётся и сохранится в TUSA, не зависит от внешнего сайта.</small>
+                  </label>
+                  @if (imageUploadingIds().has(row.id)) { <p class="image-help" role="status">Сжимаем обложку…</p> }
+                  @if (row.imageUrl) {
+                    <label class="image-permission"><input type="checkbox" [checked]="row.imagePermissionConfirmed" (change)="setBatchImagePermission(row.id, $event)" /> Подтверждаю право TUSA разместить эту обложку.</label>
+                    <img class="batch-image-preview" [src]="row.imageUrl" [alt]="'Предпросмотр обложки ' + row.title" />
+                  }
                 }
               </fieldset>
             }
             @if (batchError()) { <p class="form-error" role="alert">{{ batchError() }}</p> }
             <div class="form-actions">
-              <button class="primary" type="submit" [disabled]="batchSaving() || selectedBatchCount() === 0">{{ batchSaving() ? 'Отправляем пакет…' : 'Создать черновики · ' + selectedBatchCount() }}</button>
+              <button class="primary" type="submit" [disabled]="batchSaving() || imageUploadingIds().size > 0 || selectedBatchCount() === 0">{{ batchSaving() ? 'Отправляем пакет…' : 'Создать черновики · ' + selectedBatchCount() }}</button>
               <button type="button" (click)="cancelBatch()" [disabled]="batchSaving()">Отмена</button>
             </div>
           </form>
@@ -82,6 +102,7 @@ type BatchDraftField = 'title' | 'date' | 'time' | 'place' | 'category' | 'descr
           @for (candidate of candidates(); track candidate.id) {
             <article class="candidate">
               <div class="source-line"><span>{{ candidate.sourceName }} · {{ candidate.hobbyId }}</span>@if (candidate.eventDate) { <time>Дата события: {{ candidate.eventDate | date:'d MMM y':'UTC' }}</time> }@else if (candidate.publishedAtUtc) { <time>Публикация: {{ candidate.publishedAtUtc | date:'d MMM y, HH:mm' }}</time> }</div>
+              @if (candidate.eventTime || candidate.eventPlace || candidate.suggestedCategory) { <p class="parser-hints">Подсказки парсера: {{ candidate.eventTime || 'время не найдено' }} · {{ candidate.eventPlace || 'место не найдено' }} · {{ candidate.suggestedCategory || 'категория не определена' }}</p> }
               <h2>{{ candidate.title }}</h2>
               @if (candidate.summary) { <p class="summary">{{ candidate.summary }}</p> }
               <a class="source-link" [href]="candidate.sourceUrl" target="_blank" rel="noopener noreferrer">Проверить оригинальную публикацию ↗</a>
@@ -96,14 +117,24 @@ type BatchDraftField = 'title' | 'date' | 'time' | 'place' | 'category' | 'descr
                   <label>Название события<input formControlName="title" maxlength="120" /></label>
                   <div class="date-time">
                     <label>Дата в Астане<input type="date" [min]="minDate" formControlName="date" /></label>
-                    <label>Время<input type="time" formControlName="time" /></label>
+                      <label>Время<input type="time" formControlName="time" /></label>
                   </div>
                   <label>Место проведения<input formControlName="place" maxlength="160" /></label>
                   <div class="date-time">
                     <label>Категория события<input formControlName="category" maxlength="80" /></label>
                     <label>Хобби ID<input formControlName="hobbyId" maxlength="60" readonly /></label>
                   </div>
-                  <label>Краткое описание<textarea formControlName="description" rows="4" maxlength="3000"></textarea></label>
+                  <label>Описание (подсказка RSS — проверь и отредактируй)<textarea formControlName="description" rows="4" maxlength="3000" (input)="resetSingleDescriptionPermission()"></textarea></label>
+                  @if (form.controls.description.value.trim()) { <label class="image-permission"><input type="checkbox" formControlName="descriptionPermissionConfirmed" /> Подтверждаю право использовать этот текст описания.</label> }
+                  <label>Обложка события (необязательно)
+                    <input type="file" accept="image/png,image/jpeg,image/webp" [disabled]="singleImageUploading() || busyId() !== null" (change)="selectSingleImage($event)" />
+                    <small class="image-help">Используй изображение, которое разрешено размещать. Оно сожмётся и сохранится в событии.</small>
+                  </label>
+                  @if (singleImageUploading()) { <p class="image-help" role="status">Сжимаем обложку…</p> }
+                  @if (form.controls.imageUrl.value) {
+                    <label class="image-permission"><input type="checkbox" formControlName="imagePermissionConfirmed" /> Подтверждаю право TUSA разместить эту обложку.</label>
+                    <img class="batch-image-preview" [src]="form.controls.imageUrl.value" [alt]="'Предпросмотр обложки ' + form.controls.title.value" />
+                  }
                   <p class="required-note">Для черновика нужны название, будущая дата, место, категория и подтверждение разрешения на краткую карточку.</p>
                   @if (formError()) { <p class="form-error" role="alert">{{ formError() }}</p> }
                   <div class="form-actions">
@@ -143,6 +174,7 @@ type BatchDraftField = 'title' | 'date' | 'time' | 'place' | 'category' | 'descr
     .candidate h2 { margin: .55rem 0 .35rem; font-size: 1.05rem; }
     .summary, .form-note { color: var(--tg-muted); font-size: .74rem; line-height: 1.5; }
     .required-note { margin: 0; color: var(--tg-muted); font-size: .68rem; line-height: 1.45; }
+    .parser-hints { margin: .35rem 0; color: var(--tg-muted); font-size: .69rem; line-height: 1.45; }
     .form-error { margin: 0; color: #b94d42; font-size: .72rem; line-height: 1.45; }
     .batch-form { display: grid; gap: .7rem; margin-bottom: 1rem; padding: 1rem; border: 1px solid var(--tg-button); border-radius: 10px; background: var(--tg-surface); }
     .batch-heading { display: flex; justify-content: space-between; align-items: flex-start; gap: .75rem; }
@@ -154,6 +186,10 @@ type BatchDraftField = 'title' | 'date' | 'time' | 'place' | 'category' | 'descr
     .batch-row > label { display: grid; gap: .25rem; color: var(--tg-muted); font-size: .66rem; font-weight: 700; }
     .batch-row input:not([type="checkbox"]), .batch-row textarea { width: 100%; box-sizing: border-box; padding: .55rem .6rem; border: 1px solid var(--tg-line); border-radius: 6px; background: var(--tg-bg); color: var(--tg-text); font: inherit; font-weight: 400; }
     .batch-row textarea { resize: vertical; }
+    .batch-image-preview { display: block; width: min(100%, 22rem); max-height: 15rem; object-fit: cover; border-radius: 7px; background: var(--tg-bg); }
+    .image-help { margin: 0; color: var(--tg-muted); font-size: .66rem; line-height: 1.45; }
+    .image-permission { display: flex !important; align-items: flex-start; gap: .5rem !important; color: var(--tg-text) !important; font-size: .68rem !important; font-weight: 600 !important; line-height: 1.45; }
+    .image-permission input { width: 1rem; min-height: 1rem; flex: 0 0 auto; margin: .15rem 0 0; }
     .batch-row .source-link { justify-self: start; }
     .batch-permission { display: flex !important; align-items: flex-start; gap: .5rem !important; color: var(--tg-text) !important; font-size: .72rem !important; font-weight: 600 !important; line-height: 1.45; }
     .batch-permission input { width: 1rem; min-height: 1rem; flex: 0 0 auto; margin: .15rem 0 0; }
@@ -190,6 +226,8 @@ export class AdminEventSourcesComponent implements OnInit {
   readonly batchPermissionConfirmed = signal(false);
   readonly batchSaving = signal(false);
   readonly batchError = signal('');
+  readonly imageUploadingIds = signal<ReadonlySet<string>>(new Set());
+  readonly singleImageUploading = signal(false);
   readonly pendingCount = computed(() => this.candidates()?.filter((candidate) => candidate.status === 'pending').length ?? 0);
   readonly selectedBatchCount = computed(() => this.batchRows().filter((row) => row.included).length);
   readonly minDate = new Date(Date.now() + 5 * 60 * 60 * 1000).toISOString().slice(0, 10);
@@ -201,6 +239,9 @@ export class AdminEventSourcesComponent implements OnInit {
     category: ['событие', [Validators.required, Validators.minLength(2), Validators.maxLength(80)]],
     hobbyId: ['', [Validators.required, Validators.maxLength(60)]],
     description: ['', Validators.maxLength(3000)],
+    descriptionPermissionConfirmed: [false],
+    imageUrl: [''],
+    imagePermissionConfirmed: [false],
     sourcePermissionConfirmed: [false, Validators.requiredTrue],
   });
 
@@ -228,13 +269,33 @@ export class AdminEventSourcesComponent implements OnInit {
     this.form.reset({
       title: candidate.title,
       date: candidate.eventDate ?? '',
-      time: '',
-      place: '',
-      category: 'соревнование',
+      time: candidate.eventTime ?? '',
+      place: candidate.eventPlace ?? '',
+      category: candidate.suggestedCategory || this.defaultBatchCategory(candidate.hobbyId),
       hobbyId: candidate.hobbyId,
-      description: '',
+      description: candidate.summary,
+      descriptionPermissionConfirmed: false,
+      imageUrl: '',
+      imagePermissionConfirmed: false,
       sourcePermissionConfirmed: false,
     });
+  }
+
+  async selectSingleImage(event: Event): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    input.value = '';
+    if (!file) return;
+    this.singleImageUploading.set(true);
+    this.formError.set('');
+    try {
+      this.form.patchValue({ imageUrl: await compressEventImage(file) });
+      this.form.controls.imagePermissionConfirmed.setValue(false);
+    } catch (error) {
+      this.formError.set(error instanceof Error ? error.message : 'Не удалось подготовить обложку.');
+    } finally {
+      this.singleImageUploading.set(false);
+    }
   }
 
   startBatch(): void {
@@ -246,14 +307,21 @@ export class AdminEventSourcesComponent implements OnInit {
       sourceName: candidate.sourceName,
       sourceUrl: candidate.sourceUrl,
       hobbyId: candidate.hobbyId,
+      eventTime: candidate.eventTime ?? '',
+      eventPlace: candidate.eventPlace ?? '',
+      suggestedCategory: candidate.suggestedCategory ?? '',
+      sourceSummary: candidate.summary,
       included: true,
       candidateId: candidate.id,
       title: candidate.title,
       date: candidate.eventDate ?? '',
-      time: '',
-      place: '',
-      category: this.defaultBatchCategory(candidate.hobbyId),
-      description: '',
+      time: candidate.eventTime ?? '',
+      place: candidate.eventPlace ?? '',
+      category: candidate.suggestedCategory || this.defaultBatchCategory(candidate.hobbyId),
+      description: candidate.summary,
+      imageUrl: '',
+      imagePermissionConfirmed: false,
+      descriptionPermissionConfirmed: false,
     })));
     this.batchPermissionConfirmed.set(false);
     this.batchError.set('');
@@ -276,12 +344,52 @@ export class AdminEventSourcesComponent implements OnInit {
 
   updateBatchField(id: string, field: BatchDraftField, event: Event): void {
     const value = (event.target as HTMLInputElement | HTMLTextAreaElement).value;
-    this.batchRows.update((rows) => rows.map((row) => row.id === id ? { ...row, [field]: value } : row));
+    this.batchRows.update((rows) => rows.map((row) => row.id === id
+      ? { ...row, [field]: value, ...(field === 'description' ? { descriptionPermissionConfirmed: false } : {}) }
+      : row));
     this.batchError.set('');
+  }
+
+  setBatchDescriptionPermission(id: string, event: Event): void {
+    const confirmed = (event.target as HTMLInputElement).checked;
+    this.batchRows.update((rows) => rows.map((row) => row.id === id ? { ...row, descriptionPermissionConfirmed: confirmed } : row));
+    this.batchError.set('');
+  }
+
+  resetSingleDescriptionPermission(): void {
+    this.form.controls.descriptionPermissionConfirmed.setValue(false);
+    this.formError.set('');
   }
 
   setBatchPermissionConfirmed(event: Event): void {
     this.batchPermissionConfirmed.set((event.target as HTMLInputElement).checked);
+    this.batchError.set('');
+  }
+
+  async selectBatchImage(id: string, event: Event): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    input.value = '';
+    if (!file) return;
+    this.imageUploadingIds.update((ids) => new Set(ids).add(id));
+    this.batchError.set('');
+    try {
+      const imageUrl = await compressEventImage(file);
+      this.batchRows.update((rows) => rows.map((row) => row.id === id ? { ...row, imageUrl, imagePermissionConfirmed: false } : row));
+    } catch (error) {
+      this.batchError.set(error instanceof Error ? error.message : 'Не удалось подготовить обложку.');
+    } finally {
+      this.imageUploadingIds.update((ids) => {
+        const next = new Set(ids);
+        next.delete(id);
+        return next;
+      });
+    }
+  }
+
+  setBatchImagePermission(id: string, event: Event): void {
+    const confirmed = (event.target as HTMLInputElement).checked;
+    this.batchRows.update((rows) => rows.map((row) => row.id === id ? { ...row, imagePermissionConfirmed: confirmed } : row));
     this.batchError.set('');
   }
 
@@ -291,7 +399,7 @@ export class AdminEventSourcesComponent implements OnInit {
   }
 
   async convertBatch(): Promise<void> {
-    if (this.batchSaving()) return;
+    if (this.batchSaving() || this.imageUploadingIds().size > 0) return;
     const selected = this.batchRows().filter((row) => row.included);
     if (!selected.length) {
       this.batchError.set('Выбери хотя бы одну публикацию.');
@@ -299,6 +407,15 @@ export class AdminEventSourcesComponent implements OnInit {
     }
     if (!this.batchPermissionConfirmed()) {
       this.batchError.set('Подтверди проверку источника, даты/места и право на размещение для каждой выбранной строки.');
+      return;
+    }
+    const missingImagePermission = selected.some((row) => !!row.imageUrl && !row.imagePermissionConfirmed);
+    if (missingImagePermission) {
+      this.batchError.set('Подтверди право размещения обложки у каждой выбранной строки, где загружено изображение.');
+      return;
+    }
+    if (selected.some((row) => !!row.description.trim() && !row.descriptionPermissionConfirmed)) {
+      this.batchError.set('Подтверди право использовать текст описания у каждой выбранной строки или перепиши/очисти подсказку.');
       return;
     }
     const invalid = selected.some((row) => row.title.trim().length < 3 || row.title.trim().length > 120 ||
@@ -316,8 +433,8 @@ export class AdminEventSourcesComponent implements OnInit {
     this.batchError.set('');
     const created = await this.api.convertBatch({
       sourcePermissionConfirmed: true,
-      items: selected.map(({ candidateId, title, date, time, place, category, description }) => ({
-        candidateId, title: title.trim(), date, time: time.trim(), place: place.trim(), category: category.trim(), description: description.trim(),
+      items: selected.map(({ candidateId, title, date, time, place, category, description, imageUrl, imagePermissionConfirmed, descriptionPermissionConfirmed }) => ({
+        candidateId, title: title.trim(), date, time: time.trim(), place: place.trim(), category: category.trim(), description: description.trim(), imageUrl, imagePermissionConfirmed, descriptionPermissionConfirmed,
       })),
     });
     this.batchSaving.set(false);
@@ -346,7 +463,7 @@ export class AdminEventSourcesComponent implements OnInit {
   }
 
   async convert(candidate: EventSourceCandidate): Promise<void> {
-    if (this.busyId()) return;
+    if (this.busyId() || this.singleImageUploading()) return;
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       const missing = [
@@ -361,6 +478,14 @@ export class AdminEventSourcesComponent implements OnInit {
         .filter(([name]) => this.form.controls[name].invalid)
         .map(([, label]) => label);
       this.formError.set(`Заполни или подтверди: ${incomplete.join(', ')}.`);
+      return;
+    }
+    if (this.form.controls.imageUrl.value && !this.form.controls.imagePermissionConfirmed.value) {
+      this.formError.set('Подтверди право размещать выбранную обложку.');
+      return;
+    }
+    if (this.form.controls.description.value.trim() && !this.form.controls.descriptionPermissionConfirmed.value) {
+      this.formError.set('Подтверди право использовать текст описания или перепиши/очисти подсказку источника.');
       return;
     }
     this.formError.set('');

@@ -68,7 +68,9 @@ describe('EventSourcesApiService', () => {
   it('converts an explicitly reviewed source candidate into a pending event submission', async () => {
     const converting = service.convert('candidate-1', {
       title: 'Astana equestrian cup', date: '2026-11-18', time: '10:00', place: 'Argymak',
-      category: 'соревнование', hobbyId: 'equestrian', description: 'Editor-written summary', sourcePermissionConfirmed: true,
+      category: 'соревнование', hobbyId: 'equestrian', description: 'Editor-written summary',
+      descriptionPermissionConfirmed: true, imageUrl: 'data:image/webp;base64,UklGRg==',
+      imagePermissionConfirmed: true, sourcePermissionConfirmed: true,
     });
     const request = http.expectOne(`${apiBase}/api/admin/event-sources/candidate-1/convert`);
     expect(request.request.method).toBe('POST');
@@ -83,7 +85,7 @@ describe('EventSourcesApiService', () => {
       sourcePermissionConfirmed: true,
       items: [{
         candidateId: 'candidate-1', title: 'Astana equestrian cup', date: '2026-11-18', time: '10:00',
-        place: 'Argymak', category: 'соревнование', description: '',
+        place: 'Argymak', category: 'соревнование', description: '', imageUrl: 'data:image/webp;base64,UklGRg==', imagePermissionConfirmed: true,
       }],
     };
     const conversion = service.convertBatch(body);

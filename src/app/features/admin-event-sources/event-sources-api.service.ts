@@ -14,6 +14,9 @@ export interface EventSourceCandidate {
   summary: string;
   hobbyId: string;
   eventDate: string | null;
+  eventTime?: string | null;
+  eventPlace?: string | null;
+  suggestedCategory?: string | null;
   publishedAtUtc: string | null;
   importedAtUtc: string;
   status: 'pending' | 'converted' | 'ignored';
@@ -28,6 +31,9 @@ export interface ConvertEventSourceCandidateRequest {
   category: string;
   hobbyId: string;
   description: string;
+  imageUrl?: string;
+  imagePermissionConfirmed?: boolean;
+  descriptionPermissionConfirmed?: boolean;
   sourcePermissionConfirmed: boolean;
 }
 
@@ -39,6 +45,9 @@ export interface ConvertEventSourceBatchItemRequest {
   place: string;
   category: string;
   description: string;
+  imageUrl?: string;
+  imagePermissionConfirmed?: boolean;
+  descriptionPermissionConfirmed?: boolean;
 }
 
 export interface ConvertEventSourceBatchRequest {

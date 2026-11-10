@@ -68,7 +68,11 @@ import type { EventItem } from '../../core/types/event.model';
         @for (event of filteredEvents(); track event.id; let first = $first) {
           <a [routerLink]="['/events', event.id]" class="card" queryParamsHandling="preserve">
             <div class="card-media">
-              <img [src]="event.imageUrl" [alt]="event.title" [loading]="first ? 'eager' : 'lazy'" [attr.fetchpriority]="first ? 'high' : 'auto'" />
+              @if (event.imageUrl && !failedImageIds().has(event.id)) {
+                <img [src]="event.imageUrl" [alt]="event.title" [loading]="first ? 'eager' : 'lazy'" [attr.fetchpriority]="first ? 'high' : 'auto'" (error)="markImageFailed(event.id)" />
+              } @else {
+                <div class="image-fallback" aria-hidden="true"><span>TUSA · АСТАНА</span><strong>{{ event.category || 'Событие' }}</strong></div>
+              }
               <div class="card-badges">
                 <span class="category">{{ event.category }}</span>
                 @if (event.isDemo) { <span class="demo-badge">{{ i18n.t('events.demo') }}</span> }
@@ -126,6 +130,9 @@ import type { EventItem } from '../../core/types/event.model';
       .card { display: block; overflow: hidden; border: 1px solid var(--tg-line); border-radius: 16px; background: var(--tg-surface); color: var(--tg-text); text-decoration: none; box-shadow: 0 2px 8px rgba(20,35,25,.035); transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease; }
       .card-media { position: relative; aspect-ratio: 1.72; overflow: hidden; background: color-mix(in srgb, var(--tg-button) 10%, var(--tg-surface)); }
       .card img { display: block; width: 100%; height: 100%; object-fit: cover; filter: saturate(.9); transition: transform .3s ease; }
+      .image-fallback { display: grid; width: 100%; height: 100%; align-content: end; gap: .35rem; box-sizing: border-box; padding: 1rem; background: radial-gradient(ellipse at 82% 18%, color-mix(in srgb, var(--tg-button) 33%, transparent), transparent 42%), linear-gradient(140deg, #1a2831, #243e43 55%, #17232d); color: #f4f4ed; }
+      .image-fallback span { color: #d3ded7; font-size: .58rem; font-weight: 800; letter-spacing: .16em; }
+      .image-fallback strong { max-width: 90%; font-size: clamp(1.15rem, 3vw, 2rem); line-height: 1.1; text-transform: uppercase; }
       .card-badges { position: absolute; inset: .65rem .65rem auto; display: flex; flex-wrap: wrap; align-items: center; gap: .35rem; }
       .category, .demo-badge, .illustration-badge, .featured-badge { display: inline-flex; align-items: center; min-height: 1.45rem; padding: 0 .5rem; border: 1px solid rgba(255,255,255,.55); border-radius: 999px; background: rgba(20,31,24,.75); color: #fff; font-size: .61rem; font-weight: 750; backdrop-filter: blur(8px); }
       .featured-badge { position: absolute; right: .65rem; bottom: .65rem; border-color: transparent; background: var(--tg-button); color: var(--tg-button-text); }
@@ -158,6 +165,7 @@ export class EventsListComponent implements OnInit, OnDestroy {
   priceFilter = '';
   loading = signal(true);
   events = signal<EventItem[]>([]);
+  failedImageIds = signal<ReadonlySet<string>>(new Set());
   historyView = signal(false);
 
   protected readonly i18n = inject(I18nService);
@@ -202,6 +210,10 @@ export class EventsListComponent implements OnInit, OnDestroy {
   onCategoryChange(value: string): void {
     this.category = value;
     if (value) this.analytics.track('category_filter', undefined, value);
+  }
+
+  markImageFailed(eventId: string): void {
+    this.failedImageIds.update((ids) => new Set(ids).add(eventId));
   }
 
   ngOnDestroy(): void {

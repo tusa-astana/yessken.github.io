@@ -17,7 +17,11 @@ import QRCode from 'qrcode';
     @if (event(); as ev) {
       <div class="event-detail">
         <header class="event-hero">
-          <img [src]="ev.imageUrl" [alt]="''" class="cover" fetchpriority="high" />
+          @if (ev.imageUrl && !imageUnavailable()) {
+            <img [src]="ev.imageUrl" [alt]="''" class="cover" fetchpriority="high" (error)="imageUnavailable.set(true)" />
+          } @else {
+            <div class="cover-fallback" aria-hidden="true"><span>TUSA · АСТАНА</span><strong>{{ ev.category }}</strong></div>
+          }
           <div class="hero-content">
             <div class="heading-row">
               <span class="category">{{ ev.category }}</span>
@@ -100,6 +104,9 @@ import QRCode from 'qrcode';
       .event-detail { max-width: 1040px; margin: 0 auto; padding: 0 1rem 5.5rem; }
       .event-hero { position: relative; display: flex; align-items: end; min-height: 260px; margin: .35rem -1rem 0; overflow: hidden; border-radius: 0 0 20px 20px; background: #24352b; }
       .cover { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+      .cover-fallback { position: absolute; inset: 0; display: grid; align-content: end; gap: .45rem; padding: 1.25rem; background: radial-gradient(ellipse at 82% 18%, rgba(116,164,145,.32), transparent 42%), linear-gradient(140deg, #1a2831, #243e43 55%, #17232d); color: #f4f4ed; }
+      .cover-fallback span { color: #d3ded7; font-size: .62rem; font-weight: 800; letter-spacing: .16em; }
+      .cover-fallback strong { font-size: clamp(1.2rem, 3vw, 2rem); text-transform: uppercase; }
       .event-hero::after { position: absolute; inset: 0; content: ''; background: linear-gradient(180deg, rgba(10,18,13,.05) 15%, rgba(10,18,13,.78) 100%); }
       .hero-content { position: relative; z-index: 1; width: 100%; padding: 1.25rem; color: #fff; }
       .heading-row { display: flex; align-items: center; gap: .5rem; }
@@ -168,6 +175,7 @@ import QRCode from 'qrcode';
 export class EventDetailComponent implements OnInit {
   protected readonly i18n = inject(I18nService);
   event = signal<EventItem | null>(null);
+  imageUnavailable = signal(false);
   promotionOffer = signal<EventPromotionOffer | null>(null);
   promotionTermsAccepted = signal(false);
   promotionLoading = signal(false);
@@ -192,6 +200,7 @@ export class EventDetailComponent implements OnInit {
     if (id) {
       this.analytics.track('event_open', id);
       this.data.getEventById(id).subscribe((ev) => {
+        this.imageUnavailable.set(false);
         this.event.set(ev ?? null);
         if (ev) this.generateQr(ev);
         if (ev && this.telegram.isInTelegram) {

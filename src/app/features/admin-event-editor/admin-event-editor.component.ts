@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { EventsApiService } from '../../core/services/events-api.service';
+import { compressEventImage } from '../../core/utils/event-image.util';
 import type { AdminEditableEvent } from '../../core/types/event.model';
 
 @Component({
@@ -14,7 +15,7 @@ import type { AdminEditableEvent } from '../../core/types/event.model';
       <header>
         <p class="eyebrow">TUSA · ADMIN</p>
         <h1>Редактирование событий</h1>
-        <p>Можно исправить карточку и добавить обложку по прямой HTTPS-ссылке на изображение. Используй изображение, которое разрешено размещать.</p>
+        <p>Можно исправить карточку и загрузить разрешённую обложку. Загруженное изображение оптимизируется и хранится вместе с событием, чтобы карточка не зависела от внешней ссылки.</p>
         <nav aria-label="Инструменты модерации">
           <a routerLink="/admin/event-review">Очередь заявок</a>
           <a routerLink="/admin/event-sources">Источники событий</a>
@@ -62,10 +63,18 @@ import type { AdminEditableEvent } from '../../core/types/event.model';
                   <label>Место<input formControlName="place" maxlength="160" /></label>
                   <label>Категория<input formControlName="category" maxlength="80" /></label>
                   <label>Описание<textarea formControlName="description" rows="4" maxlength="3000"></textarea></label>
-                  <label>Ссылка на изображение (HTTPS)
-                    <input type="text" inputmode="url" formControlName="imageUrl" placeholder="https://…/poster.jpg" (input)="onImageUrlInput($event)" />
+                  <label>Прямая ссылка на изображение (необязательно)
+                    <input type="text" inputmode="url" [value]="isUploadedImage(form.controls.imageUrl.value) ? '' : form.controls.imageUrl.value" placeholder="https://…/poster.jpg" (input)="onImageUrlInput($event)" />
                   </label>
-                  <p class="help">Нужен прямой публичный URL файла изображения, а не ссылка на страницу афиши. Ссылка сохраняется без загрузки или копирования файла. Очисти поле, чтобы убрать обложку.</p>
+                  <label>Или загрузить файл обложки
+                    <input type="file" accept="image/png,image/jpeg,image/webp" [disabled]="imageUploading() || savingId() !== null" (change)="selectImageFile($event)" />
+                  </label>
+                  <p class="help">Загруженное разрешённое изображение сжимается в WebP и сохраняется в TUSA. Для внешней ссылки нужен прямой HTTPS URL файла, а не страница афиши; сайт может запрещать hotlink. Очисти URL и оставь поле пустым, чтобы убрать обложку.</p>
+                  @if (imageUploading()) { <p class="help" role="status">Сжимаем обложку…</p> }
+                  @if (imageError()) { <p class="preview-error" role="alert">{{ imageError() }}</p> }
+                  @if (form.controls.imageUrl.value && form.controls.imageUrl.value !== originalImageUrl()) {
+                    <label class="image-permission"><input type="checkbox" [checked]="imagePermissionConfirmed()" (change)="imagePermissionConfirmed.set($any($event.target).checked)" /> Подтверждаю, что TUSA может размещать это изображение.</label>
+                  }
                   @if (previewUrl() && !previewError()) {
                     <figure class="preview">
                       <img [src]="previewUrl()" [alt]="'Предпросмотр обложки события ' + form.controls.title.value" (error)="previewError.set(true)" />
@@ -113,6 +122,8 @@ import type { AdminEditableEvent } from '../../core/types/event.model';
     .edit-form textarea { resize: vertical; }
     .two-columns { display: grid; grid-template-columns: 1fr 1fr; gap: .55rem; }
     .help { margin: 0; color: var(--tg-muted); font-size: .68rem; line-height: 1.5; }
+    .image-permission { display: flex !important; align-items: flex-start; gap: .5rem !important; color: var(--tg-text) !important; font-weight: 600 !important; line-height: 1.45; }
+    .image-permission input { width: 1rem; min-height: 1rem; flex: 0 0 auto; margin: .15rem 0 0; }
     .preview { margin: 0; }
     .preview img { display: block; width: min(100%, 28rem); max-height: 18rem; object-fit: cover; border-radius: 8px; background: var(--tg-bg); }
     .preview figcaption { margin-top: .25rem; color: var(--tg-muted); font-size: .65rem; }
@@ -138,6 +149,10 @@ export class AdminEventEditorComponent implements OnInit {
   readonly announcement = signal('');
   readonly previewUrl = signal('');
   readonly previewError = signal(false);
+  readonly imageUploading = signal(false);
+  readonly imageError = signal('');
+  readonly originalImageUrl = signal('');
+  readonly imagePermissionConfirmed = signal(false);
   readonly form = this.fb.nonNullable.group({
     title: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(120)]],
     description: ['', Validators.maxLength(3000)],
@@ -167,6 +182,9 @@ export class AdminEventEditorComponent implements OnInit {
     this.announcement.set('');
     this.previewError.set(false);
     this.previewUrl.set(event.imageUrl);
+    this.originalImageUrl.set(event.imageUrl);
+    this.imagePermissionConfirmed.set(false);
+    this.imageError.set('');
     this.form.reset({
       title: event.title,
       description: event.description,
@@ -179,24 +197,62 @@ export class AdminEventEditorComponent implements OnInit {
   }
 
   onImageUrlInput(event: Event): void {
-    this.previewUrl.set((event.target as HTMLInputElement).value.trim());
+    const imageUrl = (event.target as HTMLInputElement).value.trim();
+    this.form.controls.imageUrl.setValue(imageUrl);
+    this.previewUrl.set(imageUrl);
     this.previewError.set(false);
+    this.imageError.set('');
+    this.imagePermissionConfirmed.set(false);
+  }
+
+  isUploadedImage(imageUrl: string): boolean {
+    return imageUrl.startsWith('data:image/webp;base64,');
+  }
+
+  async selectImageFile(event: Event): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    input.value = '';
+    if (!file) return;
+    this.imageUploading.set(true);
+    this.imageError.set('');
+    try {
+      const imageUrl = await compressEventImage(file);
+      this.form.controls.imageUrl.setValue(imageUrl);
+      this.previewUrl.set(imageUrl);
+      this.previewError.set(false);
+      this.imagePermissionConfirmed.set(false);
+    } catch (error) {
+      this.imageError.set(error instanceof Error ? error.message : 'Не удалось подготовить обложку.');
+    } finally {
+      this.imageUploading.set(false);
+    }
   }
 
   save(event: AdminEditableEvent): void {
-    if (this.form.invalid || this.savingId()) return;
+    if (this.form.invalid || this.savingId() || this.imageUploading()) return;
+    const imageChanged = this.form.controls.imageUrl.value !== this.originalImageUrl();
+    if (imageChanged && this.form.controls.imageUrl.value && !this.imagePermissionConfirmed()) {
+      this.imageError.set('Подтверди право размещать выбранное изображение.');
+      return;
+    }
     this.savingId.set(event.id);
     this.error.set('');
     this.announcement.set('');
-    this.api.updateAdminEvent(event.id, this.form.getRawValue()).subscribe((updated) => {
+    this.api.updateAdminEvent(event.id, {
+      ...this.form.getRawValue(),
+      imagePermissionConfirmed: this.imagePermissionConfirmed(),
+    }).subscribe((updated) => {
       this.savingId.set(null);
       if (!updated) {
-        this.error.set('Не удалось сохранить событие. Проверь HTTPS-ссылку на изображение и повтори попытку.');
+        this.error.set('Не удалось сохранить событие. Проверь ссылку на изображение или попробуй загрузить файл заново.');
         return;
       }
       this.events.update((items) => items?.map((item) => item.id === updated.id ? updated : item) ?? null);
       this.selectedId.set(null);
       this.previewUrl.set('');
+      this.originalImageUrl.set(updated.imageUrl);
+      this.imagePermissionConfirmed.set(false);
       this.announcement.set(`Изменения события «${updated.title}» сохранены.`);
     });
   }

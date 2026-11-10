@@ -47,7 +47,9 @@ export interface AdminEditableEvent {
   status: 'pending' | 'approved';
 }
 
-export type UpdateAdminEventRequest = Omit<AdminEditableEvent, 'id' | 'status'>;
+export type UpdateAdminEventRequest = Omit<AdminEditableEvent, 'id' | 'status'> & {
+  imagePermissionConfirmed: boolean;
+};
 
 export interface TicketCategory {
   id: string;

@@ -100,4 +100,36 @@ describe('EventsListComponent', () => {
     expect((fixture.nativeElement as HTMLElement).querySelector('.featured-badge')?.textContent?.trim())
       .toBe('РЕКЛАМА');
   });
+
+  it('shows a designed fallback instead of a broken image when an event has no cover', () => {
+    fixture.componentInstance.events.set([{
+      id: 'no-cover', title: 'Тартюф', description: '', date: '2099-11-11', time: '19:00',
+      place: 'Астана Опера', address: '', lat: 0, lng: 0, category: 'Спектакль', price: null,
+      imageUrl: '', organizerName: 'Астана Опера',
+    }]);
+    fixture.detectChanges();
+
+    const media = (fixture.nativeElement as HTMLElement).querySelector('.card-media');
+    expect(media?.querySelector('img')).toBeNull();
+    expect(media?.querySelector('.image-fallback')?.textContent).toContain('Спектакль');
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain('Тартюф');
+  });
+
+  it('replaces an unavailable remote cover with the fallback', () => {
+    fixture.componentInstance.events.set([{
+      id: 'unavailable-cover', title: 'Тартюф', description: '', date: '2099-11-11', time: '19:00',
+      place: 'Астана Опера', address: '', lat: 0, lng: 0, category: 'Спектакль', price: null,
+      imageUrl: 'https://images.example.org/poster.jpg', organizerName: 'Астана Опера',
+    }]);
+    fixture.detectChanges();
+
+    const image = (fixture.nativeElement as HTMLElement).querySelector<HTMLImageElement>('.card-media img');
+    expect(image).not.toBeNull();
+    image?.dispatchEvent(new Event('error'));
+    fixture.detectChanges();
+
+    const media = (fixture.nativeElement as HTMLElement).querySelector('.card-media');
+    expect(media?.querySelector('img')).toBeNull();
+    expect(media?.querySelector('.image-fallback')).not.toBeNull();
+  });
 });

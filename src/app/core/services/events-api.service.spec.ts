@@ -67,6 +67,7 @@ describe('EventsApiService', () => {
     const body = {
       title: 'Winter concert', description: 'Updated details', date: '2026-12-01', time: '19:00',
       place: 'Astana Hall', category: 'концерт', imageUrl: 'https://cdn.example.org/poster.webp',
+      imagePermissionConfirmed: true,
     };
     const result = firstValueFrom(service.updateAdminEvent('event-1', body));
     const request = http.expectOne('/api/admin/events/event-1');
