@@ -14,7 +14,7 @@ const candidate: EventSourceCandidate = {
 describe('AdminEventSourcesComponent', () => {
   afterEach(() => TestBed.resetTestingModule());
 
-  it('requires an editor to fill event date and place before converting an RSS candidate', async () => {
+  it('explains missing required fields instead of silently disabling draft creation', async () => {
     const convert = vi.fn(async () => 'pending-event-1');
     await TestBed.configureTestingModule({
       imports: [AdminEventSourcesComponent],
@@ -34,6 +34,12 @@ describe('AdminEventSourcesComponent', () => {
     expect(fixture.componentInstance.form.controls.description.value).toBe('');
     expect((fixture.nativeElement as HTMLElement).querySelector('.source-link')?.getAttribute('href'))
       .toBe(candidate.sourceUrl);
+    const createButton = (fixture.nativeElement as HTMLElement).querySelector<HTMLButtonElement>('.form-actions .primary');
+    expect(createButton?.disabled).toBe(false);
+    await fixture.componentInstance.convert(candidate);
+    expect(convert).not.toHaveBeenCalled();
+    expect(fixture.componentInstance.formError()).toContain('место проведения');
+    expect(fixture.componentInstance.formError()).toContain('подтверждение разрешения');
 
     fixture.componentInstance.form.patchValue({
       date: '2026-11-18',

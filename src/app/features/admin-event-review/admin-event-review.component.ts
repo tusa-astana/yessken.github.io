@@ -14,6 +14,7 @@ import type { EventItem } from '../../core/types/event.model';
         <span class="eyebrow">TUSA / ADMIN</span>
         <h1>Заявки на публикацию</h1>
         <p>Проверь событие и контакты организатора. В каталоге оно появится только после одобрения.</p>
+        <a class="back-link" routerLink="/admin/events">Редактировать события и обложки →</a>
       </header>
 
       <section class="queue" aria-live="polite">

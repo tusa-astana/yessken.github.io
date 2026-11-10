@@ -50,6 +50,33 @@ describe('EventsApiService', () => {
     await expect(result).resolves.toEqual([event]);
   });
 
+  it('loads the admin event editor list with verified initData', async () => {
+    const result = firstValueFrom(service.getAdminEvents());
+    const request = http.expectOne('/api/admin/events');
+    expect(request.request.method).toBe('GET');
+    expect(request.request.headers.get('X-Telegram-Init-Data')).toBe('verified-telegram-init-data');
+    const event = {
+      id: 'event-1', title: 'Winter concert', description: '', date: '2026-12-01', time: '19:00',
+      place: 'Astana Hall', category: 'концерт', imageUrl: '', status: 'approved',
+    };
+    request.flush([event]);
+    await expect(result).resolves.toEqual([event]);
+  });
+
+  it('updates admin event content and manual cover URL with verified initData', async () => {
+    const body = {
+      title: 'Winter concert', description: 'Updated details', date: '2026-12-01', time: '19:00',
+      place: 'Astana Hall', category: 'концерт', imageUrl: 'https://cdn.example.org/poster.webp',
+    };
+    const result = firstValueFrom(service.updateAdminEvent('event-1', body));
+    const request = http.expectOne('/api/admin/events/event-1');
+    expect(request.request.method).toBe('PUT');
+    expect(request.request.headers.get('X-Telegram-Init-Data')).toBe('verified-telegram-init-data');
+    expect(request.request.body).toEqual(body);
+    request.flush({ id: 'event-1', ...body, status: 'approved' });
+    await expect(result).resolves.toMatchObject({ id: 'event-1', imageUrl: body.imageUrl, status: 'approved' });
+  });
+
   it('sends public-event confirmation and Telegram source permalink with a submission', async () => {
     const event: Omit<EventItem, 'id'> = {
       title: 'Channel event', description: '', date: '2026-12-01', time: '19:00', place: 'Astana venue',

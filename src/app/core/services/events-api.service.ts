@@ -2,7 +2,7 @@ import { Injectable, signal } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { Observable, catchError, map, of, retry, throwError, timer, timeout } from 'rxjs';
 import { TelegramService } from './telegram.service';
-import type { AdminEventReport, AdminSalesSummary, AnalyticsInsightsSummary, BotMessageLogRow, DailyFunnelSummary, EventItem, EventPromotionInvoice, EventPromotionOffer, FunnelSummaryRow, MeetupCampaignSummaryRow, MeetupDensitySummary, MeetupVenueOption, OrganizerEngagementRow, OrganizerOrderRow, OrganizerSubscriptionOffer, OrganizerSubscriptionStatus, Ticket, TelegramGroupItem } from '../types/event.model';
+import type { AdminEditableEvent, AdminEventReport, AdminSalesSummary, AnalyticsInsightsSummary, BotMessageLogRow, DailyFunnelSummary, EventItem, EventPromotionInvoice, EventPromotionOffer, FunnelSummaryRow, MeetupCampaignSummaryRow, MeetupDensitySummary, MeetupVenueOption, OrganizerEngagementRow, OrganizerOrderRow, OrganizerSubscriptionOffer, OrganizerSubscriptionStatus, Ticket, TelegramGroupItem, UpdateAdminEventRequest } from '../types/event.model';
 import { environment } from '../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
@@ -57,6 +57,18 @@ export class EventsApiService {
   reviewPendingEvent(id: string, decision: 'approve' | 'reject'): Observable<EventItem | null> {
     if (this.apiDisabled) return of(null);
     return this.http.post<EventItem>(`${this.base}/api/events/${encodeURIComponent(id)}/${decision}`, {}, { headers: this.headers() })
+      .pipe(catchError(() => of(null)));
+  }
+
+  getAdminEvents(): Observable<AdminEditableEvent[] | null> {
+    if (this.apiDisabled || !this.telegram.initData) return of(null);
+    return this.http.get<AdminEditableEvent[]>(`${this.base}/api/admin/events`, { headers: this.headers() })
+      .pipe(catchError(() => of(null)));
+  }
+
+  updateAdminEvent(id: string, request: UpdateAdminEventRequest): Observable<AdminEditableEvent | null> {
+    if (this.apiDisabled || !this.telegram.initData) return of(null);
+    return this.http.put<AdminEditableEvent>(`${this.base}/api/admin/events/${encodeURIComponent(id)}`, request, { headers: this.headers() })
       .pipe(catchError(() => of(null)));
   }
 

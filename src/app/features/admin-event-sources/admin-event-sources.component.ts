@@ -53,8 +53,10 @@ import { EventSourceCandidate, EventSourcesApiService } from './event-sources-ap
                     <label>Хобби ID<input formControlName="hobbyId" maxlength="60" readonly /></label>
                   </div>
                   <label>Краткое описание<textarea formControlName="description" rows="4" maxlength="3000"></textarea></label>
+                  <p class="required-note">Для черновика нужны название, будущая дата, место, категория и подтверждение разрешения на краткую карточку.</p>
+                  @if (formError()) { <p class="form-error" role="alert">{{ formError() }}</p> }
                   <div class="form-actions">
-                    <button class="primary" type="submit" [disabled]="form.invalid || busyId() !== null">{{ busyId() === candidate.id ? 'Создаём заявку…' : 'Создать черновик на модерацию' }}</button>
+                    <button class="primary" type="submit" [disabled]="busyId() !== null">{{ busyId() === candidate.id ? 'Создаём заявку…' : 'Создать черновик на модерацию' }}</button>
                     <button type="button" (click)="selectedId.set(null)" [disabled]="busyId() !== null">Отмена</button>
                   </div>
                 </form>
@@ -88,6 +90,8 @@ import { EventSourceCandidate, EventSourcesApiService } from './event-sources-ap
     .source-line { display: flex; justify-content: space-between; flex-wrap: wrap; gap: .4rem; color: var(--tg-muted); font-size: .65rem; }
     .candidate h2 { margin: .55rem 0 .35rem; font-size: 1.05rem; }
     .summary, .form-note { color: var(--tg-muted); font-size: .74rem; line-height: 1.5; }
+    .required-note { margin: 0; color: var(--tg-muted); font-size: .68rem; line-height: 1.45; }
+    .form-error { margin: 0; color: #b94d42; font-size: .72rem; line-height: 1.45; }
     .actions, .form-actions { display: flex; flex-wrap: wrap; gap: .45rem; margin-top: .5rem; }
     .primary { border-color: var(--tg-button); background: var(--tg-button); color: var(--tg-button-text); }
     .dismiss { color: var(--tg-muted); }
@@ -114,6 +118,7 @@ export class AdminEventSourcesComponent implements OnInit {
   readonly selectedId = signal<string | null>(null);
   readonly busyId = signal<string | null>(null);
   readonly error = signal('');
+  readonly formError = signal('');
   readonly announcement = signal('');
   readonly minDate = new Date(Date.now() + 5 * 60 * 60 * 1000).toISOString().slice(0, 10);
   readonly form = this.fb.nonNullable.group({
@@ -147,6 +152,7 @@ export class AdminEventSourcesComponent implements OnInit {
 
   select(candidate: EventSourceCandidate): void {
     this.selectedId.set(candidate.id);
+    this.formError.set('');
     this.form.reset({
       title: candidate.title,
       date: candidate.eventDate ?? '',
@@ -160,7 +166,24 @@ export class AdminEventSourcesComponent implements OnInit {
   }
 
   async convert(candidate: EventSourceCandidate): Promise<void> {
-    if (this.form.invalid || this.busyId()) return;
+    if (this.busyId()) return;
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      const missing = [
+        ['title', 'название'],
+        ['date', 'будущую дату'],
+        ['place', 'место проведения'],
+        ['category', 'категорию'],
+        ['hobbyId', 'хобби'],
+        ['sourcePermissionConfirmed', 'подтверждение разрешения'],
+      ] as const;
+      const incomplete = missing
+        .filter(([name]) => this.form.controls[name].invalid)
+        .map(([, label]) => label);
+      this.formError.set(`Заполни или подтверди: ${incomplete.join(', ')}.`);
+      return;
+    }
+    this.formError.set('');
     this.busyId.set(candidate.id);
     this.error.set('');
     this.announcement.set('');

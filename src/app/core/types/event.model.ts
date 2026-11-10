@@ -35,6 +35,20 @@ export interface EventItem {
   ticketCategories?: TicketCategory[];
 }
 
+export interface AdminEditableEvent {
+  id: string;
+  title: string;
+  description: string;
+  date: string;
+  time: string;
+  place: string;
+  category: string;
+  imageUrl: string;
+  status: 'pending' | 'approved';
+}
+
+export type UpdateAdminEventRequest = Omit<AdminEditableEvent, 'id' | 'status'>;
+
 export interface TicketCategory {
   id: string;
   eventId: string;

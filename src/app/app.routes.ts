@@ -20,6 +20,7 @@ export const routes: Routes = [
   { path: 'admin/analytics/board', loadComponent: () => import('./features/admin-analytics/admin-work-board.component').then((m) => m.AdminWorkBoardComponent) },
   { path: 'admin/analytics', loadComponent: () => import('./features/admin-analytics/admin-analytics.component').then((m) => m.AdminAnalyticsComponent) },
   { path: 'admin/bot-messages', loadComponent: () => import('./features/admin-bot-logs/admin-bot-logs.component').then((m) => m.AdminBotLogsComponent) },
+  { path: 'admin/events', loadComponent: () => import('./features/admin-event-editor/admin-event-editor.component').then((m) => m.AdminEventEditorComponent) },
   { path: 'admin/event-review', loadComponent: () => import('./features/admin-event-review/admin-event-review.component').then((m) => m.AdminEventReviewComponent) },
   { path: 'admin/event-sources', loadComponent: () => import('./features/admin-event-sources/admin-event-sources.component').then((m) => m.AdminEventSourcesComponent) },
   { path: 'tg-groups', loadComponent: () => import('./features/tg-groups/tg-groups.component').then((m) => m.TgGroupsComponent) },
