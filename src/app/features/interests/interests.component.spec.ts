@@ -253,6 +253,30 @@ describe('InterestsComponent gathering links', () => {
     fixture.destroy();
   });
 
+  it('places the community suggestion CTA before the long interest list', async () => {
+    await TestBed.configureTestingModule({
+      imports: [InterestsComponent],
+      providers: [
+        provideRouter([]),
+        { provide: ActivatedRoute, useValue: { snapshot: { queryParamMap: convertToParamMap({}) } } },
+        { provide: TelegramService, useValue: { isInTelegram: false, startParam: '', miniAppLink: vi.fn(), openTelegramLink: vi.fn() } },
+        { provide: AnalyticsService, useValue: { track: vi.fn() } },
+        { provide: InterestsApiService, useValue: { load: vi.fn(async () => [group]) } },
+      ],
+    }).compileComponents();
+    const fixture = TestBed.createComponent(InterestsComponent);
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const element = fixture.nativeElement as HTMLElement;
+    const suggestion = element.querySelector('.community-submit');
+    const interests = element.querySelector('.group-grid');
+    expect(suggestion).not.toBeNull();
+    expect(interests).not.toBeNull();
+    expect(Boolean(suggestion!.compareDocumentPosition(interests!) & Node.DOCUMENT_POSITION_FOLLOWING)).toBe(true);
+    fixture.destroy();
+  });
+
   it('submits a community with all selected interest IDs and explains pending moderation', async () => {
     const submitCommunity = vi.fn(async () => true);
     const secondGroup: InterestGroup = { ...group, id: 'running', name: 'Бег и прогулки' };
@@ -285,6 +309,26 @@ describe('InterestsComponent gathering links', () => {
       interestIds: ['board-games', 'running'],
     });
     expect(component.announcement()).toContain('на проверку');
+    fixture.destroy();
+  });
+
+  it('does not submit a community without a selected interest even if the form submit handler runs', async () => {
+    const submitCommunity = vi.fn(async () => true);
+    await TestBed.configureTestingModule({
+      imports: [InterestsComponent],
+      providers: [
+        provideRouter([]),
+        { provide: ActivatedRoute, useValue: { snapshot: { queryParamMap: convertToParamMap({}) } } },
+        { provide: TelegramService, useValue: { isInTelegram: true, startParam: '', miniAppLink: vi.fn(), openTelegramLink: vi.fn() } },
+        { provide: AnalyticsService, useValue: { track: vi.fn() } },
+        { provide: InterestsApiService, useValue: { load: vi.fn(async () => [group]), submitCommunity } },
+      ],
+    }).compileComponents();
+    const fixture = TestBed.createComponent(InterestsComponent);
+
+    await fixture.componentInstance.submitCommunity();
+
+    expect(submitCommunity).not.toHaveBeenCalled();
     fixture.destroy();
   });
 

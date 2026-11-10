@@ -17,17 +17,31 @@
   .notification-setting { display: flex !important; grid-column: 1 / -1; align-items: center; gap: .45rem !important; color: var(--tg-muted) !important; font-size: .61rem !important; font-weight: 500 !important; }
   .community-list { display: grid; grid-column: 1 / -1; gap: .4rem; padding-top: .65rem; border-top: 1px solid var(--tg-line); }
   .community-link { display: flex; align-items: center; gap: .45rem; padding: .45rem; border: 1px solid var(--tg-line); border-radius: 7px; color: var(--tg-text); text-decoration: none; }
-  .community-platform { flex: 0 0 auto; color: var(--tg-button); font-size: .58rem; font-weight: 800; }
+  .community-link { background: color-mix(in srgb, var(--tg-button) 4%, var(--tg-surface)); transition: border-color .18s ease, background .18s ease, transform .18s ease; }
+  .community-link:hover { border-color: color-mix(in srgb, var(--tg-button) 55%, var(--tg-line)); background: color-mix(in srgb, var(--tg-button) 8%, var(--tg-surface)); transform: translateY(-1px); }
+  .community-link:focus-visible, .community-submit button:focus-visible, .community-form input:focus-visible, .community-form select:focus-visible, .community-form textarea:focus-visible { outline: 2px solid var(--tg-button); outline-offset: 3px; }
+  .community-platform { flex: 0 0 auto; padding: .2rem .4rem; border: 1px solid color-mix(in srgb, var(--tg-button) 28%, var(--tg-line)); border-radius: 999px; background: color-mix(in srgb, var(--tg-button) 7%, var(--tg-surface)); color: var(--tg-button); font-size: .58rem; font-weight: 800; }
   .community-copy { display: grid; min-width: 0; gap: .15rem; font-size: .67rem; }
   .community-copy small { overflow: hidden; color: var(--tg-muted); text-overflow: ellipsis; }
-  .community-submit { margin-top: 1rem; }
-  .create-community-button { min-height: 40px; padding: .5rem .7rem; border: 1px solid var(--tg-line); border-radius: 7px; background: var(--tg-surface); color: var(--tg-button); font: inherit; font-size: .7rem; font-weight: 800; cursor: pointer; }
-  .community-form > p, .community-auth-hint { margin: 0; color: var(--tg-muted); font-size: .65rem; line-height: 1.45; }
-  .community-form select { min-height: 38px; padding: .45rem; border: 1px solid var(--tg-line); border-radius: 6px; background: var(--tg-bg); color: var(--tg-text); }
-  .community-form fieldset { display: flex; flex-wrap: wrap; gap: .4rem .7rem; margin: 0; padding: .55rem; border: 1px solid var(--tg-line); border-radius: 7px; }
-  .community-form legend { padding: 0 .2rem; color: var(--tg-muted); font-size: .63rem; }
-  .community-form .interest-choice { display: inline-flex; align-items: center; gap: .25rem; font-size: .64rem; }
-  .community-form .interest-choice input { width: 16px; height: 16px; accent-color: var(--tg-button); }
+  .community-submit { margin: .8rem 0 1rem; padding: .8rem; border: 1px solid color-mix(in srgb, var(--tg-button) 22%, var(--tg-line)); border-radius: 11px; background: color-mix(in srgb, var(--tg-button) 5%, var(--tg-surface)); }
+  .community-submit-prompt { display: flex; align-items: center; justify-content: space-between; gap: .8rem; }
+  .community-submit-prompt h2 { margin: 0; color: var(--tg-text); font: 500 1rem Georgia,serif; }
+  .community-submit-prompt p { margin: .25rem 0 0; color: var(--tg-muted); font-size: .72rem; line-height: 1.4; }
+  .create-community-button { min-height: 44px; padding: .5rem .7rem; border: 1px solid var(--tg-line); border-radius: 7px; background: var(--tg-surface); color: var(--tg-button); font: inherit; font-size: .7rem; font-weight: 800; cursor: pointer; }
+  .community-form { padding: .85rem; border-color: color-mix(in srgb, var(--tg-button) 25%, var(--tg-line)); background: color-mix(in srgb, var(--tg-surface) 94%, var(--tg-button)); }
+  .community-form .form-heading strong { font-size: .9rem; }
+  .community-form > label { font-size: .72rem; }
+  .community-form > p, .community-auth-hint { margin: 0; color: var(--tg-muted); font-size: .72rem; line-height: 1.5; }
+  .community-form input:not([type="checkbox"]), .community-form select, .community-form textarea { min-height: 44px; font-size: .78rem; }
+  .community-form select { min-height: 44px; padding: .45rem; border: 1px solid var(--tg-line); border-radius: 6px; background: var(--tg-bg); color: var(--tg-text); }
+  .community-form .primary-action { min-height: 44px; }
+  .community-form fieldset { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 9.5rem), 1fr)); gap: .4rem; margin: 0; padding: .65rem; border: 1px solid var(--tg-line); border-radius: 8px; }
+  .community-form legend { padding: 0 .25rem; color: var(--tg-text); font-size: .74rem; font-weight: 750; }
+  .community-form .interest-choice { display: flex; min-height: 44px; align-items: center; gap: .45rem; padding: .35rem .5rem; border: 1px solid var(--tg-line); border-radius: 7px; background: color-mix(in srgb, var(--tg-surface) 88%, var(--tg-button)); color: var(--tg-text); font-size: .72rem; line-height: 1.25; cursor: pointer; }
+  .community-form.gathering-form label.interest-choice { display: flex; justify-content: flex-start; text-align: left; }
+  .community-form .interest-choice:has(input:checked) { border-color: color-mix(in srgb, var(--tg-button) 70%, var(--tg-line)); background: color-mix(in srgb, var(--tg-button) 12%, var(--tg-surface)); }
+  .community-form.gathering-form label.interest-choice input[type="checkbox"] { width: 18px !important; min-width: 18px; height: 18px; flex: 0 0 18px; margin: 0; accent-color: var(--tg-button); }
+  @media (max-width: 540px) { .community-submit-prompt { align-items: stretch; flex-direction: column; } .community-submit-prompt .create-community-button { width: 100%; } .community-form fieldset { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 }
 
 .shell::before {
@@ -113,6 +127,7 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .shell::before, .shell.dark-theme::before { animation: none; filter: none; }
+  .interests-page .community-link { transition: none; transform: none; }
   .shell.dark-theme .pulse-dot, .shell.dark-theme .scene-spark,
   .shell.dark-theme .interests-shortcut:not(.groups-shortcut),
   .shell.dark-theme .plan-card.featured-card,

@@ -115,8 +115,38 @@ html[data-theme='light'], html[data-theme='light'] body {
   background: color-mix(in srgb, var(--holiday-cyan) 9%, var(--tg-surface));
 }
 
+.shell.dark-theme .interests-page .community-submit {
+  border-color: color-mix(in srgb, var(--holiday-cyan) 30%, var(--tg-line));
+  background: linear-gradient(110deg, color-mix(in srgb, var(--holiday-mint) 9%, var(--tg-surface)), color-mix(in srgb, var(--holiday-violet) 7%, var(--tg-surface)));
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--tg-text) 5%, transparent);
+}
+
+.shell.dark-theme .interests-page .community-submit-prompt h2 { color: var(--tg-text); }
+.shell.dark-theme .interests-page .community-submit-prompt p { color: var(--tg-muted); }
+.shell.dark-theme .interests-page .community-link {
+  border-color: color-mix(in srgb, var(--holiday-cyan) 24%, var(--tg-line));
+  background: color-mix(in srgb, var(--tg-surface) 88%, var(--holiday-cyan) 12%);
+}
+.shell.dark-theme .interests-page .community-link:hover,
+.shell.dark-theme .interests-page .community-link:focus-visible {
+  border-color: color-mix(in srgb, var(--holiday-cyan) 70%, var(--tg-line));
+  background: color-mix(in srgb, var(--tg-surface) 78%, var(--holiday-cyan) 22%);
+}
+.shell.dark-theme .interests-page .community-platform {
+  padding: .2rem .4rem;
+  border: 1px solid color-mix(in srgb, var(--holiday-cyan) 34%, var(--tg-line));
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--holiday-cyan) 10%, var(--tg-surface));
+  color: var(--holiday-cyan);
+}
+.shell.dark-theme .interests-page .community-form .interest-choice:has(input:checked) {
+  border-color: color-mix(in srgb, var(--holiday-mint) 66%, var(--tg-line));
+  background: color-mix(in srgb, var(--holiday-mint) 14%, var(--tg-surface));
+}
+
 @media (prefers-reduced-motion: reduce) {
   .shell.dark-theme .interests-page .interest-card { transition: none; }
   .shell.dark-theme .interests-page .interest-card:hover,
   .shell.dark-theme .interests-page .interest-card:focus-within { transform: none; }
+  .shell.dark-theme .interests-page .community-link { transition: none; }
 }
