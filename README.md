@@ -1,6 +1,8 @@
 # TusaMap
 
-Карта событий Астаны — Telegram Web App. Бот: [@tusa_astana_bot](https://t.me/tusa_astana_bot).
+Карта событий Астаны — Telegram Mini App для поиска мероприятий, сообществ по интересам и встреч в городе. Бот: [@tusa_astana_bot](https://t.me/tusa_astana_bot).
+
+TUSA помогает жителям Астаны находить, куда пойти, а организаторам — публиковать и продвигать события без продажи офлайн-билетов через приложение. Каталог, RSVP и интерес-группы бесплатны; платная часть (когда будет включена) — только цифровые сервисы внутри Telegram (Stars), например Organizer Pro.
 
 **Токен бота** хранится только на бэкенде (переменные окружения), в репозитории его нет.
 
@@ -108,3 +110,14 @@ Angular CLI does not come with an end-to-end testing framework by default. You c
 ## Additional Resources
 
 For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+
+## Support & Sponsorship
+
+TUSA — открытый продукт для афиши и сообществ Астаны. Если проект полезен, поддержите его через кнопку **Sponsor** на странице репозитория.
+
+Средства пойдут на:
+- хостинг API и GitHub Pages;
+- модерацию и развитие каталога событий и интерес-групп;
+- поддержку Telegram-бота и инфраструктуру безопасности.
+
+Спонсорство не даёт платного доступа к офлайн-мероприятиям и не заменяет Organizer Pro.
