@@ -12,7 +12,7 @@ Telegram requires Stars for digital goods and services inside bots and Mini Apps
 
 ## GitHub Pages
 
-Сайт публикуется на **https://yessken.github.io/** через GitHub Actions при пуше в `main`. В репозитории должны быть в корне: `package.json`, `angular.json`, `src/`, `.github/workflows/deploy-pages.yml`. В настройках репозитории: **Settings → Pages → Source**: GitHub Actions.
+Сайт публикуется на **https://tusa-astana.github.io/yessken.github.io/** через GitHub Actions при пуше в `main`. В репозитории должны быть в корне: `package.json`, `angular.json`, `src/`, `.github/workflows/deploy-pages.yml`. В настройках репозитории: **Settings → Pages → Source**: GitHub Actions.
 
 ## Development server
 
