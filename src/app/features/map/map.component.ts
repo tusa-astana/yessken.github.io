@@ -41,22 +41,7 @@ declare const L: typeof import('leaflet');
       :host { display: block; min-height: 0; }
       .map-container { position: relative; width: 100%; height: calc(100dvh - 64px - 42px - 5.4rem - env(safe-area-inset-bottom)); min-height: 420px; overflow: hidden; }
       .map { width: 100%; height: 100%; min-height: 0; display: block; background: var(--tg-surface, #252529); -webkit-tap-highlight-color: transparent; }
-      .map-header {
-        position: absolute;
-        top: 1rem;
-        left: 1rem;
-        right: 1rem;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        z-index: 1100;
-        padding: .8rem .9rem;
-        border: 1px solid rgba(242,240,232,.14);
-        border-radius: 5px;
-        background: linear-gradient(90deg, rgba(18,19,19,.92), rgba(18,19,19,.68), rgba(18,19,19,.2));
-        box-shadow: 0 10px 28px rgba(0,0,0,.2);
-        backdrop-filter: blur(8px);
-      }
+      .map-header { position: absolute; top: 1rem; left: 1rem; right: 1rem; z-index: 1100; padding: .8rem .9rem; background: linear-gradient(90deg, rgba(18,19,19,.92), rgba(18,19,19,.68), rgba(18,19,19,.2)); box-shadow: 0 10px 28px rgba(0,0,0,.2); backdrop-filter: blur(8px); }
       @media (max-width: 420px) {
         .map-header { left: .75rem; right: .75rem; }
         .map-sheet { left: .75rem; right: .75rem; bottom: .75rem; }
@@ -104,6 +89,23 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     private data: DataService,
     private telegram: TelegramService
   ) {}
+
+  private scheduleInvalidate(): void {
+    if (this.boundInvalidate) {
+      this.boundInvalidate();
+      return;
+    }
+  }
+
+  private applyMapSize(): void {
+    const container = this.mapRef?.nativeElement?.parentElement;
+    if (!container) return;
+    const w = container.offsetWidth || 0;
+    const h = container.offsetHeight || 0;
+    if (w > 0 && h > 0) {
+      this.map?.invalidateSize({ animate: false, pan: false });
+    }
+  }
 
   ngAfterViewInit(): void {
     const delay = this.telegram.isInTelegram ? 450 : 150;
@@ -157,6 +159,11 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       this.data.getEvents().subscribe((events) => {
         this.demoData.set(events.some((event) => event.isDemo));
         this.addMarkers(Llib, events);
+      });
+      // Force refresh after Leaflet has settled; fixes mobile height/crash.
+      requestAnimationFrame(() => {
+        this.applyMapSize();
+        this.scheduleInvalidate();
       });
     } catch (err) {
       console.error('Map init error', err);
@@ -215,19 +222,11 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.boundInvalidate = (): void => {
       this.map?.invalidateSize();
     };
+    window.addEventListener('resize', this.boundInvalidate);
     this.map.whenReady(this.boundInvalidate);
     this.map.invalidateSize({ pan: false });
     setTimeout(this.boundInvalidate, 300);
     setTimeout(this.boundInvalidate, 800);
-
-    if (container && typeof ResizeObserver !== 'undefined') {
-      this.resizeObserver = new ResizeObserver(this.boundInvalidate);
-      this.resizeObserver.observe(container);
-    }
-    if (typeof window !== 'undefined' && this.boundInvalidate) {
-      window.visualViewport?.addEventListener('resize', this.boundInvalidate);
-      window.addEventListener('resize', this.boundInvalidate);
-    }
 
     this.addMarkers(L, events);
   }
