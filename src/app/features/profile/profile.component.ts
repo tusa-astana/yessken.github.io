@@ -15,7 +15,7 @@ import type { OrganizerSubscriptionOffer, OrganizerSubscriptionStatus } from '..
       <header class="page-heading">
         <span class="eyebrow">ЛИЧНЫЙ КАБИНЕТ</span>
         <h1>Профиль</h1>
-        <p>События, интересы и инструменты организатора — в одном месте.</p>
+        <p>Подписка Organizer Pro, поддержка TUSA и быстрый доступ к разделам.</p>
       </header>
       @if (user(); as u) {
         <section class="user-card" aria-label="Аккаунт Telegram">
@@ -30,41 +30,63 @@ import type { OrganizerSubscriptionOffer, OrganizerSubscriptionStatus } from '..
       } @else {
         <section class="user-card guest-card">
           <span class="avatar avatar-fallback" aria-hidden="true">T</span>
-          <div class="user-details"><span class="connected">Гостевой режим</span><h2>Откройте TUSA в Telegram</h2><p>Чтобы управлять профилем и отмечать интерес к событиям, войдите через бота.</p></div>
+          <div class="user-details"><span class="connected">Гостевой режим</span><h2>Откройте TUSA в Telegram</h2><p>Чтобы управлять профилем, подпиской и донатом, войдите через бота.</p></div>
           <a class="telegram-mark" href="https://t.me/tusa_astana_bot" aria-label="Открыть бота TUSA">↗</a>
         </section>
       }
+
+      <section class="support-card" aria-labelledby="support-title">
+        <div class="pro-heading">
+          <div>
+            <span class="eyebrow">ПОДДЕРЖКА РАЗРАБОТЧИКА</span>
+            <h2 id="support-title">Поддержать TUSA</h2>
+          </div>
+          <span class="pro-price">Stars</span>
+        </div>
+        <p class="pro-description">Добровольный донат в Telegram Stars помогает оплачивать хостинг и развивать афишу. Это не покупка функций и не оплата офлайн-событий.</p>
+        <button type="button" class="subscribe" (click)="donate()">Поддержать разработчика <span aria-hidden="true">→</span></button>
+        <p class="pro-note">Откроется бот с /donate · сумму выбираете сами · возврат через /paysupport</p>
+      </section>
+
       @if (subscription(); as plan) {
         @if (plan.status === 'active' || plan.status === 'refunded') {
           <div class="subscription-status" [class.active]="plan.status === 'active'"><span class="status-dot" aria-hidden="true"></span><div><strong>Organizer Pro</strong><span>{{ subscriptionStatusLabel(plan) }}</span></div></div>
         }
       }
       <section class="pro-card" aria-labelledby="pro-title">
-        <div class="pro-heading"><div><span class="eyebrow">ИНСТРУМЕНТЫ ОРГАНИЗАТОРА</span><h2 id="pro-title">Растите вместе с TUSA</h2></div>
+        <div class="pro-heading">
+          <div>
+            <span class="eyebrow">ORGANIZER PRO</span>
+            <h2 id="pro-title">Подписка для организаторов</h2>
+          </div>
           @if (offer(); as currentOffer) {
-            @if (currentOffer.available) { <span class="pro-price">{{ currentOffer.stars }} ⭐ / {{ currentOffer.durationDays }} дней</span> }
+            @if (currentOffer.available) {
+              <span class="pro-price">{{ currentOffer.stars }} ⭐ / {{ currentOffer.durationDays }} дн.</span>
+            }
           }
         </div>
-        <p class="pro-description">Планируемая цифровая услуга внутри Telegram. Состав функций и цена будут утверждены до включения подписки; офлайн-билеты и их продажи в Pro не входят.</p>
+        <p class="pro-description">Цифровая услуга внутри Telegram: инструменты организатора на 30 дней. Офлайн-билеты и оплата входа в Pro не входят.</p>
+        @if (offer()?.features?.length) {
+          <ul class="feature-list">
+            @for (feature of offer()!.features; track feature) {
+              <li>{{ feature }}</li>
+            }
+          </ul>
+        }
         @if (offerLoading()) {
-          <p class="pro-note" role="status">Проверяем доступность подписки…</p>
+          <p class="pro-note" role="status">Подключаем предложение подписки… Если API просыпается, подождите пару секунд.</p>
         } @else if (offer()?.available) {
           <button type="button" class="subscribe" (click)="subscribe()">
-            {{ subscription()?.status === 'active' ? 'Продлить доступ' : 'Подключить Organizer Pro' }} · {{ offer()?.stars }} ⭐ <span aria-hidden="true">→</span>
+            {{ subscription()?.status === 'active' ? 'Продлить Organizer Pro' : 'Подключить Organizer Pro' }} · {{ offer()?.stars }} ⭐ <span aria-hidden="true">→</span>
           </button>
-          <p class="pro-note">Оплата в Telegram Stars · {{ offer()?.durationDays }} дней · без автосписания</p>
+          <p class="pro-note">Оплата в Telegram Stars · {{ offer()?.durationDays }} дней · без автосписания · условия до оплаты в боте</p>
         } @else {
-          <p class="pro-note">Подписка скоро появится. Уже сейчас можно бесплатно отправить событие на модерацию.</p>
+          <p class="pro-note">Подписка сейчас недоступна на сервере. Можно бесплатно отправить событие на модерацию или поддержать проект донатом выше.</p>
           <a class="subscribe secondary-action" routerLink="/create-event">Разместить событие <span aria-hidden="true">→</span></a>
         }
-        <a class="pro-terms" routerLink="/terms">Условия Organizer Pro</a>
+        <a class="pro-terms" routerLink="/terms">Условия Organizer Pro и Stars</a>
       </section>
-      <section class="support-card" aria-labelledby="support-title">
-        <div class="pro-heading"><div><span class="eyebrow">ПОДДЕРЖКА</span><h2 id="support-title">Поддержать разработчика</h2></div></div>
-        <p class="pro-description">Добровольный донат в Telegram Stars помогает оплачивать хостинг и развивать TUSA. Это не покупка функций и не оплата офлайн-событий.</p>
-        <button type="button" class="subscribe secondary-action" (click)="donate()">Открыть /donate в боте <span aria-hidden="true">→</span></button>
-        <p class="pro-note">Сумму выбираете сами · возврат через /paysupport</p>
-      </section>
+
       <section class="account-section" aria-labelledby="account-links-title">
         <div class="section-heading"><h2 id="account-links-title">Быстрый доступ</h2><span>ВАШ TUSA</span></div>
         <nav class="quick-links" aria-label="Разделы профиля">
@@ -110,12 +132,15 @@ import type { OrganizerSubscriptionOffer, OrganizerSubscriptionStatus } from '..
     .subscription-status div { display: grid; gap: .15rem; }
     .subscription-status strong { font-size: .82rem; }
     .subscription-status div span { color: var(--tg-muted); font-size: .74rem; }
-    .pro-card, .support-card { margin: 1rem 0 1.6rem; padding: 1.1rem; background: linear-gradient(130deg, rgba(66,108,71,.08), transparent 65%), var(--tg-surface, #ffffff); border: 1px solid rgba(66,108,71,.2); border-radius: 8px; }
-    .support-card { background: linear-gradient(130deg, rgba(242,190,104,.12), transparent 65%), var(--tg-surface, #ffffff); border-color: rgba(242,190,104,.35); }
+    .pro-card, .support-card { margin: 1rem 0 1.1rem; padding: 1.1rem; background: linear-gradient(130deg, rgba(66,108,71,.08), transparent 65%), var(--tg-surface, #ffffff); border: 1px solid rgba(66,108,71,.2); border-radius: 8px; }
+    .support-card { background: linear-gradient(130deg, rgba(242,190,104,.16), transparent 65%), var(--tg-surface, #ffffff); border-color: rgba(242,190,104,.45); }
     .pro-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: .8rem; }
     .pro-heading h2 { margin: .35rem 0 0; font-size: 1.35rem; font-weight: 500; }
     .pro-price { flex: 0 0 auto; padding: .35rem .5rem; border-radius: 5px; background: rgba(66,108,71,.1); color: var(--tg-button, #426c47); font-size: .7rem; white-space: nowrap; }
+    .support-card .pro-price { background: rgba(242,190,104,.22); color: #8a5a12; }
     .pro-description { margin: .7rem 0; color: var(--tg-muted); font-size: .82rem; line-height: 1.5; }
+    .feature-list { margin: 0 0 .85rem; padding: 0 0 0 1.1rem; color: var(--tg-text, #26372b); font-size: .78rem; line-height: 1.55; }
+    .feature-list li + li { margin-top: .25rem; }
     .pro-note { margin: .65rem 0; color: var(--tg-muted); font-size: .72rem; line-height: 1.5; }
     .subscribe { display: inline-flex; align-items: center; justify-content: center; gap: .7rem; min-height: 42px; margin-top: .25rem; padding: .65rem .85rem; border: 0; border-radius: 5px; background: var(--tg-button, #426c47); color: var(--tg-button-text, #ffffff); font: inherit; font-size: .8rem; font-weight: 800; text-decoration: none; cursor: pointer; }
     .secondary-action { border: 1px solid rgba(66,108,71,.35); background: transparent; color: var(--tg-button, #426c47); }
@@ -157,10 +182,25 @@ export class ProfileComponent implements OnInit {
 
   ngOnInit(): void {
     this.data.getOrganizerSubscription().subscribe((status) => this.subscription.set(status));
-    this.data.getOrganizerSubscriptionOffer().subscribe((offer) => { this.offer.set(offer); this.offerLoading.set(false); });
+    this.loadOffer(0);
     this.data.getAdminSalesSummary().subscribe((summary) => {
       this.adminToolsAvailable.set(summary !== null);
       this.adminToolsLoading.set(false);
+    });
+  }
+
+  private loadOffer(attempt: number): void {
+    this.data.getOrganizerSubscriptionOffer().subscribe((offer) => {
+      this.offer.set(offer);
+      if (offer?.available) {
+        this.offerLoading.set(false);
+        return;
+      }
+      if (attempt < 4 && typeof window !== 'undefined') {
+        window.setTimeout(() => this.loadOffer(attempt + 1), 1800);
+        return;
+      }
+      this.offerLoading.set(false);
     });
   }
 

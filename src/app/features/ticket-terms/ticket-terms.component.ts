@@ -9,13 +9,21 @@ import { RouterLink } from '@angular/router';
       <span class="eyebrow">TUSA · УСЛОВИЯ</span>
       <h1>Условия событий и билетов</h1>
       <nav class="legal-links" aria-label="Документы и тарифы">
-        <a href="/tariffs.html">Тарифы в тенге</a>
-        <a href="/offer.html">Договор-оферта</a>
-        <a href="/privacy.html">Политика конфиденциальности</a>
+        <a href="tariffs.html">Тарифы в тенге</a>
+        <a href="offer.html">Договор-оферта</a>
+        <a href="privacy.html">Политика конфиденциальности</a>
       </nav>
       <section aria-labelledby="sales-status">
         <h2 id="sales-status">Билеты и RSVP</h2>
         <p>TUSA не продаёт билеты на офлайн-события и не принимает оплату за вход. Билет и условия допуска предоставляет организатор. Отметка RSVP/интереса в TUSA не является билетом или бронированием.</p>
+      </section>
+      <section aria-labelledby="organizer-pro">
+        <h2 id="organizer-pro">Organizer Pro</h2>
+        <p>Organizer Pro — цифровая подписка на 30 дней внутри Telegram, оплачивается только Stars после показа цены и согласия с условиями. Она не продаёт офлайн-вход и не является билетом. Продление вручную, без автосписания. Вопросы и возвраты — через <strong>/paysupport</strong>.</p>
+      </section>
+      <section aria-labelledby="developer-support">
+        <h2 id="developer-support">Поддержка разработчика</h2>
+        <p>Команда <strong>/donate</strong> в боте — добровольный донат Stars. Он не открывает Organizer Pro и не оплачивает события. Возвраты — через <strong>/paysupport</strong>.</p>
       </section>
       <section aria-labelledby="delivery">
         <h2 id="delivery">Доступ на событие</h2>

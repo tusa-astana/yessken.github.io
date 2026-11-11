@@ -3,9 +3,10 @@ import { CommonModule, DatePipe } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { exhaustMap, filter, from, interval } from 'rxjs';
+import { exhaustMap, filter, firstValueFrom, from, interval } from 'rxjs';
 import { compressEventImage } from '../../core/utils/event-image.util';
 import { ConvertEventSourceBatchItemRequest, EventSourceCandidate, EventSourcesApiService } from './event-sources-api.service';
+import { EventsApiService } from '../../core/services/events-api.service';
 
 interface BatchDraftRow extends ConvertEventSourceBatchItemRequest {
   id: string;
@@ -32,8 +33,8 @@ type BatchDraftField = 'title' | 'date' | 'time' | 'place' | 'category' | 'descr
       <header>
         <p class="eyebrow">TUSA · ИМПОРТ ИЗ ИСТОЧНИКОВ</p>
         <h1>Найденные публикации</h1>
-        <p>RSS приносит сюда только кандидатов. Проверь первоисточник и будущую дату; после заполнения карточка попадёт в обычную очередь модерации, а не опубликуется автоматически.</p>
-        <a routerLink="/admin/event-review">Обычная очередь публикаций →</a>
+        <p>Проверь первоисточник, будущую дату и место. Карточка публикуется в каталоге сразу после оформления — без отдельной очереди модерации.</p>
+        <a routerLink="/admin/event-review">Очередь модерации остальных заявок →</a>
       </header>
 
       <div class="toolbar">
@@ -52,7 +53,7 @@ type BatchDraftField = 'title' | 'date' | 'time' | 'place' | 'category' | 'descr
         @if (batchMode()) {
           <form class="batch-form" (submit)="onBatchSubmit($event)">
             <header class="batch-heading">
-              <div><h2>Пакетное оформление</h2><p>Проверь каждую строку. Будут созданы только черновики для обычной модерации — публикации не появятся автоматически.</p></div>
+              <div><h2>Пакетное оформление</h2><p>Проверь каждую строку. Подтверждённые публикации появятся в каталоге сразу после оформления.</p></div>
               <span>{{ selectedBatchCount() }} из {{ batchRows().length }} выбрано</span>
             </header>
             <label class="permission-check batch-permission">
@@ -93,7 +94,7 @@ type BatchDraftField = 'title' | 'date' | 'time' | 'place' | 'category' | 'descr
             }
             @if (batchError()) { <p class="form-error" role="alert">{{ batchError() }}</p> }
             <div class="form-actions">
-              <button class="primary" type="submit" [disabled]="batchSaving() || imageUploadingIds().size > 0 || selectedBatchCount() === 0">{{ batchSaving() ? 'Отправляем пакет…' : 'Создать черновики · ' + selectedBatchCount() }}</button>
+              <button class="primary" type="submit" [disabled]="batchSaving() || imageUploadingIds().size > 0 || selectedBatchCount() === 0">{{ batchSaving() ? 'Опубликовываем пакет…' : 'Опубликовать выбранные · ' + selectedBatchCount() }}</button>
               <button type="button" (click)="cancelBatch()" [disabled]="batchSaving()">Отмена</button>
             </div>
           </form>
@@ -212,6 +213,7 @@ type BatchDraftField = 'title' | 'date' | 'time' | 'place' | 'category' | 'descr
 })
 export class AdminEventSourcesComponent implements OnInit {
   private readonly api = inject(EventSourcesApiService);
+  private readonly eventsApi = inject(EventsApiService);
   private readonly fb = inject(FormBuilder);
   private readonly destroyRef = inject(DestroyRef);
   readonly candidates = signal<EventSourceCandidate[] | null>(null);
@@ -266,17 +268,18 @@ export class AdminEventSourcesComponent implements OnInit {
   select(candidate: EventSourceCandidate): void {
     this.selectedId.set(candidate.id);
     this.formError.set('');
+    const category = candidate.suggestedCategory || this.defaultBatchCategory(candidate.hobbyId);
     this.form.reset({
       title: candidate.title,
       date: candidate.eventDate ?? '',
       time: candidate.eventTime ?? '',
       place: candidate.eventPlace ?? '',
-      category: candidate.suggestedCategory || this.defaultBatchCategory(candidate.hobbyId),
+      category,
       hobbyId: candidate.hobbyId,
       description: candidate.summary,
       descriptionPermissionConfirmed: false,
-      imageUrl: '',
-      imagePermissionConfirmed: false,
+      imageUrl: this.defaultCover(category),
+      imagePermissionConfirmed: true,
       sourcePermissionConfirmed: false,
     });
   }
@@ -319,8 +322,8 @@ export class AdminEventSourcesComponent implements OnInit {
       place: candidate.eventPlace ?? '',
       category: candidate.suggestedCategory || this.defaultBatchCategory(candidate.hobbyId),
       description: candidate.summary,
-      imageUrl: '',
-      imagePermissionConfirmed: false,
+      imageUrl: this.defaultCover(candidate.suggestedCategory || this.defaultBatchCategory(candidate.hobbyId)),
+      imagePermissionConfirmed: true,
       descriptionPermissionConfirmed: false,
     })));
     this.batchPermissionConfirmed.set(false);
@@ -443,13 +446,24 @@ export class AdminEventSourcesComponent implements OnInit {
       return;
     }
 
+    // Одобряем каждую публикацию сразу — без отдельной очереди модерации.
+    let approvedCount = 0;
+    for (const item of created) {
+      try {
+        const approved = await firstValueFrom(this.eventsApi.reviewPendingEvent(item.eventId, 'approve'));
+        if (approved) approvedCount++;
+      } catch {
+        // публикация не одобрена автоматически — останется на проверке
+      }
+    }
+
     const eventByCandidate = new Map(created.map((item) => [item.candidateId, item.eventId]));
     this.candidates.update((items) => items?.map((candidate) => eventByCandidate.has(candidate.id)
       ? { ...candidate, status: 'converted', eventId: eventByCandidate.get(candidate.id) ?? null }
       : candidate) ?? null);
     this.batchMode.set(false);
     this.batchRows.set([]);
-    this.announcement.set(`Создано черновиков: ${created.length}. Они ожидают обычной модерации и не опубликованы.`);
+    this.announcement.set(`Опубликовано: ${approvedCount} из ${created.length}.`);
   }
 
   private defaultBatchCategory(hobbyId: string): string {
@@ -462,8 +476,52 @@ export class AdminEventSourcesComponent implements OnInit {
       case 'running': return 'забег';
       case 'board-games': return 'встреча';
       case 'phygital-sports': return 'турнир';
+      case 'fitness': return 'тренировка';
+      case 'yoga': return 'йога';
+      case 'dance': return 'танцы';
+      case 'theater': return 'спектакль';
+      case 'comedy': return 'стендап';
+      case 'party': return 'вечеринка';
+      case 'exhibition': return 'выставка';
+      case 'lecture': return 'лекция';
+      case 'workshop': return 'мастер-класс';
+      case 'market': return 'ярмарка';
+      case 'festival': return 'фестиваль';
+      case 'hockey': return 'матч';
+      case 'basketball': return 'матч';
+      case 'tennis': return 'турнир';
+      case 'chess': return 'турнир';
+      case 'esports': return 'турнир';
+      case 'swimming': return 'соревнование';
+      case 'skiing': return 'соревнование';
+      case 'climbing': return 'соревнование';
+      case 'skate': return 'турнир';
+      case 'bmx': return 'соревнование';
       default: return 'событие';
     }
+  }
+
+  private defaultCover(category: string): string {
+    const covers: Record<string, string> = {
+      концерт: 'https://images.unsplash.com/photo-1501386761578-eac5c94b800a?auto=format&fit=crop&w=1200&q=85',
+      вечеринка: 'https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?auto=format&fit=crop&w=1200&q=85',
+      спектакль: 'https://images.unsplash.com/photo-1533323401178-870b44f0e72c?auto=format&fit=crop&w=1200&q=85',
+      матч: 'https://images.unsplash.com/photo-1461896836934-064401bf56d7?auto=format&fit=crop&w=1200&q=85',
+      турнир: 'https://images.unsplash.com/photo-1528285679458-91172f79e20e?auto=format&fit=crop&w=1200&q=85',
+      забег: 'https://images.unsplash.com/photo-1450514093590-2a446d988029?auto=format&fit=crop&w=1200&q=85',
+      встреча: 'https://images.unsplash.com/photo-1516483638261-f4dbaf036963?auto=format&fit=crop&w=1200&q=85',
+      соревнование: 'https://images.unsplash.com/photo-1517649763962-0c623066013b?auto=format&fit=crop&w=1200&q=85',
+      тренировка: 'https://images.unsplash.com/photo-1534438327276-14e5344c4146?auto=format&fit=crop&w=1200&q=85',
+      йога: 'https://images.unsplash.com/photo-1544367567-0f28b003e03b?auto=format&fit=crop&w=1200&q=85',
+      танцы: 'https://images.unsplash.com/photo-1530452628860-1f97268b25e6?auto=format&fit=crop&w=1200&q=85',
+      стендап: 'https://images.unsplash.com/photo-1516998277077-9eeb33907709?auto=format&fit=crop&w=1200&q=85',
+      выставка: 'https://images.unsplash.com/photo-1541963463532-d68292c34b19?auto=format&fit=crop&w=1200&q=85',
+      лекция: 'https://images.unsplash.com/photo-1516349230219-be87e18f4463?auto=format&fit=crop&w=1200&q=85',
+      'мастер-класс': 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=1200&q=85',
+      ярмарка: 'https://images.unsplash.com/photo-1556742049-0cfed4f7a07d?auto=format&fit=crop&w=1200&q=85',
+      фестиваль: 'https://images.unsplash.com/photo-1533174072545-7b446230512c?auto=format&fit=crop&w=1200&q=85',
+    };
+    return covers[category] ?? covers['концерт'];
   }
 
   async convert(candidate: EventSourceCandidate): Promise<void> {
@@ -492,6 +550,16 @@ export class AdminEventSourcesComponent implements OnInit {
       this.formError.set('Подтверди право использовать текст описания или перепиши/очисти подсказку источника.');
       return;
     }
+    const dateValue = String(this.form.controls.date.value ?? '').trim();
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(dateValue) || dateValue < this.minDate) {
+      this.formError.set('Укажи корректную будущую дату в формате ГГГГ-ММ-ДД.');
+      return;
+    }
+    const timeValue = String(this.form.controls.time.value ?? '').trim();
+    if (timeValue !== '' && !/^\d{2}:\d{2}$/.test(timeValue)) {
+      this.formError.set('Укажи время в формате ЧЧ:ММ.');
+      return;
+    }
     this.formError.set('');
     this.busyId.set(candidate.id);
     this.error.set('');
@@ -499,14 +567,24 @@ export class AdminEventSourcesComponent implements OnInit {
     const eventId = await this.api.convert(candidate.id, this.form.getRawValue());
     this.busyId.set(null);
     if (!eventId) {
-      this.error.set('Не удалось создать заявку. Проверь дату и место; проверь, не обработал ли кандидат другой администратор.');
+      this.error.set('Не удалось создать событие. Проверь дату и место; проверь, не обработал ли кандидат другой администратор.');
       return;
+    }
+    let published = false;
+    try {
+      const approved = await firstValueFrom(this.eventsApi.reviewPendingEvent(eventId, 'approve'));
+      published = !!approved;
+    } catch {
+      published = false;
     }
     this.candidates.update((items) => items?.map((item) => item.id === candidate.id
       ? { ...item, status: 'converted', eventId }
       : item) ?? null);
     this.selectedId.set(null);
-    this.announcement.set('Создана заявка на обычную модерацию. Событие ещё не опубликовано.');
+    const title = String(this.form.controls.title.value ?? 'Событие');
+    this.announcement.set(published
+      ? `Событие «${title}» опубликовано в каталоге.`
+      : `Событие создано, но не удалось одобрить автоматически — проверь очередь модерации.`);
   }
 
   async dismiss(candidate: EventSourceCandidate): Promise<void> {

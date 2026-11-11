@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { vi } from 'vitest';
 import { EventSourcesApiService, type EventSourceCandidate } from './event-sources-api.service';
+import { EventsApiService } from '../../core/services/events-api.service';
 import { AdminEventSourcesComponent } from './admin-event-sources.component';
 
 const candidate: EventSourceCandidate = {
@@ -15,13 +16,15 @@ const candidate: EventSourceCandidate = {
 describe('AdminEventSourcesComponent', () => {
   afterEach(() => TestBed.resetTestingModule());
 
-  it('prefills parser hints and explains remaining review requirements instead of silently disabling draft creation', async () => {
+  it('imports a candidate and publishes it immediately without moderation', async () => {
     const convert = vi.fn(async () => 'pending-event-1');
+    const reviewPendingEvent = vi.fn(async () => ({ id: 'pending-event-1', status: 'approved' } as never));
     await TestBed.configureTestingModule({
       imports: [AdminEventSourcesComponent],
       providers: [
         provideRouter([]),
         { provide: EventSourcesApiService, useValue: { loadPending: vi.fn(async () => [candidate]), convert, dismiss: vi.fn(async () => true) } },
+        { provide: EventsApiService, useValue: { reviewPendingEvent } },
       ],
     }).compileComponents();
     const fixture = TestBed.createComponent(AdminEventSourcesComponent);
@@ -54,18 +57,23 @@ describe('AdminEventSourcesComponent', () => {
     });
     await fixture.componentInstance.convert(candidate);
     expect(convert).toHaveBeenCalledWith(candidate.id, expect.objectContaining({ hobbyId: 'equestrian', sourcePermissionConfirmed: true }));
-    expect(fixture.componentInstance.announcement()).toContain('ещё не опубликовано');
+    expect(reviewPendingEvent).toHaveBeenCalledWith('pending-event-1', 'approve');
+    expect(fixture.componentInstance.form.controls.imageUrl.value).toBeTruthy();
+    expect(fixture.componentInstance.form.controls.imagePermissionConfirmed.value).toBe(true);
+    expect(fixture.componentInstance.announcement()).toContain('опубликовано');
     expect(fixture.componentInstance.candidates()?.[0]).toMatchObject({ status: 'converted', eventId: 'pending-event-1' });
     fixture.destroy();
   });
 
-  it('creates a selected batch as pending drafts only after global review and required details', async () => {
+  it('publishes a selected batch immediately after review and required details', async () => {
     const convertBatch = vi.fn(async () => [{ candidateId: candidate.id, eventId: 'pending-event-2', status: 'pending' as const }]);
+    const reviewPendingEvent = vi.fn(async () => ({ id: 'pending-event-2', status: 'approved' } as never));
     await TestBed.configureTestingModule({
       imports: [AdminEventSourcesComponent],
       providers: [
         provideRouter([]),
         { provide: EventSourcesApiService, useValue: { loadPending: vi.fn(async () => [candidate]), convertBatch, convert: vi.fn(), dismiss: vi.fn() } },
+        { provide: EventsApiService, useValue: { reviewPendingEvent } },
       ],
     }).compileComponents();
     const fixture = TestBed.createComponent(AdminEventSourcesComponent);
@@ -79,6 +87,8 @@ describe('AdminEventSourcesComponent', () => {
       title: candidate.title, date: candidate.eventDate, time: '10:00',
       place: 'Argymak Equestrian Complex', category: 'соревнование', description: candidate.summary,
     });
+    expect(component.batchRows()[0].imageUrl).toBeTruthy();
+    expect(component.batchRows()[0].imagePermissionConfirmed).toBe(true);
 
     await component.convertBatch();
     expect(convertBatch).not.toHaveBeenCalled();
@@ -94,8 +104,9 @@ describe('AdminEventSourcesComponent', () => {
       sourcePermissionConfirmed: true,
       items: [expect.objectContaining({ candidateId: candidate.id, date: candidate.eventDate, place: 'Argymak Equestrian Complex', imageUrl: 'data:image/webp;base64,UklGRg==', imagePermissionConfirmed: true, descriptionPermissionConfirmed: true })],
     }));
+    expect(reviewPendingEvent).toHaveBeenCalledWith('pending-event-2', 'approve');
     expect(component.candidates()?.[0]).toMatchObject({ status: 'converted', eventId: 'pending-event-2' });
-    expect(component.announcement()).toContain('не опубликованы');
+    expect(component.announcement()).toContain('Опубликовано');
     fixture.destroy();
   });
 });
