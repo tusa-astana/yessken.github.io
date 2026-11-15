@@ -23,6 +23,7 @@ export const routes: Routes = [
   { path: 'admin/events', loadComponent: () => import('./features/admin-event-editor/admin-event-editor.component').then((m) => m.AdminEventEditorComponent) },
   { path: 'admin/event-review', loadComponent: () => import('./features/admin-event-review/admin-event-review.component').then((m) => m.AdminEventReviewComponent) },
   { path: 'admin/event-sources', loadComponent: () => import('./features/admin-event-sources/admin-event-sources.component').then((m) => m.AdminEventSourcesComponent) },
+  { path: 'admin/import-monitor', loadComponent: () => import('./features/admin-import-monitor/admin-import-monitor.component').then((m) => m.AdminImportMonitorComponent) },
   { path: 'tg-groups', loadComponent: () => import('./features/tg-groups/tg-groups.component').then((m) => m.TgGroupsComponent) },
   { path: 'create-event', loadComponent: () => import('./features/create-event/create-event.component').then((m) => m.CreateEventComponent) },
   { path: 'profile', loadComponent: () => import('./features/profile/profile.component').then((m) => m.ProfileComponent) },

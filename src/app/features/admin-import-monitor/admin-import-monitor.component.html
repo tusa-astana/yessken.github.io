@@ -1,0 +1,82 @@
+<main class="import-monitor">
+  <header class="page-header">
+    <p class="eyebrow">TUSA · АДМИН · ИМПОРТ СОБЫТИЙ</p>
+    <h1>Фоновый импорт из RSS / JSON</h1>
+    <p>Автоматический сбор событий из подключённых источников. Каждое импортированное событие создаётся в статусе «pending» и требует модерации, а также анонсируется в Telegram-боте.</p>
+    <a routerLink="/admin/event-sources">← Источники и кандидаты</a>
+  </header>
+
+  <div class="toolbar">
+    <span class="status-chip" [class.importing]="isImporting()">
+      {{ isImporting() ? 'Идёт импорт…' : 'Готов к запуску' }}
+    </span>
+    <button class="primary" type="button" (click)="runNow()" [disabled]="isImporting()">
+      Запустить импорт сейчас
+    </button>
+    @if (lastRunAt()) {
+      <span class="last-run">Последний запуск: {{ formatTime(lastRunAt()) }}</span>
+    }
+  </div>
+
+  @if (results().length === 0) {
+    <div class="state empty">
+      <p>Нет данных о запусках импорта.</p>
+      <p>Запустите импорт кнопкой выше — результаты отобразятся здесь автоматически.</p>
+    </div>
+  } @else {
+    <section class="results-summary">
+      <div class="summary-card">
+        <strong>Всего получено</strong>
+        <span class="big-number">{{ totalFetched() }}</span>
+      </div>
+      <div class="summary-card">
+        <strong>Импортировано</strong>
+        <span class="big-number">{{ totalImported() }}</span>
+      </div>
+      <div class="summary-card" [class.with-errors]="totalErrors() > 0">
+        <strong>Ошибок</strong>
+        <span class="big-number">{{ totalErrors() }}</span>
+      </div>
+    </section>
+
+    <section class="sources-list">
+      <h2>Результаты по источникам</h2>
+      @for (result of results(); track result.sourceId) {
+        <div class="source-card" [class.has-error]="hasError(result)">
+          <div class="source-header">
+            <div class="source-info">
+              <strong>{{ result.sourceName }}</strong>
+              <span class="source-id">{{ result.sourceId }}</span>
+            </div>
+            <button class="detail-toggle" type="button" (click)="toggleDetails(result.sourceId)">
+              {{ showDetails() === result.sourceId ? 'Скрыть' : 'Детали' }}
+            </button>
+          </div>
+
+          <div class="source-metrics">
+            <span class="metric"><strong>{{ result.fetched }}</strong> получено</span>
+            <span class="metric"><strong>{{ result.imported }}</strong> импортировано</span>
+            <span class="metric"><strong>{{ result.skipped }}</strong> пропущено</span>
+            @if (result.error) {
+              <span class="metric error"><strong>Ошибка:</strong> {{ result.error }}</span>
+            }
+          </div>
+
+          @if (showDetails() === result.sourceId) {
+            <div class="source-details">
+              <p>Источник проверяется каждые 10 минут фоновым планировщиком.</p>
+              <p>События с повторяющимся sourceUrl не импортируются повторно.</p>
+              <p>События с датой в прошлом пропускаются.</p>
+            </div>
+          }
+        </div>
+      }
+    </section>
+  }
+
+  <div class="footer-note">
+    <p><strong>Важно:</strong> внешние запросы к RSS/JSON-источникам проходят через бэкенд-прокси
+    <code>/api/import/proxy?url=...</code>, который необходимо реализовать на стороне API (из-за CORS).
+    Без прокси импорт graceful-degrades к пустому результату — приложение не ломается.</p>
+  </div>
+</main>

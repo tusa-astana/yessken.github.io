@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { RssParserService } from './rss-parser.service';
 import { DataService } from './data.service';
@@ -25,12 +25,17 @@ export interface ImportResult {
  * в каталоге через DataService (статус pending, требует модерации).
  *
  * Чтобы избежать дублей, события с одинаковым sourceUrl не импортируются повторно.
+ * После успешного импорта отправляется анонс в Telegram (как при ручном создании).
  */
 @Injectable({ providedIn: 'root' })
 export class ImportSchedulerService {
   private running = false;
   private timerId: any = null;
   private importedSourceUrls = new Set<string>();
+
+  readonly lastResults = signal<ImportResult[]>([]);
+  readonly lastRunAt = signal<string | null>(null);
+  readonly isImporting = signal(false);
 
   constructor(
     private parser: RssParserService,
@@ -65,45 +70,57 @@ export class ImportSchedulerService {
     return this.runOnce();
   }
 
+  /** Получить результаты последнего запуска импорта. */
+  getLastResults(): ImportResult[] {
+    return this.lastResults();
+  }
+
   private async runOnce(): Promise<ImportResult[]> {
+    this.isImporting.set(true);
     const results: ImportResult[] = [];
 
-    for (const source of ENABLED_RSS_SOURCES) {
-      let fetched = 0;
-      let imported = 0;
-      let skipped = 0;
-      let error: string | undefined;
+    try {
+      for (const source of ENABLED_RSS_SOURCES) {
+        let fetched = 0;
+        let imported = 0;
+        let skipped = 0;
+        let error: string | undefined;
 
-      try {
-        const items = await this.parser.fetchSource(source);
-        fetched = items.length;
+        try {
+          const items = await this.parser.fetchSource(source);
+          fetched = items.length;
 
-        for (const item of items) {
-          if (!item.sourceUrl || this.importedSourceUrls.has(item.sourceUrl)) {
-            skipped++;
-            continue;
+          for (const item of items) {
+            if (!item.sourceUrl || this.importedSourceUrls.has(item.sourceUrl)) {
+              skipped++;
+              continue;
+            }
+
+            const created = await this.createImportedEvent(item, source);
+            if (created) {
+              this.importedSourceUrls.add(item.sourceUrl);
+              imported++;
+            } else {
+              skipped++;
+            }
           }
-
-          const created = await this.createImportedEvent(item, source);
-          if (created) {
-            this.importedSourceUrls.add(item.sourceUrl);
-            imported++;
-          } else {
-            skipped++;
-          }
+        } catch (err) {
+          error = (err as Error)?.message ?? String(err);
         }
-      } catch (err) {
-        error = (err as Error)?.message ?? String(err);
-      }
 
-      results.push({
-        sourceId: source.id,
-        sourceName: source.name,
-        fetched,
-        imported,
-        skipped,
-        error,
-      });
+        results.push({
+          sourceId: source.id,
+          sourceName: source.name,
+          fetched,
+          imported,
+          skipped,
+          error,
+        });
+      }
+    } finally {
+      this.lastResults.set(results);
+      this.lastRunAt.set(new Date().toISOString());
+      this.isImporting.set(false);
     }
 
     console.log('[ImportScheduler] import cycle complete', results);
@@ -135,7 +152,33 @@ export class ImportSchedulerService {
         organizerPhone: '',
       }));
 
-      return !!created;
+      if (!created) return false;
+
+      // Анонсируем событие в Telegram, как при ручном создании через create-event
+      await firstValueFrom(this.data.sendEventAnnouncement({
+        id: created.id,
+        title: created.title,
+        description: created.description ?? '',
+        date: created.date,
+        time: created.time,
+        place: created.place,
+        address: created.address,
+        lat: created.lat,
+        lng: created.lng,
+        category: created.category,
+        price: created.price,
+        imageUrl: created.imageUrl ?? '',
+        isPublicEvent: created.isPublicEvent,
+        telegramSourceUrl: created.telegramSourceUrl,
+        ticketUrl: created.ticketUrl,
+        ticketSellerName: created.ticketSellerName,
+        organizerName: created.organizerName,
+        organizerEmail: created.organizerEmail,
+        organizerPhone: created.organizerPhone,
+        link: `t.me/tusa_astana?event=${encodeURIComponent(created.id)}`,
+      }));
+
+      return true;
     } catch {
       return false;
     }
