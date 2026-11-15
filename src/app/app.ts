@@ -6,6 +6,7 @@ import { I18nService } from './core/services/i18n.service';
 import type { TranslationKey } from './core/services/i18n.service';
 import { ThemeService } from './core/services/theme.service';
 import { TelegramService } from './core/services/telegram.service';
+import { ImportSchedulerService } from './core/services/import-scheduler.service';
 
 interface Breadcrumb {
   key: TranslationKey;
@@ -23,6 +24,7 @@ export class App implements OnInit {
   protected readonly telegram = inject(TelegramService);
   protected readonly i18n = inject(I18nService);
   protected readonly theme = inject(ThemeService);
+  private readonly importScheduler = inject(ImportSchedulerService);
   protected readonly breadcrumbs = signal<Breadcrumb[]>([]);
   protected readonly activeTab = signal<'interests' | 'events' | 'calendar' | 'meetups' | 'profile' | null>('interests');
   protected readonly garlandBulbs = Array.from({ length: 14 }, (_, index) => index);
@@ -34,6 +36,7 @@ export class App implements OnInit {
   ngOnInit(): void {
     this.telegram.init();
     this.telegram.onBackButtonClick(() => this.navigateBackInApp());
+    this.importScheduler.start();
 
     const initialUrl = this.pathOnly(this.router.url);
     this.routeHistory.push(initialUrl);
