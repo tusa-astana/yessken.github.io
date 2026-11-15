@@ -108,7 +108,12 @@ export class DataService {
   }
 
   sendEventAnnouncement(event: TransportEventItem): Observable<void> {
-    return this.api.sendEventAnnouncement(event);
+    // Ensure isPublicEvent is boolean, not boolean | undefined
+    const safeEvent: TransportEventItem = {
+      ...event,
+      isPublicEvent: event.isPublicEvent ?? false
+    };
+    return this.api.sendEventAnnouncement(safeEvent);
   }
 
   getTelegramGroups(): Observable<TelegramGroupItem[]> {

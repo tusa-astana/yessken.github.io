@@ -15,23 +15,29 @@
       letter-spacing: 0.08em;
       color: var(--tg-theme-hint-color, #666);
       margin: 0;
+      font-weight: 500;
     }
 
     h1 {
       margin: 0;
       font-size: 1.5rem;
+      font-weight: 500;
+      line-height: 1.4;
     }
 
     p {
       margin: 0;
-      color: var(--tg-theme-secondary-color, #444);
+      color: var(--tg-text-color-secondary, #444);
+      font-size: 0.875rem;
+      line-height: 1.5;
     }
 
     a {
       margin-top: 0.5rem;
       font-size: 0.875rem;
-      color: var(--tg-theme-button-color, #2481cc);
+      color: var(--tg-button-color, #2481cc);
       text-decoration: none;
+      font-weight: 500;
     }
     a:hover {
       text-decoration: underline;

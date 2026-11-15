@@ -20,6 +20,18 @@ export interface ParsedFeedItem {
 export class RssParserService {
   private readonly proxyBase = '/api/import/proxy';
 
+  /** Строит URL для прокси-запроса к внешнему источнику. */
+  getProxyUrl(sourceUrl: string): string {
+    // Если URL уже абсолютный (внешний) — оборачиваем в прокси
+    try {
+      new URL(sourceUrl);
+      return `${this.proxyBase}?url=${encodeURIComponent(sourceUrl)}`;
+    } catch {
+      // Относительный URL — делаем запрос к текущему API
+      return sourceUrl;
+    }
+  }
+
   parseRss(xmlText: string, source: RssSourceConfig): ParsedFeedItem[] {
     const parser = new DOMParser();
     const doc = parser.parseFromString(xmlText, 'application/xml');
@@ -44,14 +56,17 @@ export class RssParserService {
       const parsedDate = pubDate ? this.normalizeDate(pubDate) : null;
       if (parsedDate && this.isTooOld(parsedDate, source.maxAgeDays)) return;
 
+      // Extract time and place from description
+      const extracted = this.extractTimeAndPlace(description ?? '');
+
       events.push({
         title,
         description: description ? description.slice(0, 800) : '',
         sourceUrl: link,
         date: parsedDate,
-        time: null,
-        place: source.place ?? null,
-        address: source.address ?? null,
+        time: extracted.time ?? null,
+        place: (extracted.place ?? source.place) ?? null,
+        address: (extracted.address ?? source.address) ?? null,
         price: source.price,
         imageUrl: null,
         category: source.category,
@@ -63,7 +78,60 @@ export class RssParserService {
     return events;
   }
 
-  parseJson(jsonText: string, source: RssSourceConfig): ParsedFeedItem[] {
+  /** Parse free-form description to extract time (HH:MM) and place/venue. */
+  private extractTimeAndPlace(text: string): { time?: string; place?: string; address?: string } {
+    const result = { time: null, place: null, address: null };
+    if (!text) return result;
+
+    const lower = text.toLowerCase();
+
+    // --- Time extraction ---
+    const timeMatch = text.match(/\b([01]?\d|2[0-3]):[0-5]\d\b/);
+    if (timeMatch) {
+      const hh = parseInt(timeMatch[1], 10);
+      const mm = timeMatch[2];
+      // Heuristic: the match should not be immediately preceded by 4 digits (year)
+      const ctxStart = text.lastIndexOf(timeMatch[0], timeMatch.index - 1);
+      const before = text.slice(ctxStart, timeMatch.index).trim();
+      if (!/^\d{4}$/.test(before)) {
+        result.time = `${timeMatch[1]}:${mm}`;
+      }
+    }
+
+    // --- Place/Venue extraction ---
+    const placePatterns = [
+      /место[:—-]\s*([^\r\n.!?]{2,120})/i,
+      /площадка[:—-]\s*([^\r\n.!?]{2,120})/i,
+      /venue[:—-]\s*([^\r\n.!?]{2,120})/i,
+      /location[:—-]\s*([^\r\n.!?]{2,120})/i,
+      /в [:—-]\s*([^\r\n.!?]{2,120})(?:\.|,|\n|$)/i,
+    ];
+    for (const pat of placePatterns) {
+      const m = text.match(pat);
+      if (m && m[1].trim()) {
+        result.place = m[1].trim();
+        if (/^[А-Я][а-яё]+\s*$/.test(m[1].trim()) || /^[A-Z][a-z]+\s*$/.test(m[1].trim())) {
+          result.address = m[1].trim();
+        }
+        break;
+      }
+    }
+
+    // If no explicit place found, try to infer from common venue phrases
+    if (!result.place) {
+      const venueMatch = text.match(/в\s+([А-Яа-яё]+\s+[^\r\n.!?]{3,60})(?:\.|,|\n|$)/i);
+      if (venueMatch) {
+        result.place = venueMatch[1].trim();
+      }
+    }
+
+    // Address inference
+    if (result.place && !result.address) {
+      result.address = result.place;
+    }
+
+    return result;
+  }
     let data: unknown;
     try {
       data = JSON.parse(jsonText);
@@ -85,8 +153,8 @@ export class RssParserService {
       if (parsedDate && this.isTooOld(parsedDate, source.maxAgeDays)) return;
 
       const rawTime = raw?.time || raw?.event_time || raw?.time_start;
-      const place = raw?.place || raw?.venue || source.place ?? null;
-      const address = raw?.address || source.address ?? null;
+      const place = (raw?.place || raw?.venue) ?? source.place ?? null;
+      const address = (raw?.address || source.address) ?? null;
 
       events.push({
         title: String(title).trim(),
