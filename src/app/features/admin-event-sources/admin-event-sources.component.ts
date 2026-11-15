@@ -35,6 +35,7 @@ type BatchDraftField = 'title' | 'date' | 'time' | 'place' | 'category' | 'descr
         <h1>Найденные публикации</h1>
         <p>Проверь первоисточник, будущую дату и место. Карточка публикуется в каталоге сразу после оформления — без отдельной очереди модерации.</p>
         <a routerLink="/admin/event-review">Очередь модерации остальных заявок →</a>
+        <a routerLink="/admin/import-monitor">Монитор фонового импорта →</a>
       </header>
 
       <div class="toolbar">

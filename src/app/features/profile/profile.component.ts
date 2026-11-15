@@ -104,6 +104,7 @@ import type { OrganizerSubscriptionOffer, OrganizerSubscriptionStatus } from '..
           <a routerLink="/admin/event-review" queryParamsHandling="preserve">Очередь модерации <span aria-hidden="true">→</span></a>
           <a routerLink="/admin/analytics" queryParamsHandling="preserve">Аналитика пилота <span aria-hidden="true">→</span></a>
           <a routerLink="/admin/bot-messages" queryParamsHandling="preserve">Сообщения боту <span aria-hidden="true">→</span></a>
+          <a routerLink="/admin/import-monitor" queryParamsHandling="preserve">Монитор импорта RSS <span aria-hidden="true">→</span></a>
         </section>
       } @else if (adminToolsLoading()) {
         <p class="admin-check" role="status">Проверяем доступ администратора… Если API просыпается, проверка повторится автоматически.</p>
