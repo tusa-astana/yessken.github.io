@@ -80,6 +80,32 @@ export const RSS_SOURCES: RssSourceConfig[] = [
     maxAgeDays: 60,
     enabled: true,
   },
+  {
+    id: 'rollmove-tg',
+    name: 'Клуб настольных игр RollMove (Telegram)',
+    url: 'https://t.me/RollMove',
+    type: 'rss',
+    category: 'развлечения',
+    hobbyId: 'board-games',
+    place: 'г. Астана',
+    price: null,
+    organizerName: 'RollMove Astana',
+    maxAgeDays: 14,
+    enabled: false,
+  },
+  {
+    id: 'astana-marathon',
+    name: 'Астана Маратон (бег)',
+    url: 'https://almaty-marathon.kz/en/events/city__run_2026/',
+    type: 'rss',
+    category: 'соревнование',
+    hobbyId: 'running',
+    place: 'Астана Square',
+    price: null,
+    organizerName: 'Астана Маратон',
+    maxAgeDays: 60,
+    enabled: false,
+  },
 ];
 
 /** Источники, которые сейчас включены в автоматический импорт. */
