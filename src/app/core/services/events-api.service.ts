@@ -5,6 +5,29 @@ import { TelegramService } from './telegram.service';
 import type { AdminEditableEvent, AdminEventReport, AdminSalesSummary, AnalyticsInsightsSummary, BotMessageLogRow, DailyFunnelSummary, EventItem, EventPromotionInvoice, EventPromotionOffer, FunnelSummaryRow, MeetupCampaignSummaryRow, MeetupDensitySummary, MeetupVenueOption, OrganizerEngagementRow, OrganizerOrderRow, OrganizerSubscriptionOffer, OrganizerSubscriptionStatus, Ticket, TelegramGroupItem, UpdateAdminEventRequest } from '../types/event.model';
 import { environment } from '../../../environments/environment';
 
+export interface TransportEventItem {
+  id: string;
+  title: string;
+  description: string;
+  date: string;
+  time: string;
+  place: string;
+  address: string;
+  lat: number;
+  lng: number;
+  category: string;
+  price: number | null;
+  imageUrl: string;
+  isPublicEvent: boolean;
+  telegramSourceUrl?: string;
+  ticketUrl?: string;
+  ticketSellerName?: string;
+  organizerName: string;
+  organizerEmail?: string;
+  organizerPhone?: string;
+  link?: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class EventsApiService {
   private readonly base = environment.apiUrl?.replace(/\/$/, '') ?? '';
@@ -238,6 +261,37 @@ export class EventsApiService {
         this.eventSubmissionRateLimited.set(error.status === 429);
         return of(null);
       })
+    );
+  }
+
+  sendEventAnnouncement(event: TransportEventItem): Observable<void> {
+    if (this.apiDisabled) return of(void 0);
+    const body: TransportEventItem = {
+      id: event.id,
+      title: event.title,
+      description: event.description,
+      date: event.date,
+      time: event.time,
+      place: event.place,
+      address: event.address,
+      lat: event.lat,
+      lng: event.lng,
+      category: event.category,
+      price: event.price,
+      imageUrl: event.imageUrl,
+      isPublicEvent: event.isPublicEvent,
+      telegramSourceUrl: event.telegramSourceUrl,
+      ticketUrl: event.ticketUrl,
+      ticketSellerName: event.ticketSellerName,
+      organizerName: event.organizerName,
+      organizerEmail: event.organizerEmail,
+      organizerPhone: event.organizerPhone,
+      link: `t.me/tusa_astana?event=${encodeURIComponent(event.id)}`,
+    };
+    return this.http.post<void>(`${this.base}/api/send-event`, body, {
+      headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
+    }).pipe(
+      catchError(() => of(void 0))
     );
   }
 

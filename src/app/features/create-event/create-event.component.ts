@@ -370,6 +370,28 @@ export class CreateEventComponent {
       if (!created) { this.submitError.set(true); return; }
       this.success.set(true);
       this.submittedEventId.set(created.id);
+      void this.data.sendEventAnnouncement({
+        id: created.id,
+        title: created.title,
+        description: created.description ?? '',
+        date: created.date,
+        time: created.time,
+        place: created.place,
+        address: created.address,
+        lat: created.lat,
+        lng: created.lng,
+        category: created.category,
+        price: created.price,
+        imageUrl: created.imageUrl || this.defaultCover(created.category),
+        isPublicEvent: created.isPublicEvent,
+        telegramSourceUrl: created.telegramSourceUrl,
+        ticketUrl: created.ticketUrl,
+        ticketSellerName: created.ticketSellerName,
+        organizerName: created.organizerName,
+        organizerEmail: created.organizerEmail,
+        organizerPhone: created.organizerPhone,
+        link: `t.me/tusa_astana?event=${encodeURIComponent(created.id)}`,
+      });
     });
   }
 

@@ -35,6 +35,39 @@ export interface EventItem {
   ticketCategories?: TicketCategory[];
 }
 
+export interface TransportEventItem {
+  id: string;
+  title: string;
+  description: string;
+  date: string;
+  time: string;
+  place: string;
+  address: string;
+  lat: number;
+  lng: number;
+  category: string;
+  hobbyId?: string;
+  sourceUrl?: string;
+  sourceVerifiedAtUtc?: string | null;
+  price: number | null;
+  imageUrl: string;
+  isPublicEvent?: boolean;
+  telegramSourceUrl?: string;
+  ticketUrl?: string;
+  ticketSellerName?: string;
+  organizerName: string;
+  organizerEmail?: string;
+  organizerPhone?: string;
+  organizerTelegramId?: number;
+  status?: 'pending' | 'approved' | 'rejected';
+  createdAt?: string;
+  isDemo?: boolean;
+  ticketSalesEnabled?: boolean;
+  featured?: boolean;
+  featuredUntil?: string;
+  link?: string;
+}
+
 export interface AdminEditableEvent {
   id: string;
   title: string;

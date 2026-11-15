@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable, of, switchMap } from 'rxjs';
 import { MockDataService } from './mock-data.service';
 import { EventsApiService } from './events-api.service';
-import type { AdminEventReport, AdminSalesSummary, EventItem, EventPromotionInvoice, EventPromotionOffer, OrganizerEngagementRow, OrganizerOrderRow, OrganizerSubscriptionOffer, OrganizerSubscriptionStatus, Ticket, TelegramGroupItem } from '../types/event.model';
+import type { TransportEventItem, AdminEventReport, AdminSalesSummary, EventItem, EventPromotionInvoice, EventPromotionOffer, OrganizerEngagementRow, OrganizerOrderRow, OrganizerSubscriptionOffer, OrganizerSubscriptionStatus, Ticket, TelegramGroupItem } from '../types/event.model';
 import { environment } from '../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
@@ -105,6 +105,10 @@ export class DataService {
   createEvent(event: Omit<EventItem, 'id'>): Observable<EventItem | null> {
     if (this.useApi) return this.api.createEvent(event);
     return of(this.mock.addEvent(event));
+  }
+
+  sendEventAnnouncement(event: TransportEventItem): Observable<void> {
+    return this.api.sendEventAnnouncement(event);
   }
 
   getTelegramGroups(): Observable<TelegramGroupItem[]> {
